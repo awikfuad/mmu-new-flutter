@@ -1,0 +1,95 @@
+Berdasarkan dokumen PRD **MMU A-44 (Sistem Informasi Madrasah & Pondok)**, aplikasi Flutter dapat dibagi menjadi **dua peran aplikasi utama** (Aplikasi Guru/Admin dan Aplikasi Mobile Santri/Wali) beserta komponen teknis pendukungnya:
+
+---
+
+## 📱 1. Aplikasi E-Presensi Asatidz (Sisi Guru & Admin)
+
+Aplikasi ini difokuskan untuk mempermudah operasional harian pengajar di lapangan:
+
+* **Autentikasi Unified & Auto-Refresh Token**: Login menggunakan username/password guru atau admin yang dilengkapi dengan *Dio Interceptor* untuk pembaruan *access token* otomatis tanpa *logout* paksa.
+
+
+* **Dashboard Jadwal Mengajar Hari Ini**: Menampilkan daftar kelas dan jam mengajar guru pada hari tersebut (`/schedules/my-today`) yang tersaring otomatis berdasarkan lembaganya (`MADRASAH` atau `TPQ`).
+
+
+* **Presensi KBM (Kelas & Sesi)**: Pencatatan kehadiran santri per sesi (Subuh, Pagi, Siang, Malam) dengan status HADIR, SAKIT, IZIN, atau ALPA.
+
+
+* **Modul Guru Piket / Badal**:
+* Melihat kelas yang kosong/membutuhkan guru pengganti.
+
+
+* Fitur **Klaim Piket** (`claim-piket`) untuk mengambil alih jadwal mengajar dan langsung mencatat absensi kelas tersebut.
+
+
+
+
+* **Presensi Kegiatan & QR Scanner Istighosah**:
+* Pemindaian QR Code atau input NIM manual untuk absensi kegiatan massal/istighosah.
+
+
+* Presensi khusus kehadiran sesama guru/asatidz pada kegiatan lembaga.
+
+
+
+
+* **Input Penilaian & Perilaku Murid**: Form ringkas untuk memasukkan Nilai Harian mata pelajaran serta penilaan 3 aspek perilaku (Kerajinan, Kedisiplinan, Kebersihan).
+
+
+* **Informasi Siswi Haid**: Akses cepat bagi guru untuk melihat daftar siswi yang sedang haid agar pengecekan kehadiran pada kegiatan ibadah/istighosah menjadi akurat.
+
+
+
+---
+
+## 🎒 2. Portal Santri & Orang Tua (Fitur Rencana C.10)
+
+Diproyeksikan sebagai aplikasi mobile santri/wali murid (`/students/me/*`):
+
+| Modul Fitur | Deskripsi Fungsi di Flutter |
+| --- | --- |
+| **Login Santri** | Login menggunakan NIM + Tanggal Lahir (atau password bcrypt).
+
+ |
+| **Kartu & Profil Santri** | Menampilkan identitas santri, foto, NISN/NIM, serta kelas dan lembaga yang aktif.
+
+ |
+| **Monitoring Kehadiran** | Transparansi riwayat presensi KBM harian dan kehadiran kegiatan/istighosah.
+
+ |
+| **Keuangan & Tabungan** | * Cek saldo dan mutasi tabungan (setoran/penarikan).
+
+<br>
+
+<br>* **Bayar Iuran dari Tabungan**: Fitur transaksi atomik untuk membayar tagihan iuran langsung memotong saldo tabungan.
+
+ |
+| **Pengajuan Izin / Sakit (A.3)** | Formulir pengajuan surat izin/sakit dari wali murid (lengkap dengan foto/lampiran) yang terintegrasi langsung ke sistem rekap absensi.
+
+ |
+| **Papan Pengumuman (C.9)** | Pusat informasi dari pengurus/madrasah (akademik, kegiatan, tagihan).
+
+ |
+| **Kalender Akademik Hijriyah (B.5)** | Informasi agenda pesantren, hari libur, dan jadwal ujian berbasis kalender Hijriyah.
+
+ |
+
+---
+
+## 🛠️ 3. Komponen & Paket Flutter yang Direkomendasikan
+
+Untuk mengimplementasikan fitur-fitur di atas sesuai arsitektur backend, paket Flutter berikut sangat disarankan:
+
+* **`dio`**: Mengelola request HTTP, menambahkan *Header Bearer Token*, dan menangani auto-refresh JWT via *interceptor*.
+
+
+* **`mobile_scanner` / `qr_code_scanner**`: Untuk memindai QR Code presensi kegiatan/istighosah secara *real-time* via kamera.
+
+
+* **`flutter_secure_storage`**: Menyimpan `accessToken` dan `refreshToken` secara aman di perangkat lokal.
+
+
+* **`intl` / `@umalqura/core**`: Format tanggal Masehi dan konversi tampilan Kalender Hijriyah.
+
+
+* **`provider` / `flutter_bloc` / `riverpod**`: *State management* untuk mengelola status *loading*, sinkronisasi transaksi tabungan, dan jadwal piket.

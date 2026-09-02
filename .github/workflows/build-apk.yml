@@ -1,0 +1,112 @@
+name: Build APK (Split per ABI)
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: 'Base URL API backend (contoh: https://backend.vercel.app/api). Kosong = default bawaan aplikasi.'
+        required: false
+        default: ''
+        type: string
+
+env:
+  # API_URL diambil dari input manual / secret, kosong jika tidak diatur.
+  API_URL: ${{ inputs.api_url || secrets.API_URL || '' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Cegah race: gunakan satu runner per job ini
+    concurrency:
+      group: flutter-build-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Set up Java (temurin 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Decode keystore (jika secrets tersedia)
+        id: keystore
+        run: |
+          if [ -n "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+            echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
+            echo "signed=release" >> "$GITHUB_OUTPUT"
+          else
+            echo "signed=debug" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Signing::Tanpa secret ANDROID_KEYSTORE_BASE64, APK ditandatangani dengan kunci DEBUG (bukan untuk rilis Play Store)."
+          fi
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      # Jika ada file key.properties (dari release signing) -> gunakan; jika tidak, gradle
+      # memakai debug signing yang sudah dikonfigurasi di build.gradle.kts
+      - name: Buat key.properties untuk release signing
+        if: steps.keystore.outputs.signed == 'release'
+        run: |
+          cat > android/key.properties <<EOF
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storeFile=upload-keystore.jks
+          EOF
+
+      - name: Build APK (release, split per ABI)
+        run: |
+          if [ -n "$API_URL" ]; then
+            echo "Menggunakan API_URL: $API_URL"
+            flutter build apk --release --split-per-abi --dart-define=API_URL="$API_URL"
+          else
+            echo "API_URL kosong, pakai default aplikasi."
+            flutter build apk --release --split-per-abi
+          fi
+        env:
+          API_URL: ${{ env.API_URL }}
+
+      - name: Rename & kumpulkan APK
+        run: |
+          mkdir -p artifacts
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//' | cut -d+ -f1)
+          found=0
+          for f in build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/app/outputs/flutter-apk/app-x86_64-release.apk; do
+            if [ -f "$f" ]; then
+              abi=$(basename "$f" | sed 's/^app-//; s/-release\.apk$//')
+              cp "$f" "artifacts/MMU-A44-${abi}-v${VERSION}.apk"
+              found=1
+            fi
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "::error::Tidak ada APK yang dihasilkan. Periksa log build."
+            exit 1
+          fi
+          ls -la artifacts
+
+      - name: Upload APK (artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: MMU-A44-apk-split
+          path: artifacts/*.apk
+          if-no-files-found: error
+
+      - name: Upload APK ke Release (hanya saat tag v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*.apk
