@@ -4,6 +4,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/dashboard_guru_provider.dart';
 import 'gaji_guru_page.dart';
 import 'guru_piket_page.dart';
+import 'input_nilai_harian_page.dart';
 import 'kegiatan_internal_guru_page.dart';
 import 'kegiatan_non_akademik_page.dart';
 import 'pembayaran_page.dart';
@@ -99,6 +100,14 @@ class _DashboardPageState extends State<DashboardPage> {
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KegiatanInternalGuruPage())),
             ),
             _buildActionCard(
+              context,
+              icon: Icons.receipt_long_outlined,
+              title: 'Riwayat Bisyaroh',
+              subtitle: 'Slip Pendapatan',
+              color: getVibrantColor(const Color(0xFFB45309), const Color(0xFFF59E0B)),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GajiGuruPage())),
+            ),
+             _buildActionCard(
               context,
               icon: Icons.receipt_long_outlined,
               title: 'Riwayat Bisyaroh',
@@ -381,17 +390,119 @@ class _DashboardPageState extends State<DashboardPage> {
   void _openPresensiFromSchedule(dynamic s, String subject, String className, String session, bool isPiket) {
     final scheduleId = int.tryParse('${s['schedule_id'] ?? s['id']}');
     if (scheduleId == null) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PresensiKelasPage(
-          scheduleId: scheduleId,
-          classroomId: int.tryParse('${s['classroom_id']}') ?? 0,
-          subjectName: '$subject${isPiket ? ' (Badal)' : ''}',
-          className: className,
-          sessionName: session.isNotEmpty ? session : 'PAGI',
-        ),
+    final classroomId = int.tryParse('${s['classroom_id']}') ?? 0;
+    final rombelId = int.tryParse('${s['rombel_id'] ?? ''}');
+    final subjectId = int.tryParse('${s['subject_id'] ?? ''}');
+    final jenjangId = int.tryParse('${s['jenjang_id'] ?? ''}');
+    final today = DateTime.now();
+    final tanggal =
+        '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      builder: (ctx) {
+        final colorScheme = Theme.of(ctx).colorScheme;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: colorScheme.outlineVariant,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  subject,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '$className · $session${isPiket ? ' · Badal' : ''}',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Opsi Presensi KBM
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.green.withAlpha(31),
+                    child: const Icon(Icons.menu_book_outlined, color: Colors.green, size: 20),
+                  ),
+                  title: const Text('Isi Presensi', style: TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Kehadiran murid (H/S/I/A)', style: TextStyle(fontSize: 12)),
+                  trailing: const Icon(Icons.chevron_right),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PresensiKelasPage(
+                          scheduleId: scheduleId,
+                          classroomId: classroomId,
+                          subjectName: '$subject${isPiket ? ' (Badal)' : ''}',
+                          className: className,
+                          sessionName: session.isNotEmpty ? session : 'PAGI',
+                          rombelId: rombelId,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 4),
+                // Opsi Input Nilai
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.amber.withAlpha(31),
+                    child: const Icon(Icons.grade_outlined, color: Colors.amber, size: 20),
+                  ),
+                  title: const Text('Input Nilai', style: TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Nilai harian murid (0–100)', style: TextStyle(fontSize: 12)),
+                  trailing: const Icon(Icons.chevron_right),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => InputNilaiHarianPage(
+                          scheduleId: scheduleId,
+                          classroomId: classroomId,
+                          subjectName: subject,
+                          className: className,
+                          tanggal: tanggal,
+                          subjectId: subjectId,
+                          jenjangId: jenjangId,
+                          rombelId: rombelId,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

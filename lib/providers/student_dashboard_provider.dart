@@ -16,6 +16,7 @@ class StudentDashboardProvider extends ChangeNotifier {
   String? get error => _error;
   String get lembaga => _profile?['account']?['lembaga'] ?? 'ALL';
   String get className => _profile?['account']?['class_name'] ?? '-';
+  String get namaRombel => _profile?['account']?['nama_rombel'] ?? '-';
   String get name => _profile?['name'] ?? 'Santri';
   String get nim => _profile?['nim'] ?? '-';
   String? get tanggalLahir => _profile?['tanggal_lahir'];

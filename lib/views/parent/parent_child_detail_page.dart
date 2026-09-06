@@ -235,6 +235,14 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                     fontSize: 11,
                   ),
                 ),
+                if ((profile?['nama_rombel'] ?? '').toString().isNotEmpty)
+                  Text(
+                    'Rombel: ${profile?['nama_rombel']}',
+                    style: TextStyle(
+                      color: cs.onPrimary.withValues(alpha: 0.85),
+                      fontSize: 11,
+                    ),
+                  ),
               ],
             ),
           ),
@@ -484,6 +492,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
         _infoRow('Tempat, Tgl Lahir', ttl),
         _infoRow('Tahun Masuk', p['tahun_masuk'] ?? '-'),
         _infoRow('Kelas', p['class_name'] ?? '-'),
+        if ((p['nama_rombel'] ?? '').toString().isNotEmpty) _infoRow('Rombel', p['nama_rombel'] ?? '-'),
         _infoRow('Asal Lembaga', (p['sumber'] ?? '-').toString().toUpperCase()),
         _infoRow('Lembaga Akun', p['account_lembaga'] ?? '-'),
         if ((p['kk'] ?? '').toString().isNotEmpty) _infoRow('No. KK', p['kk']),
@@ -638,47 +647,183 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
     );
   }
 
-  Widget _buildJadwalTab(ParentProvider parent, ColorScheme cs) {
-    final data = parent.childJadwal;
-    if (data.isEmpty) return _emptyState(cs, 'Belum ada data jadwal');
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: data.length,
-      itemBuilder: (context, i) {
-        final item = data[i];
-        final dayStr = (item['day_of_week'] ?? '?').toString();
-        final shortDay = dayStr.length >= 2 ? dayStr.substring(0, 2) : dayStr;
+ Widget _buildJadwalTab(ParentProvider parent, ColorScheme cs) {
+  final rawData = parent.childJadwal;
+  if (rawData.isEmpty) return _emptyState(cs, 'Belum ada data jadwal');
 
-        return Card(
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: cs.primaryContainer,
-              child: Text(
-                shortDay,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: cs.onPrimaryContainer,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-            title: Text(
-              item['subject_name'] ?? '-',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(
-              '${item['session_name'] ?? ''} \u2022 ${item['start_time'] ?? ''} - ${item['end_time'] ?? ''}'
-              '\nGuru: ${item['guru'] ?? '-'}',
-              style: const TextStyle(fontSize: 12),
-            ),
-            isThreeLine: true,
-          ),
-        );
-      },
-    );
+  // 1. Kamus pemetaan nama hari
+  final Map<String, String> dayNames = {
+    '1': 'Senin', 'MONDAY': 'Senin', 'SENIN': 'Senin',
+    '2': 'Selasa', 'TUESDAY': 'Selasa', 'SELASA': 'Selasa',
+    '3': 'Rabu', 'WEDNESDAY': 'Rabu', 'RABU': 'Rabu',
+    '4': 'Kamis', 'THURSDAY': 'Kamis', 'KAMIS': 'Kamis',
+    '5': 'Jumat', 'FRIDAY': 'Jumat', 'JUMAT': 'Jumat', 'JUM\'AT': 'Jumat',
+    '6': 'Sabtu', 'SATURDAY': 'Sabtu', 'SABTU': 'Sabtu',
+    '7': 'Ahad', 'SUNDAY': 'Ahad', 'Ahad': 'Ahad',
+  };
+
+  // 2. Kelompokkan data berdasarkan nama hari
+  final Map<String, List<Map<String, dynamic>>> groupedData = {};
+
+  for (var item in rawData) {
+    final rawDay = (item['day_of_week'] ?? 'Lainnya').toString().toUpperCase().trim();
+    final dayName = dayNames[rawDay] ?? rawDay;
+
+    if (!groupedData.containsKey(dayName)) {
+      groupedData[dayName] = [];
+    }
+    groupedData[dayName]!.add(item);
   }
 
+  // 3. Urutan hari khusus diawali dari hari JUMAT
+  final dayOrder = ['Jumat', 'Sabtu', 'Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis'];
+  final sortedKeys = groupedData.keys.toList()
+    ..sort((a, b) {
+      int indexA = dayOrder.indexOf(a);
+      int indexB = dayOrder.indexOf(b);
+      if (indexA == -1) indexA = 99;
+      if (indexB == -1) indexB = 99;
+      return indexA.compareTo(indexB);
+    });
+
+  return ListView.builder(
+    padding: const EdgeInsets.all(16),
+    itemCount: sortedKeys.length,
+    itemBuilder: (context, index) {
+      final day = sortedKeys[index];
+      final items = groupedData[day]!;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // --- Header Hari ---
+          Padding(
+            padding: EdgeInsets.only(top: index == 0 ? 0 : 16, bottom: 8),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: cs.primary,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  day,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: cs.primary,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Divider(
+                    color: cs.outlineVariant.withValues(alpha: 0.5),
+                    height: 1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // --- Daftar Mata Pelajaran ---
+          ...items.map((item) {
+            final session = item['session_name'] ?? '';
+            final startTime = item['start_time'] ?? '';
+            final endTime = item['end_time'] ?? '';
+            final timeRange = '$startTime - $endTime'.trim();
+
+            return Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: cs.outlineVariant.withValues(alpha: 0.4),
+                ),
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
+                leading: CircleAvatar(
+                  backgroundColor: cs.primaryContainer,
+                  child: Icon(
+                    Icons.book_outlined,
+                    color: cs.onPrimaryContainer,
+                    size: 20,
+                  ),
+                ),
+                title: Text(
+                  item['subject_name'] ?? '-',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.access_time,
+                            size: 14,
+                            color: cs.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            session.isNotEmpty && timeRange != '-'
+                                ? '$session \u2022 $timeRange'
+                                : session.isNotEmpty
+                                    ? session
+                                    : timeRange,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.person_outline,
+                            size: 14,
+                            color: cs.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              'Guru: ${item['guru'] ?? '-'}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: cs.onSurfaceVariant,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ],
+      );
+    },
+  );
+}
   Widget _buildKeuanganTab(ParentProvider parent, ColorScheme cs) {
     final tabungan = parent.childTabungan;
     final pembayaran = parent.childPembayaran;
@@ -702,15 +847,15 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+               Text(
                 'Saldo Tabungan',
-                style: TextStyle(color: Colors.white70, fontSize: 12),
+                style: TextStyle(color: cs.surface, fontSize: 12),
               ),
               const SizedBox(height: 4),
               Text(
                 formatRp(balance),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: cs.surface,
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
                 ),

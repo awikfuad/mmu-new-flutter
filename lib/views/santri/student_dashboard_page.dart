@@ -255,6 +255,8 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
                   formatRp(dash.balance),
                 ),
               ),
+              if (dash.namaRombel.isNotEmpty && dash.namaRombel != '-')
+                Expanded(child: _buildProfileStat('Rombel', dash.namaRombel)),
               if (dash.tanggalLahir != null && dash.tanggalLahir!.isNotEmpty)
                 Expanded(
                   child: _buildProfileStat('Tgl Lahir', dash.tanggalLahir!),

@@ -34,6 +34,7 @@ class _GuruPiketBody extends StatelessWidget {
           subjectName: '${schedule['subject_name'] ?? '-'} (Badal)',
           className: classroom,
           sessionName: schedule['session_name'] ?? 'PAGI',
+          rombelId: _toInt(schedule['rombel_id']),
         ),
       ),
     );

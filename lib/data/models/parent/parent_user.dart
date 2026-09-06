@@ -25,6 +25,7 @@ class ParentChildLink {
   final String? studentName;
   final int? classroomId;
   final String? className;
+  final String? namaRombel;
   final String? studentLembaga;
 
   const ParentChildLink({
@@ -36,6 +37,7 @@ class ParentChildLink {
     this.studentName,
     this.classroomId,
     this.className,
+    this.namaRombel,
     this.studentLembaga,
   });
 
@@ -48,6 +50,7 @@ class ParentChildLink {
         studentName: j['student_name']?.toString() ?? j['name']?.toString(),
         classroomId: j['classroom_id'] != null ? int.tryParse('${j['classroom_id']}') : null,
         className: j['class_name']?.toString(),
+        namaRombel: j['nama_rombel']?.toString(),
         studentLembaga: j['student_lembaga']?.toString() ?? j['lembaga']?.toString(),
       );
 }
@@ -57,6 +60,7 @@ class ChildProfile {
   final String name;
   final int? classroomId;
   final String? className;
+  final String? namaRombel;
   final int? jenjangId;
   final String? tanggalLahir;
   final String? namaAyah;
@@ -67,12 +71,13 @@ class ChildProfile {
   final String? alamat;
   // ... other wali fields
   final Map<String, dynamic> raw;
-  const ChildProfile({required this.nim, required this.name, this.classroomId, this.className, this.jenjangId, this.tanggalLahir, this.namaAyah, this.namaIbu, this.namaWali, this.hubunganWali, this.teleponWali, this.alamat, required this.raw});
+  const ChildProfile({required this.nim, required this.name, this.classroomId, this.className, this.namaRombel, this.jenjangId, this.tanggalLahir, this.namaAyah, this.namaIbu, this.namaWali, this.hubunganWali, this.teleponWali, this.alamat, required this.raw});
   factory ChildProfile.fromJson(Map<String, dynamic> j) => ChildProfile(
         nim: (j['nim'] ?? j['student_nim'] ?? '').toString(),
         name: (j['name'] ?? j['student_name'] ?? '').toString(),
         classroomId: j['classroom_id'] != null ? int.tryParse('${j['classroom_id']}') : null,
         className: j['class_name']?.toString(),
+        namaRombel: j['nama_rombel']?.toString(),
         jenjangId: j['jenjang_id'] != null ? int.tryParse('${j['jenjang_id']}') : null,
         tanggalLahir: j['tanggal_lahir']?.toString(),
         namaAyah: j['nama_ayah']?.toString(),

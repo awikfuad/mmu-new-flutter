@@ -9,6 +9,7 @@ class PresensiKelasPage extends StatelessWidget {
   final String subjectName;
   final String className;
   final String sessionName;
+  final int? rombelId;
 
   const PresensiKelasPage({
     super.key,
@@ -17,12 +18,13 @@ class PresensiKelasPage extends StatelessWidget {
     required this.subjectName,
     required this.className,
     this.sessionName = 'PAGI',
+    this.rombelId,
   });
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => PresensiKelasProvider()..fetchStudents(classroomId, sessionName: sessionName),
+      create: (_) => PresensiKelasProvider()..fetchStudents(classroomId, sessionName: sessionName, rombelId: rombelId),
       child: _PresensiKelasBody(
         scheduleId: scheduleId,
         classroomId: classroomId,

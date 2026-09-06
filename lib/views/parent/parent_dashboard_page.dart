@@ -312,6 +312,8 @@ class _ParentDashboardPageState extends State<ParentDashboardPage> {
     final nim = child['student_nim'] ?? child['nim'] ?? '';
     final name = child['student_name'] ?? child['name'] ?? 'Tanpa Nama';
     final className = child['class_name'] ?? '-';
+    final namaRombel = child['nama_rombel']?.toString() ?? '';
+    final rombelSuffix = namaRombel.trim().isNotEmpty ? ' • Rombel: $namaRombel' : '';
     final sumber = (child['sumber'] ?? 'madrasah').toString().toUpperCase();
     final hubungan = child['hubungan'] ?? '';
     final String? fotoUrl = child['foto']?.toString();
@@ -379,7 +381,7 @@ class _ParentDashboardPageState extends State<ParentDashboardPage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'NIM: $nim \u2022 Kelas: $className',
+                            'NIM: $nim \u2022 Kelas: $className$rombelSuffix',
                             style: TextStyle(
                               fontSize: 12,
                               color: cs.onSurface..withValues(alpha: 0.6),
@@ -460,7 +462,7 @@ class _ParentDashboardPageState extends State<ParentDashboardPage> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Kelas: $className',
+                      'Kelas: $className$rombelSuffix',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(

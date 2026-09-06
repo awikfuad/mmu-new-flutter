@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/presensi_saya_provider.dart';
+import 'input_nilai_harian_page.dart';
 import 'presensi_kelas_page.dart';
 
 class PresensiSayaPage extends StatelessWidget {
@@ -29,27 +30,121 @@ class _PresensiSayaBody extends StatelessWidget {
         child: Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: color)),
       );
 
-  Future<void> _openPresensi(BuildContext context, dynamic schedule) async {
+  void _openScheduleOptions(BuildContext context, dynamic schedule) {
     final scheduleId = _toInt(schedule['schedule_id']) ?? _toInt(schedule['id']);
     if (scheduleId == null) return;
 
     final isPiket = _isPiket(schedule);
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PresensiKelasPage(
-          scheduleId: scheduleId,
-          classroomId: _toInt(schedule['classroom_id']) ?? 0,
-          subjectName:
-              '${schedule['subject_name'] ?? '-'}${isPiket ? ' (Badal)' : ''}',
-          className: schedule['class_name']?.toString() ?? '-',
-          sessionName: schedule['session_name']?.toString() ?? 'PAGI',
-        ),
-      ),
-    );
+    final subject = (schedule['subject_name'] ?? '-').toString();
+    final className = (schedule['class_name'] ?? '-').toString();
+    final session = (schedule['session_name'] ?? 'PAGI').toString();
+    final classroomId = _toInt(schedule['classroom_id']) ?? 0;
+    final rombelId = _toInt(schedule['rombel_id']);
+    final subjectId = _toInt(schedule['subject_id']);
+    final jenjangId = _toInt(schedule['jenjang_id']);
+    final today = DateTime.now();
+    final tanggal =
+        '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
-    if (!context.mounted) return;
-    context.read<PresensiSayaProvider>().load();
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: cs.outlineVariant,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  subject,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: cs.onSurface),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '$className · $session${isPiket ? ' · Badal' : ''}',
+                  style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.green.withAlpha(31),
+                    child: const Icon(Icons.menu_book_outlined, color: Colors.green, size: 20),
+                  ),
+                  title: const Text('Isi Presensi', style: TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Kehadiran murid (H/S/I/A)', style: TextStyle(fontSize: 12)),
+                  trailing: const Icon(Icons.chevron_right),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PresensiKelasPage(
+                          scheduleId: scheduleId,
+                          classroomId: classroomId,
+                          subjectName: '$subject${isPiket ? ' (Badal)' : ''}',
+                          className: className,
+                          sessionName: session,
+                          rombelId: rombelId,
+                        ),
+                      ),
+                    ).then((_) {
+                      if (context.mounted) context.read<PresensiSayaProvider>().load();
+                    });
+                  },
+                ),
+                const SizedBox(height: 4),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.amber.withAlpha(31),
+                    child: const Icon(Icons.grade_outlined, color: Colors.amber, size: 20),
+                  ),
+                  title: const Text('Input Nilai', style: TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Nilai harian murid (0–100)', style: TextStyle(fontSize: 12)),
+                  trailing: const Icon(Icons.chevron_right),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => InputNilaiHarianPage(
+                          scheduleId: scheduleId,
+                          classroomId: classroomId,
+                          subjectName: subject,
+                          className: className,
+                          tanggal: tanggal,
+                          subjectId: subjectId,
+                          jenjangId: jenjangId,
+                          rombelId: rombelId,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -177,7 +272,7 @@ class _PresensiSayaBody extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          onTap: () => _openPresensi(context, s),
+          onTap: () => _openScheduleOptions(context, s),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(

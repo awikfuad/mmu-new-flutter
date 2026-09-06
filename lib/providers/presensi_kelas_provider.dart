@@ -50,7 +50,7 @@ class PresensiKelasProvider extends ChangeNotifier {
         'total': totalCount,
       };
 
-  Future<void> fetchStudents(int classroomId, {String sessionName = 'PAGI'}) async {
+  Future<void> fetchStudents(int classroomId, {String sessionName = 'PAGI', int? rombelId}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -73,6 +73,7 @@ class PresensiKelasProvider extends ChangeNotifier {
               m != null &&
               m['classroom_id'] != null &&
               int.tryParse(m['classroom_id'].toString()) == classroomId &&
+              (rombelId == null || (m['rombel_id'] != null && int.tryParse(m['rombel_id'].toString()) == rombelId)) &&
               (m['status'] ?? 1) == 1)
           .toList();
 
