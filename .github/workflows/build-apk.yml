@@ -15,8 +15,10 @@ on:
         type: string
 
 env:
-  # API_URL diambil dari input manual / secret, kosong jika tidak diatur.
-  API_URL: ${{ inputs.api_url || secrets.API_URL || '' }}
+  # API_URL diambil dari input manual / variable / secret, kosong jika tidak diatur.
+  API_URL: ${{ inputs.api_url || vars.API_URL || secrets.API_URL || '' }}
+  # Client ID web Google (public) utk login Google — dari repo Variable, kosong jika tidak diatur.
+  GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID || secrets.GOOGLE_CLIENT_ID || '' }}
 
 jobs:
   build:
@@ -70,15 +72,23 @@ jobs:
 
       - name: Build APK (release, split per ABI)
         run: |
+          DART=""
           if [ -n "$API_URL" ]; then
             echo "Menggunakan API_URL: $API_URL"
-            flutter build apk --release --split-per-abi --dart-define=API_URL="$API_URL"
+            DART="--dart-define=API_URL=$API_URL"
           else
             echo "API_URL kosong, pakai default aplikasi."
-            flutter build apk --release --split-per-abi
           fi
+          if [ -n "$GOOGLE_CLIENT_ID" ]; then
+            echo "Menggunakan GOOGLE_CLIENT_ID (login Google aktif, mode Guru)"
+            DART="$DART --dart-define=GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID"
+          else
+            echo "GOOGLE_CLIENT_ID kosong, tombol login Google tidak ditampilkan."
+          fi
+          flutter build apk --release --split-per-abi $DART
         env:
           API_URL: ${{ env.API_URL }}
+          GOOGLE_CLIENT_ID: ${{ env.GOOGLE_CLIENT_ID }}
 
       - name: Rename & kumpulkan APK
         run: |
