@@ -107,14 +107,14 @@ class _DashboardPageState extends State<DashboardPage> {
               color: getVibrantColor(const Color(0xFFB45309), const Color(0xFFF59E0B)),
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GajiGuruPage())),
             ),
-             _buildActionCard(
-              context,
-              icon: Icons.receipt_long_outlined,
-              title: 'Riwayat Bisyaroh',
-              subtitle: 'Slip Pendapatan',
-              color: getVibrantColor(const Color(0xFFB45309), const Color(0xFFF59E0B)),
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GajiGuruPage())),
-            ),
+            //  _buildActionCard(
+            //   context,
+            //   icon: Icons.receipt_long_outlined,
+            //   title: 'Riwayat Bisyaroh',
+            //   subtitle: 'Slip Pendapatan',
+            //   color: getVibrantColor(const Color(0xFFB45309), const Color(0xFFF59E0B)),
+            //   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GajiGuruPage())),
+            // ),
             if (dash.isAdmin) ...[
               _buildActionCard(
                 context,

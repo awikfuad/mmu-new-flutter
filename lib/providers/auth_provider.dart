@@ -27,17 +27,83 @@ class AuthProvider extends ChangeNotifier {
   String? get userLembaga => _user?['lembaga'];
 
   Future<void> init() async {
+    // Saat interceptor mendeteksi sesi tak bisa dipulihkan → paksa kembali ke login.
+    ApiService.onSessionExpired = _forceSessionExpired;
+
     final token = await LocalStorage.getAccessToken();
-    if (token != null) {
-      _user = await LocalStorage.getUser();
-      _isLoggedIn = _user != null;
-      // Jika token ada tapi user hilang (corrupt prefs), bersihkan agar tidak stuck.
-      if (_user == null) {
-        await LocalStorage.clearAuth();
-        _isLoggedIn = false;
-      }
+    if (token == null) {
+      _finishInit();
+      return;
     }
+
+    final user = await LocalStorage.getUser();
+    if (user == null) {
+      // Token ada tapi user hilang (corrupt prefs), bersihkan agar tidak stuck.
+      await LocalStorage.clearAuth();
+      _finishInit();
+      return;
+    }
+
+    _user = user;
+    _isLoggedIn = true;
+
+    // Validasi sesi: pastikan token masih berlaku di server & identitas user diketahui.
+    if (!await _restoreSession()) {
+      // Bersihkan token basi agar restart berikutnya tidak mengulang validasi gagal.
+      await LocalStorage.clearAuth();
+      _forceSessionExpired();
+    }
+
+    _finishInit();
+  }
+
+  /// Post /auth/refresh-token utk memvalidasi & memperbarui sesi saat app dibuka.
+  /// Return true bila sesi dipertahankan. Return false bila server menolak sesi.
+  Future<bool> _restoreSession() async {
+    final refreshToken = await LocalStorage.getRefreshToken();
+    if (refreshToken == null) return false;
+
+    try {
+      final response = await _api.dio.post(
+        '/auth/refresh-token',
+        data: {'refreshToken': refreshToken},
+      );
+
+      final data = response.data;
+      final accessToken = data?['accessToken']?.toString();
+      if (accessToken == null) return false;
+
+      final newRefresh =
+          data['refreshToken']?.toString() ?? refreshToken;
+      await LocalStorage.saveAuthTokens(accessToken, newRefresh);
+
+      // Sinkronkan identitas user terbaru dari server (bila disertakan).
+      final freshUser = data['user'];
+      if (freshUser is Map) {
+        final merged = {...?_user, ...Map<String, dynamic>.from(freshUser)};
+        await LocalStorage.saveUser(merged);
+        _user = merged;
+      }
+      return true;
+    } on DioException catch (e) {
+      // Server menolak token (mati/revoked) → sesi berakhir.
+      if (e.response != null) return false;
+      // Error jaringan/timeout → pertahankan sesi (network mungkin pulih).
+      return true;
+    }
+  }
+
+  void _finishInit() {
     _isInitialized = true;
+    notifyListeners();
+  }
+
+  /// Efek samping dari ApiService.onSessionExpired: reset state agar AuthGate
+  /// kembali ke LoginPage dengan pesan "Sesi berakhir".
+  void _forceSessionExpired() {
+    _isLoggedIn = false;
+    _user = null;
+    _errorMessage = 'Sesi berakhir. Silakan login ulang.';
     notifyListeners();
   }
 
@@ -63,6 +129,15 @@ class AuthProvider extends ChangeNotifier {
     return _loginInternal(
       endpoint: '/auth/login-parent',
       payload: {'phone': normalizedPhone, 'password': password.trim()},
+    );
+  }
+
+  /// Login lewat Google (admin & guru) — memakai idToken hasil google_sign_in.
+  /// Backend memverifikasi idToken dan menolak bila akun Google belum tertaut (401 needLink).
+  Future<bool> loginGoogle(String idToken) async {
+    return _loginInternal(
+      endpoint: '/auth/google',
+      payload: {'idToken': idToken},
     );
   }
 

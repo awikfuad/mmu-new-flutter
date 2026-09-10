@@ -15,6 +15,17 @@ class ApiService {
 
   static Completer<void>? _refreshCompleter;
 
+  /// Handler dipanggil saat sesi tidak bisa dipulihkan (refresh gagal / token habis).
+  /// Dipakai AuthProvider utk logout otomatis sehingga UI kembali ke halaman login.
+  static void Function()? onSessionExpired;
+
+  /// Bersihkan storage auth lalu beri tahu app bahwa sesi berakhir.
+  static Future<void> _clearAuthAndNotify() async {
+    await LocalStorage.clearAuth();
+    final cb = onSessionExpired;
+    if (cb != null) cb();
+  }
+
   // PERBAIKAN: defaultValue diisi dengan URL Vercel
   static const String _overrideBaseUrl = String.fromEnvironment(
     'OVERRIDE_API_URL',
@@ -149,7 +160,7 @@ class ApiService {
       final refreshToken = await LocalStorage.getRefreshToken();
       if (refreshToken == null) {
         _completeRefresh();
-        await LocalStorage.clearAuth();
+        await _clearAuthAndNotify();
         return handler.next(e);
       }
 
@@ -163,7 +174,7 @@ class ApiService {
 
       if (newAccessToken == null) {
         _completeRefresh();
-        await LocalStorage.clearAuth();
+        await _clearAuthAndNotify();
         return handler.next(e);
       }
 
@@ -182,11 +193,16 @@ class ApiService {
       return handler.resolve(retryResponse);
     } on DioException catch (refreshError) {
       _completeRefresh();
-      await LocalStorage.clearAuth();
+      // Hanya beri tahu sesi berakhir bila SERVER menolak (401/403).
+      // Error koneksi/timeout → pertahankan sesi (jaringan bisa pulih).
+      final code = refreshError.response?.statusCode;
+      if (code == 401 || code == 403) {
+        await _clearAuthAndNotify();
+      }
       return handler.next(refreshError);
     } catch (_) {
       _completeRefresh();
-      await LocalStorage.clearAuth();
+      await _clearAuthAndNotify();
       return handler.next(e);
     }
   }

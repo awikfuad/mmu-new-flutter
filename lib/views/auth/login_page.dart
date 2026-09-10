@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 
@@ -17,13 +18,34 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
+  bool _googleBusy = false;
   LoginMode _loginMode = LoginMode.guru;
+
+  // Client ID Google (web) — di-inject saat build:
+  //   flutter build --dart-define=GOOGLE_CLIENT_ID=<WEB_CLIENT_ID.apps.googleusercontent.com>
+  static const String _googleClientId = String.fromEnvironment('GOOGLE_CLIENT_ID');
+  bool get _googleEnabled => _loginMode == LoginMode.guru && _googleClientId.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
-    // Santri default tampilkan tanggal lahir (tidak obscure).
-    // Guru/orang tua tetap obscure.
+    // Tampilkan notifikasi bila ada pesan sesi (mis. "Sesi berakhir, silakan login ulang").
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final auth = context.read<AuthProvider>();
+      if (auth.errorMessage == null) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(auth.errorMessage!),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      auth.clearError();
+    });
   }
 
   @override
@@ -108,6 +130,83 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void _showLoginError(String? message) {
+    final cs = Theme.of(context).colorScheme;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(Icons.error_outline_rounded, color: cs.error, size: 28),
+            const SizedBox(width: 10),
+            const Text('Login Gagal'),
+          ],
+        ),
+        content: Text(message ?? 'Terjadi kesalahan saat login.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _loginWithGoogle() async {
+    if (_googleBusy) return;
+    FocusScope.of(context).unfocus();
+    setState(() => _googleBusy = true);
+    final auth = context.read<AuthProvider>();
+    try {
+      final googleSignIn = GoogleSignIn.instance;
+      await googleSignIn.initialize(serverClientId: _googleClientId);
+
+      GoogleSignInAccount account;
+      try {
+        account = await googleSignIn.authenticate();
+      } on GoogleSignInException catch (e) {
+        if (e.code == GoogleSignInExceptionCode.canceled ||
+            e.code == GoogleSignInExceptionCode.interrupted) {
+          return; // pengguna membatalkan
+        }
+        _showLoginError('Gagal memilih akun Google: $e');
+        return;
+      }
+
+      final String? idToken = account.authentication.idToken;
+      if (idToken == null) {
+        _showLoginError(
+          'Tidak menerima ID token dari Google. Pastikan client ID web sudah didaftarkan '
+          'di Google Cloud Console (OAuth web client).',
+        );
+        return;
+      }
+      final success = await auth.loginGoogle(idToken);
+      if (!mounted) return;
+      if (success) {
+        final msg = auth.successMessage ?? 'Login berhasil';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 1),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      } else {
+        _showLoginError(auth.errorMessage);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      _showLoginError('Gagal login dengan Google: $e');
+    } finally {
+      if (mounted) setState(() => _googleBusy = false);
+    }
+  }
+
   void _showForgotPasswordDialog() {
     final cs = Theme.of(context).colorScheme;
     showDialog(
@@ -160,15 +259,6 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     );
-  }
-
-  void _fillCredentials(String username, String password) {
-    setState(() {
-      _usernameController.text = username;
-      _passwordController.text = password;
-      // Santri demo: tampilkan tanggal lahir jelas
-      if (_loginMode == LoginMode.santri) _obscurePassword = false;
-    });
   }
 
   String? _validateUsername(String? value) {
@@ -429,95 +519,69 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   ),
                           ),
+                          if (_googleEnabled) ...[
+                            const SizedBox(height: 18),
+                            Row(
+                              children: [
+                                const Expanded(child: Divider()),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  child: Text(
+                                    'ATAU',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
+                                const Expanded(child: Divider()),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size.fromHeight(48),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                side: BorderSide(color: cs.outlineVariant),
+                                foregroundColor: cs.onSurface,
+                              ),
+                              onPressed: _googleBusy || auth.isLoading
+                                  ? null
+                                  : _loginWithGoogle,
+                              child: _googleBusy
+                                  ? SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        color: cs.primary,
+                                      ),
+                                    )
+                                  : Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        _googleBadge(),
+                                        const SizedBox(width: 10),
+                                        const Text(
+                                          'Lanjutkan dengan Google',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // Demo Accounts Card
-                Card(
-                  elevation: 0,
-                  color: cs.surfaceContainerLow,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.4)),
-                  ),
-                  child: Theme(
-                    data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                      initiallyExpanded: false,
-                      visualDensity: VisualDensity.compact,
-                      leading: Icon(Icons.lightbulb_outline_rounded, size: 20, color: cs.primary),
-                      title: Text(
-                        'Gunakan Akun Demo',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                          color: cs.onSurface,
-                        ),
-                      ),
-                      subtitle: Text(
-                        'Ketuk untuk mengisi kredensial otomatis',
-                        style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
-                      ),
-                      childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      children: [
-                        const Divider(height: 1),
-                        const SizedBox(height: 8),
-                        if (_loginMode == LoginMode.santri) ...[
-                          _buildDemoAccount(
-                            username: '1376',
-                            password: '26 Agustus 2016',
-                            label: 'MADRASAH',
-                            accentColor: cs.primary,
-                          ),
-                          _buildDemoAccount(
-                            username: '557660',
-                            password: '07/09/2018',
-                            label: 'TPQ',
-                            accentColor: cs.secondary,
-                          ),
-                        ] else if (_loginMode == LoginMode.guru) ...[
-                          _buildDemoAccount(
-                            username: 'admin',
-                            password: 'awik1745',
-                            label: 'ADMIN',
-                            accentColor: cs.error,
-                          ),
-                          _buildDemoAccount(
-                            username: 'ustadz_ahmad',
-                            password: 'awik1645',
-                            label: 'Semua Lembaga',
-                          ),
-                          _buildDemoAccount(
-                            username: 'ustadz_demo_all',
-                            password: 'asatidz123',
-                            label: 'Semua Lembaga',
-                          ),
-                          _buildDemoAccount(
-                            username: 'ustadz_demo',
-                            password: 'asatidz123',
-                            label: 'MADRASAH',
-                          ),
-                          _buildDemoAccount(
-                            username: 'ustadzah_demo_tpq',
-                            password: 'asatidz123',
-                            label: 'TPQ',
-                          ),
-                        ] else ...[
-                          _buildDemoAccount(
-                            username: '081234567890',
-                            password: 'orangtua123',
-                            label: 'ORANG TUA',
-                            accentColor: cs.tertiary,
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -526,64 +590,29 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildDemoAccount({
-    required String username,
-    required String password,
-    required String label,
-    Color? accentColor,
-  }) {
-    final cs = Theme.of(context).colorScheme;
-    final Color chipColor = accentColor ?? cs.primary;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => _fillCredentials(username, password),
-        borderRadius: BorderRadius.circular(10),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-          child: Row(
-            children: [
-              Icon(Icons.touch_app_outlined, size: 16, color: cs.onSurfaceVariant),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text.rich(
-                  TextSpan(
-                    style: TextStyle(fontSize: 12, color: cs.onSurface),
-                    children: [
-                      TextSpan(
-                        text: username,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(
-                        text: ' • ',
-                        style: TextStyle(color: cs.onSurfaceVariant),
-                      ),
-                      TextSpan(
-                        text: password,
-                        style: TextStyle(color: cs.onSurfaceVariant),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: chipColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: chipColor,
-                  ),
-                ),
-              ),
-            ],
+  Widget _googleBadge() {
+    return ClipOval(
+      child: Container(
+        width: 22,
+        height: 22,
+        color: Colors.transparent,
+        alignment: Alignment.center,
+        child: Text(
+          'G',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            height: 1.1,
+            foreground: Paint()
+              ..shader = const LinearGradient(
+                colors: [
+                  Color(0xFF4285F4),
+                  Color(0xFFEA4335),
+                  Color(0xFFFBBC05),
+                  Color(0xFF34A853),
+                ],
+              ).createShader(const Rect.fromLTWH(0, 0, 22, 22)),
           ),
         ),
       ),
