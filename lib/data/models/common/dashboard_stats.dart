@@ -52,11 +52,11 @@ class DashboardStats {
       totalGuru: int.tryParse('${s['totalGuru'] ?? 0}') ?? 0,
       totalKelas: int.tryParse('${s['totalKelas'] ?? 0}') ?? 0,
       totalRombel: int.tryParse('${s['totalRombel'] ?? 0}') ?? 0,
-      pendapatan: (j['pendapatan'] as List? ?? []).map((e) => Map<String, dynamic>.from(e as Map)).toList(),
+      pendapatan: (j['pendapatan'] as List? ?? []).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList(),
       kehadiran: (j['kehadiran'] as Map? ?? {}).map((k, v) => MapEntry(k.toString(), int.tryParse('$v') ?? 0)),
-      recentTransactions: (j['recentTransactions'] as List? ?? []).map((e) => Map<String, dynamic>.from(e as Map)).toList(),
-      recentTeacherAttendance: (j['recentTeacherAttendance'] as List? ?? []).map((e) => Map<String, dynamic>.from(e as Map)).toList(),
-      recentKbmAttendance: (j['recentKbmAttendance'] as List? ?? []).map((e) => Map<String, dynamic>.from(e as Map)).toList(),
+      recentTransactions: (j['recentTransactions'] as List? ?? []).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList(),
+      recentTeacherAttendance: (j['recentTeacherAttendance'] as List? ?? []).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList(),
+      recentKbmAttendance: (j['recentKbmAttendance'] as List? ?? []).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList(),
     );
   }
 }

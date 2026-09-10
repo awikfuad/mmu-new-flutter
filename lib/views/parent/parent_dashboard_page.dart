@@ -351,7 +351,7 @@ class _ParentDashboardPageState extends State<ParentDashboardPage> {
                       backgroundImage: hasFoto
                           ? cachedFotoProvider(fotoUrl)
                           : null,
-                      onBackgroundImageError: hasFoto ? (_, __) {} : null,
+                      onBackgroundImageError: hasFoto ? (_, _) {} : null,
                       // Tampilkan inisial jika foto tidak ada
                       child: !hasFoto
                           ? Text(
@@ -413,7 +413,7 @@ class _ParentDashboardPageState extends State<ParentDashboardPage> {
                           backgroundImage: hasFoto
                               ? cachedFotoProvider(fotoUrl)
                               : null,
-                          onBackgroundImageError: hasFoto ? (_, __) {} : null,
+                          onBackgroundImageError: hasFoto ? (_, _) {} : null,
                           // Tampilkan inisial jika foto tidak ada
                           child: !hasFoto
                               ? Text(

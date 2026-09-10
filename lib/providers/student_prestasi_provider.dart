@@ -17,7 +17,7 @@ class StudentPrestasiProvider extends ChangeNotifier {
   int get pelanggaranCount =>
       _records.where((r) => (r['tipe'] ?? '').toString().toUpperCase() == 'PELANGGARAN').length;
   int get totalPoin =>
-      _records.fold<int>(0, (sum, r) => sum + ((r['poin'] as num?) ?? 0).toInt());
+      _records.fold<int>(0, (sum, r) => sum + (int.tryParse('${r['poin'] ?? 0}') ?? 0));
 
   Future<void> load({int? academicYearId}) async {
     _isLoading = true;

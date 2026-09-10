@@ -71,9 +71,9 @@ class _PresensiKelasBody extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
         label,
@@ -181,7 +181,7 @@ class _PresensiKelasBody extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(
-                              color: already ? colorScheme.primary.withOpacity(0.4) : colorScheme.outlineVariant.withOpacity(0.5)),
+                              color: already ? colorScheme.primary.withValues(alpha: 0.4) : colorScheme.outlineVariant.withValues(alpha: 0.5)),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -194,7 +194,7 @@ class _PresensiKelasBody extends StatelessWidget {
                                   radius: 18,
                                   backgroundColor: colorScheme.primaryContainer,
                                   backgroundImage: cachedFotoProvider(fotoUrl),
-                                  onBackgroundImageError: (_, __) {},
+                                  onBackgroundImageError: (_, _) {},
                                   child: fotoUrl == null
                                       ? Icon(Icons.person, size: 18, color: colorScheme.onPrimaryContainer)
                                       : null,
@@ -221,7 +221,7 @@ class _PresensiKelasBody extends StatelessWidget {
                                           Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                             decoration: BoxDecoration(
-                                              color: colorScheme.primary.withOpacity(0.12),
+                                              color: colorScheme.primary.withValues(alpha: 0.12),
                                               borderRadius: BorderRadius.circular(6),
                                             ),
                                             child: Text('Sudah', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: colorScheme.primary)),
@@ -284,7 +284,7 @@ class _PresensiKelasBody extends StatelessWidget {
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
                     color: colorScheme.surface,
-                    border: Border(top: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.3))),
+                    border: Border(top: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3))),
                   ),
                   child: ElevatedButton(
                     onPressed: isSaving

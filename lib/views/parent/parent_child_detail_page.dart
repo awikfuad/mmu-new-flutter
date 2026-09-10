@@ -192,7 +192,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
             radius: 24,
             backgroundColor: cs.primaryContainer,
             backgroundImage: hasFoto ? cachedFotoProvider(fotoUrl) : null,
-            onBackgroundImageError: hasFoto ? (_, __) {} : null,
+            onBackgroundImageError: hasFoto ? (_, _) {} : null,
             child: !hasFoto
                 ? Text(
                     initialName,
@@ -1144,17 +1144,19 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                               }
                               setModal(() => loading = true);
                               final parentProvider = context.read<ParentProvider>();
+                              final messenger = ScaffoldMessenger.of(context);
+                              final navigator = Navigator.of(ctx);
                               final ok = await parentProvider.submitPaymentRequest(
                                 widget.nim,
                                 paymentType: jenis,
                                 month: jenis == 'YAUMIYAH' ? bulan : null,
                                 amount: nominal,
                               );
-                              if (!ctx.mounted) return;
+                              if (!ctx.mounted || !context.mounted) return;
                               setModal(() => loading = false);
                               if (ok) {
-                                Navigator.pop(ctx);
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                navigator.pop();
+                                messenger.showSnackBar(
                                   const SnackBar(
                                     content: Text(
                                       'Pengajuan terkirim! Menunggu persetujuan admin.',
@@ -1164,7 +1166,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                                   ),
                                 );
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                messenger.showSnackBar(
                                   SnackBar(
                                     content: Text(
                                       parentProvider.error ??

@@ -11,7 +11,6 @@ class PresensiKegiatanProvider extends ChangeNotifier {
   List<dynamic> _students = [];
   List<dynamic> _filteredStudents = [];
   final Map<String, String> _attendanceStatus = {};
-  String _searchQuery = '';
   String? _error;
 
   bool get isLoading => _isLoading;
@@ -19,8 +18,10 @@ class PresensiKegiatanProvider extends ChangeNotifier {
   List<dynamic> get filteredStudents => _filteredStudents;
   String? get error => _error;
 
-  final String _todayDate = DateTime.now().toIso8601String().substring(0, 10);
-  String get todayDate => _todayDate;
+  String get todayDate {
+    final now = DateTime.now();
+    return '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
 
   Future<void> fetchStudentsAndAttendance(int activityId) async {
     _isLoading = true;
@@ -31,7 +32,8 @@ class PresensiKegiatanProvider extends ChangeNotifier {
       final response = await _api.dio.get('/kegiatan/report/export/$activityId');
 
       if (response.statusCode == 200 && response.data['success'] == true) {
-        List<dynamic> rawData = (response.data['raw_data'] ?? []) as List;
+        final raw = response.data['raw_data'];
+        List<dynamic> rawData = (raw is List) ? raw : [];
         if (rawData.isEmpty) {
           final grouped = response.data['data'];
           if (grouped is Map) {
@@ -45,7 +47,7 @@ class PresensiKegiatanProvider extends ChangeNotifier {
         _filteredStudents = _students;
         _attendanceStatus.clear();
         for (var student in _students) {
-          final status = (student['status'] ?? 'ALPA').toString().toLowerCase();
+          final status = (student['status'] ?? 'HADIR').toString().toLowerCase();
           _attendanceStatus[student['nim']?.toString() ?? ''] = status;
         }
       }
@@ -58,11 +60,10 @@ class PresensiKegiatanProvider extends ChangeNotifier {
   }
 
   void filterSearch(String query) {
-    _searchQuery = query;
     _filteredStudents = _students
         .where((student) =>
-            student['student_name'].toString().toLowerCase().contains(query.toLowerCase()) ||
-            student['class_name'].toString().toLowerCase().contains(query.toLowerCase()))
+            (student?['student_name'] ?? '').toString().toLowerCase().contains(query.toLowerCase()) ||
+            (student?['class_name'] ?? '').toString().toLowerCase().contains(query.toLowerCase()))
         .toList();
     notifyListeners();
   }
@@ -79,10 +80,19 @@ class PresensiKegiatanProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    // Capture GPS location once
-    final GeoPosition? geo = await GeofenceHelper.getCurrentLocation();
-
     try {
+      // Capture GPS location once
+      GeoPosition? geo;
+      try {
+        geo = await GeofenceHelper.getCurrentLocation();
+      } catch (_) {
+        // GPS gagal tidak fatal — submit tanpa koordinat
+      }
+
+      final List<String> failedNims = [];
+
+      // Kumpulkan semua payload
+      final List<Map<String, dynamic>> payloads = [];
       for (final student in _students) {
         final nim = student['nim']?.toString() ?? '';
         if (nim.isEmpty) continue;
@@ -96,13 +106,27 @@ class PresensiKegiatanProvider extends ChangeNotifier {
         if (geo != null) {
           payload.addAll(geo.toMap());
         }
+        payloads.add(payload);
+      }
 
-        await _api.dio.post('/kegiatan/attendance', data: payload);
+      // Submit semua secara paralel, gagal per-murid tidak membatalkan lainnya
+      await Future.wait(
+        payloads.map((p) => _api.dio.post('/kegiatan/attendance', data: p).catchError((e) {
+          failedNims.add(p['nim']?.toString() ?? '?');
+          return e;
+        })),
+        eagerError: false,
+      );
+
+      if (failedNims.isNotEmpty) {
+        _error = 'Gagal menyimpan: ${failedNims.join(", ")} santri';
       }
     } on DioException catch (e) {
-      _error = e.response?.data['message'] ?? e.message ?? e.toString();
+      final data = e.response?.data;
+      final msg = (data is Map) ? data['message']?.toString() : null;
+      _error = msg ?? e.message ?? 'Gagal menyimpan presensi';
     } catch (e) {
-      _error = e.toString();
+      _error = 'Gagal menyimpan presensi: $e';
     } finally {
       _isSaving = false;
       notifyListeners();

@@ -159,7 +159,7 @@ class _MuridPickerSheetState extends State<_MuridPickerSheet> {
                             leading: CircleAvatar(
                               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                               backgroundImage: cachedFotoProvider(fotoUrl),
-                              onBackgroundImageError: (_, __) {},
+                              onBackgroundImageError: (_, _) {},
                               child: fotoUrl == null
                                   ? Icon(
                                       Icons.person_outline_rounded,

@@ -54,8 +54,9 @@ class ApiResponse<T> {
         } else if (e is Map) {
           return fromItem(Map<String, dynamic>.from(e));
         }
-        throw FormatException('Invalid item format in API list response: $e');
-      }).toList();
+        // Skip elemen invalid (null/String/int) — jangan abort seluruh list
+        return null;
+      }).whereType<E>().toList();
     }
 
     final parsedCount = _parseCount(json['count']);

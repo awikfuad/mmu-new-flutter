@@ -46,6 +46,7 @@ class _GuruPiketBody extends StatelessWidget {
     final scheduleId = _toInt(schedule['schedule_id']) ?? _toInt(schedule['id']);
     final className = schedule['class_name'] ?? 'Kelas';
     final colorScheme = Theme.of(context).colorScheme;
+    final provider = context.read<GuruPiketProvider>();
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -78,7 +79,7 @@ class _GuruPiketBody extends StatelessWidget {
 
     if (confirm != true || scheduleId == null) return;
 
-    final success = await context.read<GuruPiketProvider>().claimPiket(schedule);
+    final success = await provider.claimPiket(schedule);
     if (!context.mounted) return;
 
     if (success) {
@@ -199,7 +200,7 @@ class _GuruPiketBody extends StatelessWidget {
       color: colorScheme.surfaceContainerLow,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5)),
+        side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),

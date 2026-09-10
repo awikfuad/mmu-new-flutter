@@ -24,10 +24,6 @@ class DashboardGuruProvider extends ChangeNotifier {
   final Map<int, Map<String, dynamic>> _summaries = {};
   Map<int, Map<String, dynamic>> get summaries => _summaries;
 
-  static const List<String> _dayNames = [
-    '', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU', 'AHAD',
-  ];
-
   Future<void> fetchDashboardData() async {
     _isLoading = true;
     _error = null;

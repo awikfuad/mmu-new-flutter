@@ -24,6 +24,8 @@ MaterialColor statusColor(String status) {
       return Colors.orange;
     case 'IZIN':
       return Colors.blue;
+    case 'BELUM':
+      return Colors.grey;
     default:
       return Colors.red;
   }

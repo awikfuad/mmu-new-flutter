@@ -923,7 +923,7 @@ class _InputSavingsSheetState extends State<_InputSavingsSheet> {
                             backgroundColor: colorScheme.primaryContainer,
                             radius: 18,
                             backgroundImage: cachedFotoProvider(_selected!['foto']?.toString()),
-                            onBackgroundImageError: (_, __) {},
+                            onBackgroundImageError: (_, _) {},
                             child: resolveFotoUrl(_selected!['foto']?.toString()) == null
                                 ? Icon(
                                     Icons.person,

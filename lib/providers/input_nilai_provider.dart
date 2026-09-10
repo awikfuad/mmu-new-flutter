@@ -36,6 +36,7 @@ class InputNilaiProvider extends ChangeNotifier {
     required int subjectId,
     required String tanggal,
     int? rombelId,
+    int? academicYearId,
   }) async {
     _isLoading = true;
     _error = null;
@@ -148,6 +149,7 @@ class InputNilaiProvider extends ChangeNotifier {
     required int classroomId,
     int? jenjangId,
     int? rombelId,
+    int? academicYearId,
   }) async {
     _isSaving = true;
     _error = null;
@@ -184,7 +186,7 @@ class InputNilaiProvider extends ChangeNotifier {
           'subject_id': subjectId,
           'tanggal': tanggal,
           'classroom_id': classroomId,
-          'academic_year_id': null,
+          'academic_year_id': ?academicYearId,
           'jenjang_id': jenjangId,
           'items': items,
         });

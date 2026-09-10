@@ -121,10 +121,9 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
           ),
         ),
 
-        // DefaultTabController dengan Key Dinamis
+        // DefaultTabController tanpa key dinamis agar tab tidak reset saat data berubah
         Expanded(
           child: DefaultTabController(
-            key: ValueKey(classesList.join('_')),
             length: classesList.length,
             child: Column(
               children: [
@@ -233,7 +232,7 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
               radius: 22,
               backgroundColor: colorScheme.primaryContainer,
               backgroundImage: cachedFotoProvider(fotoUrl),
-              onBackgroundImageError: fotoUrl != null ? (_, __) {} : null,
+              onBackgroundImageError: fotoUrl != null ? (_, _) {} : null,
               child: fotoUrl == null
                   ? Icon(
                       Icons.person_outline_rounded,
@@ -303,7 +302,7 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
                     backgroundImage:
                         cachedFotoProvider(selectedFoto),
                     onBackgroundImageError:
-                        selectedFoto != null ? (_, __) {} : null,
+                        selectedFoto != null ? (_, _) {} : null,
                     child: selectedFoto == null
                         ? Icon(
                             Icons.person,
@@ -794,7 +793,7 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
           height: 80,
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(12),
           ),
         ),

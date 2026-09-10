@@ -66,8 +66,8 @@ class _KegiatanInternalGuruPageState extends State<KegiatanInternalGuruPage> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => PresensiKegiatanGuruDetailPage(
-                                    activityId: activity['id'],
-                                    activityName: activity['activity_name'],
+                                    activityId: activity['id'] as int? ?? 0,
+                                    activityName: (activity['activity_name'] ?? '').toString(),
                                   ),
                                 ),
                               );

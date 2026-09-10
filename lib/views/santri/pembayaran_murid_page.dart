@@ -4,7 +4,6 @@ import 'package:shimmer/shimmer.dart';
 import '../../providers/pembayaran_provider.dart';
 import '../../utils/format.dart';
 import '../../widgets/academic_year_selector.dart';
-import '../../widgets/bayar_dari_tabungan_sheet.dart';
 
 class PembayaranMuridPage extends StatefulWidget {
   const PembayaranMuridPage({super.key});
@@ -15,23 +14,6 @@ class PembayaranMuridPage extends StatefulWidget {
 
 class _PembayaranMuridPageState extends State<PembayaranMuridPage> {
   int? _selectedAcademicYearId;
-
-  Future<void> _openBayar() async {
-    final done = await showBayarDariTabunganSheet(context);
-    if (done == true) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Pembayaran berhasil dipotong dari tabungan!'),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      if (mounted) {
-        context.read<PembayaranMuridProvider>().loadPayments(academicYearId: _selectedAcademicYearId);
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

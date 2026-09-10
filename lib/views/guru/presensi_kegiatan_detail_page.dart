@@ -67,7 +67,7 @@ class _PresensiKegiatanDetailBody extends StatelessWidget {
                     onChanged: (q) => context.read<PresensiKegiatanProvider>().filterSearch(q),
                     decoration: InputDecoration(
                       labelText: 'Cari Nama Santri atau Kelas...',
-                      prefixIcon: Icon(Icons.search, color: colorScheme.surface),
+                      prefixIcon: Icon(Icons.search, color: colorScheme.onSurface),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
@@ -131,9 +131,9 @@ class _PresensiKegiatanDetailBody extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))],
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))],
                   ),
                   child: ElevatedButton(
                     onPressed: isSaving

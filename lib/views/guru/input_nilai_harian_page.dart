@@ -12,6 +12,7 @@ class InputNilaiHarianPage extends StatelessWidget {
   final int? subjectId;
   final int? jenjangId;
   final int? rombelId;
+  final int? academicYearId;
 
   const InputNilaiHarianPage({
     super.key,
@@ -23,6 +24,7 @@ class InputNilaiHarianPage extends StatelessWidget {
     this.subjectId,
     this.jenjangId,
     this.rombelId,
+    this.academicYearId,
   });
 
   @override
@@ -34,6 +36,7 @@ class InputNilaiHarianPage extends StatelessWidget {
           subjectId: subjectId ?? 0,
           tanggal: tanggal,
           rombelId: rombelId,
+          academicYearId: academicYearId,
         ),
       child: _InputNilaiBody(
         scheduleId: scheduleId,
@@ -44,6 +47,7 @@ class InputNilaiHarianPage extends StatelessWidget {
         subjectId: subjectId ?? 0,
         jenjangId: jenjangId,
         rombelId: rombelId,
+        academicYearId: academicYearId,
       ),
     );
   }
@@ -58,6 +62,7 @@ class _InputNilaiBody extends StatelessWidget {
   final int subjectId;
   final int? jenjangId;
   final int? rombelId;
+  final int? academicYearId;
 
   const _InputNilaiBody({
     required this.scheduleId,
@@ -68,6 +73,7 @@ class _InputNilaiBody extends StatelessWidget {
     required this.subjectId,
     this.jenjangId,
     this.rombelId,
+    this.academicYearId,
   });
 
   String _formatTanggal(String tgl) {
@@ -300,10 +306,8 @@ class _InputNilaiBody extends StatelessWidget {
                                         SizedBox(
                                           width: 80,
                                           child: TextFormField(
-                                            initialValue: currentNilai > 0
-                                                ? currentNilai
-                                                    .toInt()
-                                                    .toString()
+                                            initialValue: prevNilai != null
+                                                ? currentNilai.toInt().toString()
                                                 : '',
                                             keyboardType:
                                                 TextInputType.number,
@@ -383,6 +387,7 @@ class _InputNilaiBody extends StatelessWidget {
                                   classroomId: classroomId,
                                   jenjangId: jenjangId,
                                   rombelId: rombelId,
+                                  academicYearId: academicYearId,
                                 );
                                 if (!context.mounted) return;
                                 final prov = context.read<InputNilaiProvider>();

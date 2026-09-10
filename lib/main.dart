@@ -106,6 +106,12 @@ class AuthGate extends StatelessWidget {
         if (!auth.isLoggedIn) return const LoginPage();
         if (auth.isStudent) return const StudentDashboardPage();
         if (auth.isParent) return const ParentDashboardPage();
+        final role = auth.userRole;
+        if (role != 'admin' && role != 'teacher') {
+          // Role tidak dikenal — jangan beri akses admin, kembali ke login.
+          WidgetsBinding.instance.addPostFrameCallback((_) => auth.logout());
+          return const LoginPage();
+        }
         return const MainNavigationWrapper();
       },
     );

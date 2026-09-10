@@ -7,7 +7,6 @@ import '../../providers/theme_provider.dart';
 import '../../theme/theme_selector_dialog.dart';
 import '../../utils/format.dart';
 import '../../utils/foto_helper.dart';
-import '../../widgets/bayar_dari_tabungan_sheet.dart';
 import 'absensi_kbm_murid_page.dart';
 import 'absensi_kegiatan_murid_page.dart';
 import 'pembayaran_murid_page.dart';
@@ -66,22 +65,6 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
       context: context,
       builder: (_) => ThemeSelectorDialog(themeProvider: themeProvider),
     );
-  }
-
-  Future<void> _openBayar(StudentDashboardProvider dash) async {
-    final colorScheme = Theme.of(context).colorScheme;
-    final done = await showBayarDariTabunganSheet(context);
-    if (done == true) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Pembayaran berhasil!'),
-          backgroundColor: colorScheme.primary,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      dash.fetchDashboardData();
-    }
   }
 
   void _openPage(Widget page) {
@@ -199,7 +182,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
                   radius: 24,
                   backgroundColor: colorScheme.onPrimary.withValues(alpha: 0.2),
                   backgroundImage: cachedFotoProvider(fotoUrl),
-                  onBackgroundImageError: (_, __) {},
+                  onBackgroundImageError: (_, _) {},
                   child: fotoUrl == null ? Icon(Icons.person, color: colorScheme.onPrimary, size: 28) : null,
                 );
               }),

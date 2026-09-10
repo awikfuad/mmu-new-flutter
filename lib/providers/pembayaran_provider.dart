@@ -96,6 +96,8 @@ class PembayaranAdminProvider extends ChangeNotifier {
       _buildRecaps();
     } catch (e) {
       _error = 'Gagal memuat riwayat pembayaran: $e';
+      _transactions = [];
+      _recaps = [];
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -190,6 +192,8 @@ class TabunganAdminProvider extends ChangeNotifier {
       _buildRecaps();
     } catch (e) {
       _error = 'Gagal memuat riwayat tabungan: $e';
+      _transactions = [];
+      _recaps = [];
     } finally {
       _isLoading = false;
       notifyListeners();

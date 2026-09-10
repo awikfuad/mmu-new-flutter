@@ -1,4 +1,4 @@
-package com.example.absesni_digital
+package id.mmu.absensi
 
 import io.flutter.embedding.android.FlutterActivity
 

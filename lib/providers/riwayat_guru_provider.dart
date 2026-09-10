@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../data/api/api_service.dart';
 import '../data/local/local_storage.dart';
@@ -44,7 +45,14 @@ class RiwayatGuruProvider extends ChangeNotifier {
       await _loadTeachers();
     } else {
       _teacherName = user['name'] ?? 'Guru';
-      await _loadAll(user['id']);
+      final id = user['id'];
+      if (id == null) {
+        _error = 'Data guru tidak lengkap (ID kosong)';
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+      await _loadAll(id);
     }
   }
 
@@ -81,17 +89,26 @@ class RiwayatGuruProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final results = await Future.wait([
-        _api.dio.get('/kegiatan/teacher-attendance/history/$teacherId'),
-        _api.dio.get('/attendances/teacher-history/$teacherId'),
-      ]);
-      _kegiatanRecords = results[0].data?['data'] ?? [];
-      _mengajarRecords = results[1].data?['data'] ?? [];
+      // Fetch independently agar satu gagal tidak membatalkan yang lain
+      final list = await Future.wait<Response<dynamic>?>([
+        _safeGet('/kegiatan/teacher-attendance/history/$teacherId'),
+        _safeGet('/attendances/teacher-history/$teacherId'),
+      ], eagerError: false);
+      _kegiatanRecords = list[0]?.data?['data'] ?? [];
+      _mengajarRecords = list[1]?.data?['data'] ?? [];
     } catch (e) {
       _error = 'Gagal memuat riwayat absensi: $e';
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<Response<dynamic>?> _safeGet(String path) async {
+    try {
+      return await _api.dio.get(path);
+    } catch (_) {
+      return null;
     }
   }
 }

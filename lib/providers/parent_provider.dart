@@ -86,6 +86,7 @@ class ParentProvider extends ChangeNotifier {
   }
 
   Future<void> fetchChildKbm(String nim, {int? academicYearId}) async {
+    _error = null;
     try {
       final params = <String, dynamic>{};
       if (academicYearId != null) params['academic_year_id'] = academicYearId;
@@ -100,6 +101,7 @@ class ParentProvider extends ChangeNotifier {
   }
 
   Future<void> fetchChildKegiatan(String nim, {int? academicYearId}) async {
+    _error = null;
     try {
       final params = <String, dynamic>{};
       if (academicYearId != null) params['academic_year_id'] = academicYearId;
@@ -114,6 +116,7 @@ class ParentProvider extends ChangeNotifier {
   }
 
   Future<void> fetchChildNilai(String nim, {int? academicYearId}) async {
+    _error = null;
     try {
       final params = <String, dynamic>{};
       if (academicYearId != null) params['academic_year_id'] = academicYearId;
@@ -128,6 +131,7 @@ class ParentProvider extends ChangeNotifier {
   }
 
   Future<void> fetchChildPerilaku(String nim, {int? academicYearId}) async {
+    _error = null;
     try {
       final params = <String, dynamic>{};
       if (academicYearId != null) params['academic_year_id'] = academicYearId;
@@ -142,6 +146,7 @@ class ParentProvider extends ChangeNotifier {
   }
 
   Future<void> fetchChildPrestasi(String nim, {int? academicYearId}) async {
+    _error = null;
     try {
       final params = <String, dynamic>{};
       if (academicYearId != null) params['academic_year_id'] = academicYearId;
@@ -156,6 +161,7 @@ class ParentProvider extends ChangeNotifier {
   }
 
   Future<void> fetchChildJadwal(String nim, {int? academicYearId}) async {
+    _error = null;
     try {
       final params = <String, dynamic>{};
       if (academicYearId != null) params['academic_year_id'] = academicYearId;
@@ -170,6 +176,7 @@ class ParentProvider extends ChangeNotifier {
   }
 
   Future<void> fetchChildPembayaran(String nim, {int? academicYearId}) async {
+    _error = null;
     try {
       final params = <String, dynamic>{};
       if (academicYearId != null) params['academic_year_id'] = academicYearId;
@@ -184,10 +191,12 @@ class ParentProvider extends ChangeNotifier {
   }
 
   Future<void> fetchChildTabungan(String nim) async {
+    _error = null;
     try {
       final res = await _api.dio.get('/parents/me/children/$nim/tabungan');
       if (res.data['success'] == true) {
-        _childTabungan = Map<String, dynamic>.from(res.data['data'] ?? {});
+        final d = res.data['data'];
+        _childTabungan = d is Map ? Map<String, dynamic>.from(d) : null;
       }
     } on DioException catch (e) {
       _error = e.response?.data?['message'] ?? e.message;
@@ -196,6 +205,7 @@ class ParentProvider extends ChangeNotifier {
   }
 
   Future<void> fetchChildIzinSakit(String nim) async {
+    _error = null;
     try {
       final res = await _api.dio.get('/parents/me/children/$nim/izin-sakit');
       if (res.data['success'] == true) {
@@ -208,6 +218,8 @@ class ParentProvider extends ChangeNotifier {
   }
 
   Future<bool> submitChildIzinSakit(String nim, {required String jenis, required String alasan, required String tanggalMulai, required String tanggalSelesai, String? keterangan}) async {
+    _error = null;
+    notifyListeners();
     try {
       final res = await _api.dio.post(
         '/parents/me/children/$nim/izin-sakit',
@@ -233,6 +245,7 @@ class ParentProvider extends ChangeNotifier {
   }
 
   Future<void> fetchChildPaymentRequests(String nim) async {
+    _error = null;
     try {
       final res = await _api.dio.get('/parents/me/children/$nim/payment-requests');
       if (res.data['success'] == true) {
@@ -245,6 +258,8 @@ class ParentProvider extends ChangeNotifier {
   }
 
   Future<bool> submitPaymentRequest(String nim, {required String paymentType, String? month, required num amount}) async {
+    _error = null;
+    notifyListeners();
     try {
       final res = await _api.dio.post(
         '/parents/me/children/$nim/payment-requests',

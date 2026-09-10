@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/google_signin_button.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -158,7 +160,6 @@ class _LoginPageState extends State<LoginPage> {
     if (_googleBusy) return;
     FocusScope.of(context).unfocus();
     setState(() => _googleBusy = true);
-    final auth = context.read<AuthProvider>();
     try {
       final googleSignIn = GoogleSignIn.instance;
       await googleSignIn.initialize(serverClientId: _googleClientId);
@@ -183,27 +184,39 @@ class _LoginPageState extends State<LoginPage> {
         );
         return;
       }
-      final success = await auth.loginGoogle(idToken);
-      if (!mounted) return;
-      if (success) {
-        final msg = auth.successMessage ?? 'Login berhasil';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(msg),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 1),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        );
-      } else {
-        _showLoginError(auth.errorMessage);
-      }
+      await _handleGoogleIdToken(idToken);
     } catch (e) {
       if (!mounted) return;
       _showLoginError('Gagal login dengan Google: $e');
     } finally {
       if (mounted) setState(() => _googleBusy = false);
+    }
+  }
+
+  /// Menukar ID token Google dengan sesi aplikasi via backend `/auth/google`.
+  ///
+  /// Dipakai oleh kedua jalur: native (`authenticate()`) dan web
+  /// (`renderButton` → `authenticationEvents`).
+  Future<void> _handleGoogleIdToken(String idToken) async {
+    if (_googleBusy) return;
+    setState(() => _googleBusy = true);
+    final auth = context.read<AuthProvider>();
+    final success = await auth.loginGoogle(idToken);
+    if (!mounted) return;
+    setState(() => _googleBusy = false);
+    if (success) {
+      final msg = auth.successMessage ?? 'Login berhasil';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(msg),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 1),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    } else {
+      _showLoginError(auth.errorMessage);
     }
   }
 
@@ -281,8 +294,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   String? _validatePassword(String? value) {
-    final v = value?.trim() ?? '';
-    if (v.isEmpty) {
+    final v = value ?? '';
+    if (v.trim().isEmpty) {
       return switch (_loginMode) {
         LoginMode.santri => 'Tanggal lahir wajib diisi',
         _ => 'Password wajib diisi',
@@ -539,42 +552,49 @@ class _LoginPageState extends State<LoginPage> {
                               ],
                             ),
                             const SizedBox(height: 12),
-                            OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                minimumSize: const Size.fromHeight(48),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                            if (kIsWeb)
+                              buildGoogleSignInButton(
+                                clientId: _googleClientId,
+                                onIdToken: _handleGoogleIdToken,
+                              ) ??
+                                  const SizedBox(height: 48)
+                            else
+                              OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size.fromHeight(48),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  side: BorderSide(color: cs.outlineVariant),
+                                  foregroundColor: cs.onSurface,
                                 ),
-                                side: BorderSide(color: cs.outlineVariant),
-                                foregroundColor: cs.onSurface,
-                              ),
-                              onPressed: _googleBusy || auth.isLoading
-                                  ? null
-                                  : _loginWithGoogle,
-                              child: _googleBusy
-                                  ? SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.5,
-                                        color: cs.primary,
-                                      ),
-                                    )
-                                  : Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        _googleBadge(),
-                                        const SizedBox(width: 10),
-                                        const Text(
-                                          'Lanjutkan dengan Google',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                onPressed: _googleBusy || auth.isLoading
+                                    ? null
+                                    : _loginWithGoogle,
+                                child: _googleBusy
+                                    ? SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.5,
+                                          color: cs.primary,
                                         ),
-                                      ],
-                                    ),
-                            ),
+                                      )
+                                    : Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          _googleBadge(),
+                                          const SizedBox(width: 10),
+                                          const Text(
+                                            'Lanjutkan dengan Google',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ),
                           ],
                         ],
                       ),

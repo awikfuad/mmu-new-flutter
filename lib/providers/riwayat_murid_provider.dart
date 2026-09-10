@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../data/api/api_service.dart';
 
@@ -69,17 +70,34 @@ class RiwayatMuridProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final results = await Future.wait([
-        _api.dio.get('/kegiatan/student-attendance/history/${murid['nim']}'),
-        _api.dio.get('/attendances/student-history/${murid['id']}'),
-      ]);
-      _kegiatanRecords = results[0].data?['data'] ?? [];
-      _kbmRecords = results[1].data?['data'] ?? [];
+      final nim = murid['nim']?.toString();
+      final id = murid['id']?.toString();
+      if (nim == null || nim.isEmpty || id == null || id.isEmpty) {
+        _error = 'Data murid tidak lengkap (NIM/ID kosong)';
+        return;
+      }
+
+      // Fetch independently agar satu gagal tidak membatalkan yang lain
+      final list = await Future.wait<Response<dynamic>?>([
+        _safeGet('/kegiatan/student-attendance/history/$nim'),
+        _safeGet('/attendances/student-history/$id'),
+      ], eagerError: false);
+
+      _kegiatanRecords = list[0]?.data?['data'] ?? [];
+      _kbmRecords = list[1]?.data?['data'] ?? [];
     } catch (e) {
       _error = 'Gagal memuat riwayat murid: $e';
     } finally {
       _isLoadingDetail = false;
       notifyListeners();
+    }
+  }
+
+  Future<Response<dynamic>?> _safeGet(String path) async {
+    try {
+      return await _api.dio.get(path);
+    } catch (_) {
+      return null;
     }
   }
 

@@ -26,7 +26,7 @@ class _PresensiSayaBody extends StatelessWidget {
 
   Widget _badge(String label, Color color) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(6), border: Border.all(color: color.withOpacity(0.3))),
+        decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6), border: Border.all(color: color.withValues(alpha: 0.3))),
         child: Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: color)),
       );
 

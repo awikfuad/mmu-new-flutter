@@ -14,11 +14,11 @@ class GajiGuruProvider extends ChangeNotifier {
 
   double get totalGajiDibayar => _slips
       .where((s) => s['status'] == 'DIBAYAR')
-      .fold(0.0, (sum, s) => sum + (s['total'] ?? 0).toDouble());
+      .fold(0.0, (sum, s) => sum + (double.tryParse('${s['total'] ?? 0}') ?? 0));
 
   double get totalGajiDraft => _slips
       .where((s) => s['status'] == 'DRAFT')
-      .fold(0.0, (sum, s) => sum + (s['total'] ?? 0).toDouble());
+      .fold(0.0, (sum, s) => sum + (double.tryParse('${s['total'] ?? 0}') ?? 0));
 
   int get jumlahDibayar => _slips.where((s) => s['status'] == 'DIBAYAR').length;
   int get jumlahDraft => _slips.where((s) => s['status'] == 'DRAFT').length;

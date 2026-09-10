@@ -115,8 +115,11 @@ class PresensiKelasProvider extends ChangeNotifier {
           final nim = m['nim']?.toString() ?? '';
           final sid = _studentIdByNim[nim]?.toString();
           String? fetched;
-          if (sid != null && byStudentId.containsKey(sid)) fetched = byStudentId[sid];
-          else if (byNim.containsKey(nim)) fetched = byNim[nim];
+          if (sid != null && byStudentId.containsKey(sid)) {
+            fetched = byStudentId[sid];
+          } else if (byNim.containsKey(nim)) {
+            fetched = byNim[nim];
+          }
           if (fetched != null) {
             _attendanceStatus[nim] = fetched.toLowerCase();
             _previousStatus[nim] = fetched;
@@ -147,11 +150,19 @@ class PresensiKelasProvider extends ChangeNotifier {
     notifyListeners();
 
     final List<String> skippedNames = [];
-
-    // Capture GPS location once for all submissions
-    final GeoPosition? geo = await GeofenceHelper.getCurrentLocation();
+    final List<String> failedNames = [];
 
     try {
+      // Capture GPS location once for all submissions
+      GeoPosition? geo;
+      try {
+        geo = await GeofenceHelper.getCurrentLocation();
+      } catch (_) {
+        // GPS gagal tidak fatal — submit tanpa koordinat
+      }
+
+      // Kumpulkan semua payload yang perlu dikirim (hanya yang berubah)
+      final List<Map<String, dynamic>> payloads = [];
       for (final student in _students) {
         final nim = student['nim']?.toString() ?? '';
         final studentId = _studentIdByNim[nim];
@@ -161,7 +172,6 @@ class PresensiKelasProvider extends ChangeNotifier {
           continue;
         }
 
-        // Kirim hanya yang berubah (termasuk HADIR koreksi SAKIT->HADIR)
         final status = (_attendanceStatus[nim] ?? 'hadir').toUpperCase();
         final prev = _previousStatus[nim];
         final isChanged = prev != null && prev.isNotEmpty ? status != prev.toUpperCase() : status != 'HADIR';
@@ -177,8 +187,24 @@ class PresensiKelasProvider extends ChangeNotifier {
         if (geo != null) {
           payload.addAll(geo.toMap());
         }
+        payloads.add(payload);
+      }
 
-        await _api.dio.post('/attendances', data: payload);
+      // Submit semua secara paralel, gagal per-murid tidak membatalkan lainnya
+      await Future.wait(
+        payloads.map((p) => _api.dio.post('/attendances', data: p).catchError((e) {
+          final name = _students.firstWhere(
+            (s) => s['nim']?.toString() == p['student_id'].toString(),
+            orElse: () => {'name': p['student_id'].toString()},
+          )['name'];
+          failedNames.add(name?.toString() ?? p['student_id'].toString());
+          return e;
+        })),
+        eagerError: false,
+      );
+
+      if (failedNames.isNotEmpty) {
+        _error = 'Gagal menyimpan: ${failedNames.join(", ")}';
       }
     } catch (e) {
       _error = 'Gagal menyimpan presensi: $e';

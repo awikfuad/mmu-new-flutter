@@ -26,11 +26,13 @@ class ApiService {
     if (cb != null) cb();
   }
 
-  // PERBAIKAN: defaultValue diisi dengan URL Vercel
+  // OVERRIDE_API_URL: set via --dart-define=OVERRIDE_API_URL=... saat build CI/release.
+  // Kosong = gunakan DEFAULT_API_URL.
   static const String _overrideBaseUrl = String.fromEnvironment(
     'OVERRIDE_API_URL',
-    defaultValue: 'https://mmu-new-backend.vercel.app/api',
+    defaultValue: '',
   );
+  // DEFAULT_API_URL: fallback untuk local development.
   static const String _defaultBaseUrl = String.fromEnvironment(
     'DEFAULT_API_URL',
     defaultValue: 'http://localhost:5000/api',
@@ -140,10 +142,10 @@ class ApiService {
     // Jika refresh sedang berjalan di request lain, tunggu hingga selesai
     if (_refreshCompleter != null && !_refreshCompleter!.isCompleted) {
       await _refreshCompleter!.future;
-      final freshToken = await LocalStorage.getAccessToken();
+        final freshToken = await LocalStorage.getAccessToken();
       if (freshToken != null) {
         try {
-          final retryOptions = e.requestOptions;
+          final retryOptions = e.requestOptions.copyWith();
           retryOptions.headers['Authorization'] = 'Bearer $freshToken';
           final retryResponse = await refreshDio.fetch(retryOptions);
           return handler.resolve(retryResponse);
@@ -187,7 +189,7 @@ class ApiService {
       _completeRefresh();
 
       // Retry request awal dengan token baru
-      final retryOptions = e.requestOptions;
+      final retryOptions = e.requestOptions.copyWith();
       retryOptions.headers['Authorization'] = 'Bearer $newAccessToken';
       final retryResponse = await refreshDio.fetch(retryOptions);
       return handler.resolve(retryResponse);
@@ -202,7 +204,8 @@ class ApiService {
       return handler.next(refreshError);
     } catch (_) {
       _completeRefresh();
-      await _clearAuthAndNotify();
+      // Non-Dio exception (e.g. TypeError, FormatException) — jangan force logout,
+      // biarkan request gagal natural. Sesi bisa pulih di request berikutnya.
       return handler.next(e);
     }
   }

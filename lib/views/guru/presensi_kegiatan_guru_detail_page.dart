@@ -134,7 +134,7 @@ class _PresensiKegiatanGuruBodyState extends State<_PresensiKegiatanGuruBody> {
                                       borderRadius: BorderRadius.circular(8),
                                       selectedColor: colorScheme.surface,
                                       fillColor: colorScheme.tertiary,
-                                      disabledColor: Colors.grey.shade300,
+                                      disabledColor: colorScheme.surfaceContainerHighest,
                                       constraints: const BoxConstraints(minWidth: 40, minHeight: 35),
                                       children: const [
                                         Text('H', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -154,18 +154,18 @@ class _PresensiKegiatanGuruBodyState extends State<_PresensiKegiatanGuruBody> {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
-                    color: Colors.grey.shade100,
-                    child: const Text(
+                    color: colorScheme.surfaceContainerLow,
+                    child: Text(
                       'Mode Admin: hanya menampilkan rekap kehadiran asatidz.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Colors.black54),
+                      style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
                     ),
                   ),
                 ] else
                   Container(
                     padding: const EdgeInsets.all(16),
                     width: double.infinity,
-                    color: Colors.white,
+                    color: colorScheme.surface,
                     child: ElevatedButton(
                       onPressed: isSaving
                           ? null

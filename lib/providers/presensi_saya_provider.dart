@@ -11,6 +11,7 @@ class PresensiSayaProvider extends ChangeNotifier {
   List<dynamic> _schedules = [];
   String _currentDay = '';
   String? _error;
+  int _summaryGeneration = 0;
 
   bool get isLoading => _isLoading;
   bool get isAdmin => _isAdmin;
@@ -41,8 +42,7 @@ class PresensiSayaProvider extends ChangeNotifier {
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         _schedules = response.data['data'] ?? [];
-        // Fetch ringkasan sudah/belum per jadwal (jumlah hadir/sakit/izin/alpa)
-        _fetchSummaries();
+        _fetchSummaries(++_summaryGeneration);
       }
     } on DioException catch (e) {
       _error =
@@ -55,11 +55,12 @@ class PresensiSayaProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> _fetchSummaries() async {
+  Future<void> _fetchSummaries(int gen) async {
     final today = DateTime.now();
     final todayStr =
         '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     for (final s in _schedules) {
+      if (gen != _summaryGeneration) return;
       final cid = s['classroom_id'];
       final sess = (s['session_name'] ?? 'PAGI').toString();
       final sid = s['schedule_id'] ?? s['id'];
@@ -69,12 +70,13 @@ class PresensiSayaProvider extends ChangeNotifier {
           'session_name': sess,
           'date': todayStr,
         });
+        if (gen != _summaryGeneration) return;
         final sum = res.data?['summary'];
         if (sum is Map) {
           _summaries[int.tryParse(sid.toString()) ?? sid.hashCode] = Map<String, dynamic>.from(sum);
         }
       } catch (_) {}
     }
-    notifyListeners();
+    if (gen == _summaryGeneration) notifyListeners();
   }
 }

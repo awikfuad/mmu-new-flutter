@@ -42,9 +42,11 @@ class PresensiKegiatanGuruProvider extends ChangeNotifier {
         _teachers = data;
         _attendanceStatus.clear();
         for (final teacher in data) {
-          if (teacher != null && teacher['teacher_id'] != null) {
-            final status = (teacher['status'] ?? 'ALPA').toString().toLowerCase();
-            _attendanceStatus[teacher['teacher_id']] = status;
+          if (teacher != null) {
+            final tid = int.tryParse('${teacher['teacher_id']}');
+            if (tid == null) continue;
+            final status = (teacher['status'] ?? 'HADIR').toString().toLowerCase();
+            _attendanceStatus[tid] = status;
           }
         }
       }
@@ -69,7 +71,11 @@ class PresensiKegiatanGuruProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final int teacherId = _currentTeacherId ?? 0;
+      final int? teacherId = _currentTeacherId;
+      if (teacherId == null) {
+        _error = 'Data guru tidak ditemukan.';
+        return;
+      }
 
       // Capture GPS location
       final GeoPosition? geo = await GeofenceHelper.getCurrentLocation();

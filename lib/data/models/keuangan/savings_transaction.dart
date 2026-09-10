@@ -57,7 +57,7 @@ class SavingsDashboard {
     return SavingsDashboard(
       studentId: data['student_id'] != null ? int.tryParse('${data['student_id']}') : null,
       balance: double.tryParse('$bal') ?? 0,
-      history: list.map((e) => SavingsTransaction.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
+      history: list.whereType<Map>().map((e) => SavingsTransaction.fromJson(Map<String, dynamic>.from(e))).toList(),
     );
   }
 }

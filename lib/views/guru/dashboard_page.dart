@@ -777,7 +777,7 @@ class DynamicCurvedHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant DynamicCurvedHeaderDelegate oldDelegate) {
-    return oldDelegate.dash != dash;
+    return true; // Provider notifyListeners → rebuild header
   }
 }
 // ── Custom Clipper untuk Lengkungan ke Atas (Concave) ──

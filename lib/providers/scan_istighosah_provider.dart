@@ -41,12 +41,18 @@ class ScanIstighosahProvider extends ChangeNotifier {
   Future<bool> processQrData(String nimRaw, int activityId) async {
     if (_isProcessing) return false;
 
+    final String nim = nimRaw.trim();
+    if (nim.isEmpty) {
+      _error = 'Kode QR kosong. Silakan scan ulang.';
+      _lastSuccess = false;
+      notifyListeners();
+      return false;
+    }
+
     _isProcessing = true;
     _error = null;
     _lastSuccess = null;
     notifyListeners();
-
-    final String nim = nimRaw.trim();
     String studentName = nim;
     String className = '-';
     final waktuHijriah = _getWaktuHijriah();
