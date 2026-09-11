@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dashboard_guru_provider.dart';
+import 'akun_google_page.dart';
 import 'gaji_guru_page.dart';
 import 'guru_piket_page.dart';
 import 'input_nilai_harian_page.dart';
@@ -106,6 +107,14 @@ class _DashboardPageState extends State<DashboardPage> {
               subtitle: 'Slip Pendapatan',
               color: getVibrantColor(const Color(0xFFB45309), const Color(0xFFF59E0B)),
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GajiGuruPage())),
+            ),
+            _buildActionCard(
+              context,
+              icon: Icons.g_mobiledata,
+              title: 'Akun Google',
+              subtitle: 'Tautkan Login',
+              color: getVibrantColor(const Color(0xFF7C3AED), const Color(0xFFA78BFA)),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AkunGooglePage())),
             ),
             //  _buildActionCard(
             //   context,

@@ -141,6 +141,124 @@ class AuthProvider extends ChangeNotifier {
     );
   }
 
+  /// Status tautan Google akun sendiri (GET /auth/google/status).
+  /// Return null bila gagal (pesan error di [_errorMessage]).
+  Future<Map<String, dynamic>?> getGoogleAuthStatus() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      final response = await _api.dio.get('/auth/google/status');
+      final data = response.data;
+      if (data is Map && data['success'] == true && data['data'] is Map) {
+        _isLoading = false;
+        notifyListeners();
+        return Map<String, dynamic>.from(data['data']);
+      }
+      _errorMessage = data is Map
+          ? (data['message']?.toString() ?? 'Gagal memuat status Google.')
+          : 'Gagal memuat status Google.';
+      _isLoading = false;
+      notifyListeners();
+      return null;
+    } on DioException catch (e) {
+      _errorMessage = _dioErrorMessage(e);
+      _isLoading = false;
+      notifyListeners();
+      return null;
+    } catch (e) {
+      _errorMessage = 'Terjadi kesalahan: $e';
+      _isLoading = false;
+      notifyListeners();
+      return null;
+    }
+  }
+
+  /// Tautkan akun Google ke akun saat ini (POST /auth/link-google).
+  Future<bool> linkGoogle(String idToken) async {
+    _isLoading = true;
+    _errorMessage = null;
+    _successMessage = null;
+    notifyListeners();
+    try {
+      final response = await _api.dio.post(
+        '/auth/link-google',
+        data: {'idToken': idToken},
+      );
+      final data = response.data;
+      if (data is Map && data['success'] == true) {
+        final user = data['user'];
+        if (user is Map) {
+          final merged = {...?_user, ...Map<String, dynamic>.from(user)};
+          merged['google_email'] =
+              user['google_email'] ?? merged['google_email'] ?? _user?['google_email'];
+          await LocalStorage.saveUser(merged);
+          _user = merged;
+        }
+        _successMessage =
+            data['message']?.toString() ?? 'Akun Google berhasil ditautkan.';
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      }
+      _errorMessage = data is Map
+          ? (data['message']?.toString() ?? 'Gagal menautkan akun Google.')
+          : 'Gagal menautkan akun Google.';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } on DioException catch (e) {
+      _errorMessage = _dioErrorMessage(e);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = 'Terjadi kesalahan: $e';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Putuskan tautan Google akun sendiri (DELETE /auth/link-google).
+  Future<bool> unlinkGoogle() async {
+    _isLoading = true;
+    _errorMessage = null;
+    _successMessage = null;
+    notifyListeners();
+    try {
+      final response = await _api.dio.delete('/auth/link-google');
+      final data = response.data;
+      if (data is Map && data['success'] == true) {
+        final merged = {...?_user};
+        merged.remove('google_email');
+        await LocalStorage.saveUser(merged);
+        _user = merged;
+        _successMessage =
+            data['message']?.toString() ?? 'Tautan Google berhasil diputuskan.';
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      }
+      _errorMessage = data is Map
+          ? (data['message']?.toString() ?? 'Gagal memutuskan tautan Google.')
+          : 'Gagal memutuskan tautan Google.';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } on DioException catch (e) {
+      _errorMessage = _dioErrorMessage(e);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = 'Terjadi kesalahan: $e';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   // ── Generic internal login (DRY) ──
 
   Future<bool> _loginInternal({

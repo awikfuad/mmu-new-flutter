@@ -1,5 +1,6 @@
 // Barrel — Guru / Admin (role: admin, teacher)
 // Dipakai via: import 'views/guru/guru.dart';
+export 'akun_google_page.dart';
 export 'dashboard_page.dart';
 export 'gaji_guru_page.dart';
 export 'guru_piket_page.dart';
