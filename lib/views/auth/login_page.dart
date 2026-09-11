@@ -25,7 +25,11 @@ class _LoginPageState extends State<LoginPage> {
 
   // Client ID Google (web) — di-inject saat build:
   //   flutter build --dart-define=GOOGLE_CLIENT_ID=<WEB_CLIENT_ID.apps.googleusercontent.com>
-  static const String _googleClientId = String.fromEnvironment('GOOGLE_CLIENT_ID');
+  static const String _googleClientId = String.fromEnvironment(
+    'GOOGLE_CLIENT_ID',
+    defaultValue:
+        '904890785521-gv6k0n0taspm56anr2bq0n13i6di3o74.apps.googleusercontent.com',
+  );
   bool get _googleEnabled => _loginMode == LoginMode.guru && _googleClientId.isNotEmpty;
 
   @override
@@ -162,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _googleBusy = true);
     try {
       final googleSignIn = GoogleSignIn.instance;
-      await googleSignIn.initialize(serverClientId: _googleClientId);
+      await googleSignIn.initialize(serverClientId: '904890785521-gv6k0n0taspm56anr2bq0n13i6di3o74.apps.googleusercontent.com');
 
       GoogleSignInAccount account;
       try {
@@ -216,8 +220,67 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     } else {
-      _showLoginError(auth.errorMessage);
+      // Tampilkan dialog khusus bila Google menolak (akun belum tertaut) —
+      // mencantumkan EMAIL akun Google yang dikirim, agar jelas akun mana
+      // yang dipakai vs yang tertaut di akun guru/admin.
+      final needLinkEmail = auth.googleNeedLinkEmail;
+      if (needLinkEmail != null && needLinkEmail.isNotEmpty) {
+        _showGoogleNeedLinkDialog(needLinkEmail);
+      } else {
+        _showLoginError(auth.errorMessage);
+      }
     }
+  }
+
+  /// Dialog khusus saat server menolak login Google karena akun yg dipakai
+  /// belum ditautkan ke akun guru/admin mana pun.
+  void _showGoogleNeedLinkDialog(String googleEmail) {
+    final cs = Theme.of(context).colorScheme;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(Icons.g_mobiledata_rounded, color: cs.error, size: 28),
+            const SizedBox(width: 10),
+            const Expanded(child: Text('Belum Terhubung')),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: cs.errorContainer.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                googleEmail,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: cs.onErrorContainer,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Akun Google di atas belum terhubung ke akun MMU mana pun. '
+              'Login pakai username/password guru/admin, lalu hubungkan email '
+              'Google yang SAMA lewat menu Profil → Akun Google.',
+              style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant, height: 1.4),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
+        ],
+      ),
+    );
   }
 
   void _showForgotPasswordDialog() {
@@ -596,6 +659,16 @@ class _LoginPageState extends State<LoginPage> {
                                       ),
                               ),
                           ],
+                          // const SizedBox(height: 4),
+                          // Text(
+                          //   'Login Google memakai email yg SAMA dgn yg sudah '
+                          //   'dihubungkan ke akun guru/admin (menu Profil → Akun Google).',
+                          //   textAlign: TextAlign.center,
+                          //   style: TextStyle(
+                          //     fontSize: 11,
+                          //     color: cs.onSurfaceVariant,
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),

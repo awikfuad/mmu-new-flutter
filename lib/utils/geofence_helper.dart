@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
 /// Helper for GPS-based geofencing validation on the device side.
@@ -58,7 +59,40 @@ class GeofenceHelper {
       return null;
     }
   }
+// Contoh perbaikan pada geofence_helper.dart
 
+
+static Future<Position?> getCurrentLocationSafely() async {
+  try {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw 'Layanan lokasi (GPS) tidak aktif di browser/perangkat Anda.';
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        throw 'Izin lokasi ditolak.';
+      }
+    }
+    
+    if (permission == LocationPermission.deniedForever) {
+      throw 'Izin lokasi ditolak secara permanen. Harap izinkan melalui pengaturan browser.';
+    }
+
+    return await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        timeLimit: Duration(seconds: 10),
+      ),
+    );
+  } catch (e) {
+    // MENANGANI JS OBJECT ERROR PADA FLUTTER WEB
+    debugPrint('Gagal mendapatkan lokasi GPS: $e');
+    rethrow;
+  }
+}
   /// Validate if current position is within the geofence.
   /// Returns a GeofenceResult with distance info.
   static GeofenceResult validate({

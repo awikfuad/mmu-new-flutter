@@ -34,7 +34,7 @@ class _KegiatanInternalGuruPageState extends State<KegiatanInternalGuruPage> {
           return Scaffold(
       appBar: AppBar(
         title: const Text('Presensi Kegiatan Internal Guru'),
-        backgroundColor: colorScheme.tertiary,
+         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
       ),
       body: provider.isLoading

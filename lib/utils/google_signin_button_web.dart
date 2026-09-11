@@ -1,16 +1,10 @@
-import 'dart:async';
+// File: google_signin_button_web.dart
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:google_sign_in_web/web_only.dart' as gsi_web;
 
-/// Web implementation of the Google Sign-In button.
-///
-/// The web platform does not support `GoogleSignIn.authenticate()` — it only
-/// allows rendering the official Google Identity Services (GIS) button. The
-/// ID token of a completed sign-in is delivered through
-/// `GoogleSignIn.authenticationEvents`, which this widget forwards to
-/// [onIdToken].
 class _GoogleSignInWebButton extends StatefulWidget {
   const _GoogleSignInWebButton({
     required this.clientId,
@@ -28,6 +22,7 @@ class _GoogleSignInWebButtonState extends State<_GoogleSignInWebButton> {
   StreamSubscription<GoogleSignInAuthenticationEvent>? _authSub;
   bool _ready = false;
   bool _failed = false;
+  String? _lastIdToken;
 
   @override
   void initState() {
@@ -35,22 +30,28 @@ class _GoogleSignInWebButtonState extends State<_GoogleSignInWebButton> {
     _init();
   }
 
+  // ── DITARUH DI SINI (METHOD _init) ──
   Future<void> _init() async {
     try {
       await GoogleSignIn.instance.initialize(clientId: widget.clientId);
+
       _authSub = GoogleSignIn.instance.authenticationEvents.listen((event) {
+        if (!mounted) return;
         if (event is! GoogleSignInAuthenticationEventSignIn) return;
         final idToken = event.user.authentication.idToken;
-        if (idToken != null) {
-          widget.onIdToken(idToken);
-        } else {
-          debugPrint('[google_signin_web] ID token kosong setelah sign-in.');
-        }
+        if (idToken == null || idToken == _lastIdToken) return;
+
+        _lastIdToken = idToken;
+        widget.onIdToken(idToken); // Mengirim ID Token langsung ke backend
       });
+
       if (!mounted) return;
       setState(() => _ready = true);
+
+      // Memicu pemeriksaan sesi/prompt otomatis tanpa popup pilihan
+      GoogleSignIn.instance.supportsAuthenticate();
     } catch (e) {
-      debugPrint('[google_signin_web] Gagal init GoogleSignIn: $e');
+      debugPrint('[google_signin_web] Error init GoogleSignIn: $e');
       if (mounted) setState(() => _failed = true);
     }
   }
@@ -63,9 +64,8 @@ class _GoogleSignInWebButtonState extends State<_GoogleSignInWebButton> {
 
   @override
   Widget build(BuildContext context) {
-    if (_failed) {
-      return const SizedBox.shrink();
-    }
+    if (_failed) return const SizedBox.shrink();
+
     if (!_ready) {
       return const SizedBox(
         height: 48,
@@ -79,6 +79,7 @@ class _GoogleSignInWebButtonState extends State<_GoogleSignInWebButton> {
         ),
       );
     }
+
     return SizedBox(
       height: 48,
       width: double.infinity,
@@ -89,6 +90,7 @@ class _GoogleSignInWebButtonState extends State<_GoogleSignInWebButton> {
           shape: gsi_web.GSIButtonShape.pill,
           theme: gsi_web.GSIButtonTheme.outline,
           text: gsi_web.GSIButtonText.continueWith,
+          
         ),
       ),
     );

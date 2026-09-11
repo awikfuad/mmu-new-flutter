@@ -118,12 +118,11 @@ class _GuruPiketBody extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: colorScheme.onSurface,
+           
           ),
         ),
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        // scaffoldColorScheme: colorScheme,
+         backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator(color: colorScheme.primary))

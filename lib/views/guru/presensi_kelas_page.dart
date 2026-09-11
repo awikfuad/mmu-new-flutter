@@ -114,8 +114,8 @@ class _PresensiKelasBody extends StatelessWidget {
             ),
           ],
         ),
-        backgroundColor: colorScheme.surface,
-        // scaffoldColorScheme: colorScheme,
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
         elevation: 0,
       ),
       body: isLoading

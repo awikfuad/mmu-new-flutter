@@ -30,8 +30,8 @@ class _RiwayatAbsensiGuruPageState extends State<RiwayatAbsensiGuruPage> {
                   'Riwayat Absensi Guru',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
-                backgroundColor: colorScheme.surface,
-                foregroundColor: colorScheme.onSurface,
+                backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
                 bottom: PreferredSize(
                   preferredSize: Size.fromHeight(provider.isAdmin ? 120 : 48),
                   child: Column(
@@ -42,10 +42,10 @@ class _RiwayatAbsensiGuruPageState extends State<RiwayatAbsensiGuruPage> {
                           child: _buildTeacherPicker(provider, colorScheme),
                         ),
                       TabBar(
-                        indicatorColor: colorScheme.primary,
+                        indicatorColor: colorScheme.onPrimary,
                         indicatorWeight: 3,
-                        labelColor: colorScheme.primary,
-                        unselectedLabelColor: colorScheme.onSurfaceVariant,
+                        labelColor: colorScheme.onPrimary,
+                        unselectedLabelColor: colorScheme.onPrimary.withValues(alpha:0.7),
                         labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                         tabs: const [
                           Tab(text: 'Kegiatan Internal'),

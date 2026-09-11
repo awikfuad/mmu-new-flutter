@@ -12,6 +12,7 @@ class AuthProvider extends ChangeNotifier {
   Map<String, dynamic>? _user;
   String? _errorMessage;
   String? _successMessage;
+  String? _googleNeedLinkEmail;
 
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _isLoggedIn;
@@ -19,6 +20,7 @@ class AuthProvider extends ChangeNotifier {
   Map<String, dynamic>? get user => _user;
   String? get errorMessage => _errorMessage;
   String? get successMessage => _successMessage;
+  String? get googleNeedLinkEmail => _googleNeedLinkEmail;
   String? get userRole => _user?['role'];
   bool get isAdmin => _user?['role'] == 'admin';
   bool get isTeacher => _user?['role'] == 'teacher';
@@ -150,10 +152,10 @@ class AuthProvider extends ChangeNotifier {
     try {
       final response = await _api.dio.get('/auth/google/status');
       final data = response.data;
-      if (data is Map && data['success'] == true && data['data'] is Map) {
+      if (data is Map && data['success'] == true) {
         _isLoading = false;
         notifyListeners();
-        return Map<String, dynamic>.from(data['data']);
+        return Map<String, dynamic>.from(data);
       }
       _errorMessage = data is Map
           ? (data['message']?.toString() ?? 'Gagal memuat status Google.')
@@ -187,11 +189,9 @@ class AuthProvider extends ChangeNotifier {
       );
       final data = response.data;
       if (data is Map && data['success'] == true) {
-        final user = data['user'];
-        if (user is Map) {
-          final merged = {...?_user, ...Map<String, dynamic>.from(user)};
-          merged['google_email'] =
-              user['google_email'] ?? merged['google_email'] ?? _user?['google_email'];
+        final googleEmail = data['google_email']?.toString();
+        if (googleEmail != null) {
+          final merged = {...?_user, 'google_email': googleEmail};
           await LocalStorage.saveUser(merged);
           _user = merged;
         }
@@ -268,6 +268,7 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     _successMessage = null;
+    _googleNeedLinkEmail = null;
     notifyListeners();
 
     try {
@@ -308,6 +309,16 @@ class AuthProvider extends ChangeNotifier {
       return false;
     } on DioException catch (e) {
       _errorMessage = _dioErrorMessage(e);
+      if (endpoint == '/auth/google') {
+        final data = e.response?.data;
+        if (data is Map && data['needLink'] == true) {
+          final email = data['google_email']?.toString();
+          _googleNeedLinkEmail = email;
+          if (email != null && email.isNotEmpty) {
+            _errorMessage = _buildNeedLinkMessage(email);
+          }
+        }
+      }
       _isLoading = false;
       notifyListeners();
       return false;
@@ -317,6 +328,15 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  /// Pesan jelas saat akun Google yg dipakai belum tertaut — mencantumkan EMAIL
+  /// akun Google yg dicoba agar pengguna tahu akun mana yg dikirim ke server
+  /// (bukan sekadar "belum terhubung" yg membingungkan).
+  String _buildNeedLinkMessage(String googleEmail) {
+    return 'Akun Google "$googleEmail" belum terhubung ke akun MMU mana pun.\n'
+        'Gunakan akun Google yg sama dgn saat menghubungkan, atau login pakai '
+        'username/password lalu hubungkan via menu Profil → Akun Google.';
   }
 
   String _dioErrorMessage(DioException e) {

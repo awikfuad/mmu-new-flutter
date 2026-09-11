@@ -166,8 +166,8 @@ class _PresensiSayaBody extends StatelessWidget {
                 style: const TextStyle(fontSize: 12)),
           ],
         ),
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
+         backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
       ),
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())

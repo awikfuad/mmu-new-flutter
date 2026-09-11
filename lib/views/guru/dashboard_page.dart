@@ -6,6 +6,7 @@ import 'akun_google_page.dart';
 import 'gaji_guru_page.dart';
 import 'guru_piket_page.dart';
 import 'input_nilai_harian_page.dart';
+import 'jadwal_mingguan_page.dart';
 import 'kegiatan_internal_guru_page.dart';
 import 'kegiatan_non_akademik_page.dart';
 import 'pembayaran_page.dart';
@@ -75,6 +76,14 @@ class _DashboardPageState extends State<DashboardPage> {
               subtitle: 'KBM Kelas',
               color: getVibrantColor(const Color(0xFF007722), const Color(0xFF22C55E)),
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PresensiSayaPage())),
+            ),
+            _buildActionCard(
+              context,
+              icon: Icons.calendar_view_week_outlined,
+              title: 'Jadwal Sepekan',
+              subtitle: 'Seminggu',
+              color: getVibrantColor(const Color(0xFF7E22CE), const Color(0xFFC084FC)),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const JadwalMingguanPage())),
             ),
             _buildActionCard(
               context,

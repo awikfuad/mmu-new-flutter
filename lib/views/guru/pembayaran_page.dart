@@ -57,8 +57,8 @@ class _PembayaranPageState extends State<PembayaranPage> {
                   'Pembayaran Santri',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
-                backgroundColor: colorScheme.surface,
-                foregroundColor: colorScheme.onSurface,
+                 backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
                 bottom: TabBar(
                   indicatorColor: colorScheme.primary,
                   labelColor: colorScheme.primary,

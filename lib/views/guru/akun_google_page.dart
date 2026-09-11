@@ -7,11 +7,6 @@ import '../../utils/google_signin_button.dart';
 
 /// Halaman "Akun Google" — self-service agar guru/admin menautkan atau
 /// memutuskan tautan akun Google-nya sendiri (mirip menu Profil di web).
-///
-/// Native: `GoogleSignIn.initialize(serverClientId:)` → `authenticate()` →
-/// idToken → `POST /auth/link-google`.
-///
-/// Web: `buildGoogleSignInButton(clientId, onIdToken)` (GIS renderButton).
 class AkunGooglePage extends StatefulWidget {
   const AkunGooglePage({super.key});
 
@@ -20,14 +15,18 @@ class AkunGooglePage extends StatefulWidget {
 }
 
 class _AkunGooglePageState extends State<AkunGooglePage> {
-  static const String _googleClientId =
-      String.fromEnvironment('GOOGLE_CLIENT_ID');
+  static const String _googleClientId = String.fromEnvironment(
+    'GOOGLE_CLIENT_ID',
+    defaultValue:
+        '904890785521-gv6k0n0taspm56anr2bq0n13i6di3o74.apps.googleusercontent.com',
+  );
 
   bool _loading = true;
   bool _googleBusy = false;
   bool _configured = false;
   bool _linked = false;
   String? _googleEmail;
+  String? _googlePhotoUrl;
 
   @override
   void initState() {
@@ -44,6 +43,7 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
       _configured = status?['configured'] == true;
       _linked = status?['linked'] == true;
       _googleEmail = status?['google_email']?.toString();
+      _googlePhotoUrl = status?['google_photo_url']?.toString();
     });
   }
 
@@ -67,8 +67,11 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
     if (_googleBusy) return;
     setState(() => _googleBusy = true);
     try {
+      // API google_sign_in v7.x+ menggunakan .instance & initialize
       final googleSignIn = GoogleSignIn.instance;
-      await googleSignIn.initialize(serverClientId: _googleClientId);
+      await googleSignIn.initialize(
+        serverClientId: _googleClientId,
+      );
 
       GoogleSignInAccount account;
       try {
@@ -76,22 +79,27 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
       } on GoogleSignInException catch (e) {
         if (e.code == GoogleSignInExceptionCode.canceled ||
             e.code == GoogleSignInExceptionCode.interrupted) {
-          return; // pengguna membatalkan
+          return; // Pengguna membatalkan
         }
         _showSnack('Gagal memilih akun Google: $e', isError: true);
         return;
       }
 
       final String? idToken = account.authentication.idToken;
+
       if (idToken == null) {
         _showSnack(
-          'Tidak menerima ID token dari Google. Pastikan client ID web sudah '
-          'didaftarkan di Google Cloud Console (OAuth web client).',
+          'Tidak menerima ID token dari Google. Pastikan Client ID sesuai.',
           isError: true,
         );
         return;
       }
-      await _submitLink(idToken);
+
+      await _submitLink(
+        idToken,
+        photoUrl: account.photoUrl,
+        displayName: account.displayName,
+      );
     } catch (e) {
       if (!mounted) return;
       _showSnack('Gagal menautkan akun Google: $e', isError: true);
@@ -100,16 +108,21 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
     }
   }
 
-  Future<void> _submitLink(String idToken) async {
+  Future<void> _submitLink(
+    String idToken, {
+    String? photoUrl,
+    String? displayName,
+  }) async {
     final auth = context.read<AuthProvider>();
+
     final success = await auth.linkGoogle(idToken);
+
     if (!mounted) return;
     if (success) {
       _showSnack(auth.successMessage ?? 'Akun Google berhasil ditautkan.');
       await _loadStatus();
     } else {
-      _showSnack(auth.errorMessage ?? 'Gagal menautkan akun Google.',
-          isError: true);
+      _showSnack(auth.errorMessage ?? 'Gagal menautkan akun Google.', isError: true);
     }
   }
 
@@ -152,8 +165,7 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
       _showSnack(auth.successMessage ?? 'Tautan Google diputuskan.');
       await _loadStatus();
     } else {
-      _showSnack(auth.errorMessage ?? 'Gagal memutuskan tautan Google.',
-          isError: true);
+      _showSnack(auth.errorMessage ?? 'Gagal memutuskan tautan Google.', isError: true);
     }
   }
 
@@ -191,18 +203,30 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
                     ),
                     child: Column(
                       children: [
+                        // ── Avatar Profil / Icon Status ──
                         CircleAvatar(
-                          radius: 28,
+                          radius: 32,
                           backgroundColor: _linked
                               ? Colors.green.withAlpha(38)
                               : colorScheme.surfaceContainerHighest,
-                          child: Icon(
-                            _linked
-                                ? Icons.check_circle_rounded
-                                : Icons.link_off_rounded,
-                            size: 30,
-                            color: _linked ? Colors.green.shade700 : colorScheme.onSurfaceVariant,
-                          ),
+                          backgroundImage: (_linked &&
+                                  _googlePhotoUrl != null &&
+                                  _googlePhotoUrl!.isNotEmpty)
+                              ? NetworkImage(_googlePhotoUrl!)
+                              : null,
+                          child: (_linked &&
+                                  _googlePhotoUrl != null &&
+                                  _googlePhotoUrl!.isNotEmpty)
+                              ? null
+                              : Icon(
+                                  _linked
+                                      ? Icons.check_circle_rounded
+                                      : Icons.link_off_rounded,
+                                  size: 32,
+                                  color: _linked
+                                      ? Colors.green.shade700
+                                      : colorScheme.onSurfaceVariant,
+                                ),
                         ),
                         const SizedBox(height: 12),
                         Text(
@@ -210,7 +234,9 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: _linked ? Colors.green.shade800 : colorScheme.onSurface,
+                            color: _linked
+                                ? Colors.green.shade800
+                                : colorScheme.onSurface,
                           ),
                         ),
                         if (_linked && _googleEmail != null) ...[
@@ -290,7 +316,8 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
                         buildGoogleSignInButton(
                           clientId: _googleClientId,
                           onIdToken: (idToken) => _submitLink(idToken),
-                        )!,
+                        ) ??
+                            const SizedBox.shrink(),
                       ] else ...[
                         SizedBox(
                           width: double.infinity,

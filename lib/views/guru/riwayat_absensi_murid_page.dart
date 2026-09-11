@@ -39,8 +39,8 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
                 'Riwayat Absensi Murid',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
-              backgroundColor: colorScheme.surface,
-              foregroundColor: colorScheme.onSurface,
+              backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
             ),
             body: provider.isLoadingList
                 ? _buildShimmerLoadingList(context)

@@ -45,7 +45,7 @@ class _PresensiKegiatanDetailBody extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(activityName),
-        backgroundColor: colorScheme.secondary,
+        backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
         actions: [
           Padding(

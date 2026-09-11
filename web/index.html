@@ -19,6 +19,7 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
+  <meta name="google-signin-client_id" content="904890785521-gv6k0n0taspm56anr2bq0n13i6di3o74.apps.googleusercontent.com">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -34,5 +35,26 @@
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
+  <!-- Load Script Google GIS -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script>
+  window.onload = function () {
+    google.accounts.id.initialize({
+      client_id: "904890785521-gv6k0n0taspm56anr2bq0n13i6di3o74.apps.googleusercontent.com",
+      callback: handleCredentialResponse,
+      auto_select: true, // Bypass popup jika pengguna sudah login sebelumnya
+      cancel_on_tap_outside: false
+    });
+
+    // Memicu prompt One Tap otomatis di pojok kanan atas / banner
+    google.accounts.id.prompt();
+  };
+
+  function handleCredentialResponse(response) {
+    // Kirim ID token langsung ke Flutter via JavaScript Channel / Custom Event jika diperlukan
+    console.log("Encoded JWT ID token: " + response.credential);
+  }
+</script>
 </body>
 </html>

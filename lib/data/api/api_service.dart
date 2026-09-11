@@ -30,7 +30,7 @@ class ApiService {
   // Kosong = gunakan DEFAULT_API_URL.
   static const String _overrideBaseUrl = String.fromEnvironment(
     'OVERRIDE_API_URL',
-    defaultValue: '',
+    defaultValue: 'https://mmu-new-backend.vercel.app/api',
   );
   // DEFAULT_API_URL: fallback untuk local development.
   static const String _defaultBaseUrl = String.fromEnvironment(
@@ -97,9 +97,11 @@ class ApiService {
 
   bool _isAuthEndpoint(String path) {
     final p = path.toLowerCase();
-    return p.contains('/auth/login') ||
-        p.contains('/auth/refresh-token') ||
-        p.contains('/auth/logout');
+    // Semua endpoint /auth/* bersifat publik (tidak butuh Bearer token):
+    // login, login-student, login-parent, google, link-google, google/status,
+    // refresh-token, logout. Mencegah 401 "needLink" pada /auth/google memicu
+    // rotasi refresh token / clear-auth yang mengaburkan pesan aslinya.
+    return p.contains('/auth/');
   }
 
   bool _shouldAttemptRefresh(DioException e) {
