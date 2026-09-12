@@ -166,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _googleBusy = true);
     try {
       final googleSignIn = GoogleSignIn.instance;
-      await googleSignIn.initialize(serverClientId: '904890785521-gv6k0n0taspm56anr2bq0n13i6di3o74.apps.googleusercontent.com');
+      await googleSignIn.initialize(serverClientId: _googleClientId);
 
       GoogleSignInAccount account;
       try {

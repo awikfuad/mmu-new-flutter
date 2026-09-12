@@ -108,23 +108,24 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
     }
   }
 
-  Future<void> _submitLink(
-    String idToken, {
-    String? photoUrl,
-    String? displayName,
-  }) async {
-    final auth = context.read<AuthProvider>();
+ Future<void> _submitLink(
+  String idToken, {
+  String? photoUrl,
+  String? displayName,
+}) async {
+  final auth = context.read<AuthProvider>();
 
-    final success = await auth.linkGoogle(idToken);
+  // Kirim idToken ke backend API melalui Provider
+  final success = await auth.linkGoogle(idToken);
 
-    if (!mounted) return;
-    if (success) {
-      _showSnack(auth.successMessage ?? 'Akun Google berhasil ditautkan.');
-      await _loadStatus();
-    } else {
-      _showSnack(auth.errorMessage ?? 'Gagal menautkan akun Google.', isError: true);
-    }
+  if (!mounted) return;
+  if (success) {
+    _showSnack(auth.successMessage ?? 'Akun Google berhasil ditautkan.');
+    await _loadStatus(); // Refresh status tampilan menjadi 'Terhubung'
+  } else {
+    _showSnack(auth.errorMessage ?? 'Gagal menautkan akun Google.', isError: true);
   }
+}
 
   Future<void> _confirmUnlink() async {
     final colorScheme = Theme.of(context).colorScheme;

@@ -45,5 +45,39 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Kamera digunakan untuk memindai QR code presensi kegiatan (E-Presensi Asatidz).</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Lokasi digunakan untuk verifikasi presensi &amp; geofencing agar kehadiran terdata saat berada di area madrasah/TPQ.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Lokasi digunakan untuk verifikasi presensi &amp; geofencing agar kehadiran terdata saat berada di area madrasah/TPQ.</string>
+	<!-- ATS: izinkan koneksi HTTP ke jaringan lokal (backend dev http://<IP_LAN>:5000).
+	     Koneksi HTTPS (Vercel) tetap tidak terpengaruh. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<!-- Google Sign-In (admin & guru). Ganti placeholder dgn iOS Client ID milik Anda dari
+	     Google Cloud Console → Credentials → OAuth client ID (jenis: iOS) dgn bundle id
+	     `id.mmu.absesni`. Contoh project 904890785521:
+	         GIDClientID        = 904890785521-<SUFFIX_ANDA>.apps.googleusercontent.com
+	         CFBundleURLSchemes = com.googleusercontent.apps.904890785521-<SUFFIX_ANDA>
+	     Pastikan <SUFFIX_ANDA> sama di kedua tempat. -->
+	<key>GIDClientID</key>
+	<string>904890785521-GANTI_SUFFIX_IOS_API.apps.googleusercontent.com</string>
+	<key>GIDServerClientID</key>
+	<string>904890785521-gv6k0n0taspm56anr2bq0n13i6di3o74.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.904890785521-GANTI_SUFFIX_IOS_API</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

@@ -8,12 +8,7 @@
             "name": "absesni_digital",
             "request": "launch",
             "type": "dart",
-            "args": [
-                "-d",
-                "chrome",
-                "--web-port=8080",
-                "--web-browser-flag=--disable-web-security"
-            ]
+            "program": "lib/main.dart"
         },
         {
             "name": "absesni_digital (profile mode)",
