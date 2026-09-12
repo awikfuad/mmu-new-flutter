@@ -5,10 +5,50 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "absesni_digital (web · backend lokal)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d",
+                "chrome",
+                "--web-port=8080",
+                "--web-browser-flag=--disable-web-security",
+                "--dart-define=GOOGLE_CLIENT_ID=904890785521-gv6k0n0taspm56anr2bq0n13i6di3o74.apps.googleusercontent.com",
+                "--dart-define=OVERRIDE_API_URL=http://localhost:5000/api"
+            ]
+        },
+        {
+            "name": "absesni_digital (web · backend Vercel)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d",
+                "chrome",
+                "--web-port=8080",
+                "--web-browser-flag=--disable-web-security",
+                "--dart-define=GOOGLE_CLIENT_ID=904890785521-gv6k0n0taspm56anr2bq0n13i6di3o74.apps.googleusercontent.com",
+                "--dart-define=OVERRIDE_API_URL=https://mmu-new-backend.vercel.app/api"
+            ]
+        },
+        {
+            "name": "absesni_digital (device · Android debug)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define=GOOGLE_CLIENT_ID=904890785521-gv6k0n0taspm56anr2bq0n13i6di3o74.apps.googleusercontent.com",
+                "--dart-define=OVERRIDE_API_URL=http://10.0.2.2:5000/api"
+            ]
+        },
+        {
             "name": "absesni_digital",
             "request": "launch",
             "type": "dart",
-            "program": "lib/main.dart"
+            "args": [
+                "-d",
+                "chrome",
+                "--web-port=8080",
+                "--web-browser-flag=--disable-web-security"
+            ]
         },
         {
             "name": "absesni_digital (profile mode)",

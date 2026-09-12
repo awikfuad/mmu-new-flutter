@@ -202,7 +202,6 @@ class _LoginPageState extends State<LoginPage> {
   /// Dipakai oleh kedua jalur: native (`authenticate()`) dan web
   /// (`renderButton` → `authenticationEvents`).
   Future<void> _handleGoogleIdToken(String idToken) async {
-    if (_googleBusy) return;
     setState(() => _googleBusy = true);
     final auth = context.read<AuthProvider>();
     final success = await auth.loginGoogle(idToken);
