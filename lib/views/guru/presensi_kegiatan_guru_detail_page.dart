@@ -37,7 +37,6 @@ class _PresensiKegiatanGuruBody extends StatelessWidget {
   final String activityName;
 
   const _PresensiKegiatanGuruBody({
-    super.key,
     required this.activityId,
     required this.activityName,
   });

@@ -60,9 +60,9 @@ class _PembayaranPageState extends State<PembayaranPage> {
                  backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
                 bottom: TabBar(
-                  indicatorColor: colorScheme.primary,
-                  labelColor: colorScheme.primary,
-                  unselectedLabelColor: colorScheme.onSurfaceVariant,
+                indicatorColor: colorScheme.onPrimary,
+                  labelColor: colorScheme.onPrimary,
+                  unselectedLabelColor: colorScheme.onPrimary.withAlpha(179), // 70% opacity
                   indicatorSize: TabBarIndicatorSize.label,
                   tabs: const [
                     Tab(text: 'Riwayat'),

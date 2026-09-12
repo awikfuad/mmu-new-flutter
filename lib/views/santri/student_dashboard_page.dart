@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/student_dashboard_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -25,6 +26,15 @@ class StudentDashboardPage extends StatefulWidget {
 
 class _StudentDashboardPageState extends State<StudentDashboardPage> {
   DateTime? _lastBackPressed;
+  Future<void> _launchURL(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal membuka link: $urlString')),
+      );
+    }
+  }
 
   void _processLogout() async {
     final colorScheme = Theme.of(context).colorScheme;
@@ -343,6 +353,28 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
         color: getVibrantColor(const Color(0xFF7E22CE), const Color(0xFFA855F7)),
         onTap: () => _openPage(const StudentKalenderPage()),
       ),
+       _MenuItem(
+        icon: Icons.chat_bubble_outline_rounded,
+        title: 'SALURAN WA MMU A44',
+        subtitle: 'Info Pesantren',
+        color: getVibrantColor(const Color(0xFF128C7E), const Color(0xFF25D366)),
+        onTap: () => _launchURL('https://whatsapp.com/channel/0029VbCQjOtCXC3H0T0s7o2a'),
+      ),
+      _MenuItem(
+        icon: Icons.camera_alt_outlined,
+        title: 'Instagram',
+        subtitle: '@mmua44warungdowo',
+        color: getVibrantColor(const Color(0xFFC13584), const Color(0xFFE1306C)),
+        onTap: () => _launchURL('https://www.instagram.com/mmua44warungdowo/'),
+      ),
+      _MenuItem(
+        icon: Icons.play_circle_outline_rounded,
+        title: 'MMU A44 TV',
+        subtitle: 'Chanel Resmi MMU A44',
+        color: getVibrantColor(const Color(0xFFC4302B), const Color(0xFFFF0000)),
+        onTap: () => _launchURL('https://youtube.com/@mmua44'),
+      ),
+
     ];
 
     return GridView.count(

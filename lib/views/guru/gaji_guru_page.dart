@@ -28,8 +28,8 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
                 'Riwayat Bisyaroh',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
-              backgroundColor: colorScheme.surface,
-              foregroundColor: colorScheme.onSurface,
+              backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
               actions: [
                 IconButton(
                   icon: const Icon(Icons.refresh),

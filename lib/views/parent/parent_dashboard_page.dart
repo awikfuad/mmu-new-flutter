@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/parent_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -17,7 +18,15 @@ class ParentDashboardPage extends StatefulWidget {
 
 class _ParentDashboardPageState extends State<ParentDashboardPage> {
   DateTime? _lastBackPressed;
-
+Future<void> _launchURL(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal membuka link: $urlString')),
+      );
+    }
+  }
   void _processLogout() async {
     final colorScheme = Theme.of(context).colorScheme;
     final confirm = await showDialog<bool>(
@@ -61,6 +70,12 @@ class _ParentDashboardPageState extends State<ParentDashboardPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final topPadding = MediaQuery.of(context).padding.top;
+     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    Color getVibrantColor(Color lightColor, Color darkColor) {
+      return isDark ? darkColor : lightColor;
+    }
 
     return ChangeNotifierProvider(
       create: (_) => ParentProvider()
@@ -111,7 +126,22 @@ class _ParentDashboardPageState extends State<ParentDashboardPage> {
                               minExtentHeight: kToolbarHeight + topPadding,
                             ),
                           ),
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 24.0,
+                              ),
 
+                              child: Text(
+                                'Portal Orang Tua',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ),
+                          ),
                           // --- 2. Main Content Section ---
                           SliverPadding(
                             padding: const EdgeInsets.all(16.0),
@@ -134,27 +164,82 @@ class _ParentDashboardPageState extends State<ParentDashboardPage> {
                               sliver: _buildDynamicChildrenGrid(
                                 parent,
                                 colorScheme,
+                                context
                               ),
                             ),
-
-                          // --- 4. Footer ---
+                          // ── Section Title Media Sosial ──
                           SliverToBoxAdapter(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 24.0,
+                              padding: const EdgeInsets.fromLTRB(
+                                16.0,
+                                20.0,
+                                16.0,
+                                12.0,
                               ),
-                              child: Center(
-                                child: Text(
-                                  'MMU A-44 \u2022 Portal Orang Tua',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: colorScheme.onSurfaceVariant
-                                        .withValues(alpha: 0.7),
-                                  ),
+                              child: Text(
+                                'Media Sosial & Informasi',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
                           ),
+
+                          // ── SliverGrid Media Sosial ──
+                          SliverPadding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
+                            sliver: SliverGrid.count(
+                              crossAxisCount:
+                                  4, // 4 Kolom (sesuai layout menu sebelumnya)
+                              mainAxisSpacing: 10,
+                              crossAxisSpacing: 8,
+                              childAspectRatio: 0.76,
+                              children: [
+                                _buildActionCard(
+                                  context,
+                                  icon: Icons.chat_bubble_outline_rounded,
+                                  title: 'SALURAN WA MMU A44',
+                                  subtitle: 'Info Pesantren',
+                                  color: getVibrantColor(
+                                    const Color(0xFF128C7E),
+                                    const Color(0xFF25D366),
+                                  ),
+                                  onTap: () => _launchURL(
+                                    'https://whatsapp.com/channel/0029VbCQjOtCXC3H0T0s7o2a',
+                                  ),
+                                ),
+                                _buildActionCard(
+                                  context,
+                                  icon: Icons.camera_alt_outlined,
+                                  title: 'Instagram',
+                                  subtitle: '@mmua44warungdowo',
+                                  color: getVibrantColor(
+                                    const Color(0xFFC13584),
+                                    const Color(0xFFE1306C),
+                                  ),
+                                  onTap: () => _launchURL(
+                                    'https://www.instagram.com/mmua44warungdowo/',
+                                  ),
+                                ),
+                                _buildActionCard(
+                                  context,
+                                  icon: Icons.play_circle_outline_rounded,
+                                  title: 'MMU A44 TV',
+                                  subtitle: 'Chanel Resmi MMU A44',
+                                  color: getVibrantColor(
+                                    const Color(0xFFC4302B),
+                                    const Color(0xFFFF0000),
+                                  ),
+                                  onTap: () =>
+                                      _launchURL('https://youtube.com/@mmua44'),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // --- 4. Footer ---
                         ],
                       ),
                     ),
@@ -164,6 +249,76 @@ class _ParentDashboardPageState extends State<ParentDashboardPage> {
       ),
     );
   }
+  Widget _buildActionCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+    bool isAdminOnly = false,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Material(
+      color: theme.cardTheme.color,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: colorScheme.outlineVariant.withAlpha(76)),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: color.withAlpha(38), shape: BoxShape.circle),
+                    child: Icon(icon, size: 20, color: color),
+                  ),
+                  if (isAdminOnly)
+                    Positioned(
+                      top: -4,
+                      right: -4,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(color: Colors.amber, shape: BoxShape.circle),
+                        child: const Icon(Icons.star_rounded, size: 10, color: Colors.black),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: colorScheme.onSurface),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 8.5, color: colorScheme.onSurfaceVariant),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
   // --- Profile Card Component ---
   Widget _buildProfileCard(ParentProvider parent, ColorScheme cs) {
@@ -285,7 +440,7 @@ class _ParentDashboardPageState extends State<ParentDashboardPage> {
     );
   }
 
-  Widget _buildDynamicChildrenGrid(ParentProvider parent, ColorScheme cs) {
+  Widget _buildDynamicChildrenGrid(ParentProvider parent, ColorScheme cs, BuildContext context) {
     final int count = parent.children.length;
     final int crossAxisCount = count == 1 ? 1 : 2;
     final double childAspectRatio = count == 1 ? 2.6 : 0.95;
@@ -299,21 +454,24 @@ class _ParentDashboardPageState extends State<ParentDashboardPage> {
       ),
       delegate: SliverChildBuilderDelegate((context, index) {
         final child = parent.children[index];
-        return _buildGridChildCard(child, cs, isFullWidth: count == 1);
+        return _buildGridChildCard(child, cs,context, isFullWidth: count == 1);
       }, childCount: count),
     );
   }
 
   Widget _buildGridChildCard(
     dynamic child,
-    ColorScheme cs, {
+    ColorScheme cs,
+    BuildContext context, {
     required bool isFullWidth,
   }) {
     final nim = child['student_nim'] ?? child['nim'] ?? '';
     final name = child['student_name'] ?? child['name'] ?? 'Tanpa Nama';
     final className = child['class_name'] ?? '-';
     final namaRombel = child['nama_rombel']?.toString() ?? '';
-    final rombelSuffix = namaRombel.trim().isNotEmpty ? ' • Rombel: $namaRombel' : '';
+    final rombelSuffix = namaRombel.trim().isNotEmpty
+        ? ' • Rombel: $namaRombel'
+        : '';
     final sumber = (child['sumber'] ?? 'madrasah').toString().toUpperCase();
     final hubungan = child['hubungan'] ?? '';
     final String? fotoUrl = child['foto']?.toString();
@@ -592,7 +750,7 @@ class _ParentDashboardPageState extends State<ParentDashboardPage> {
       ),
     );
   }
-}
+
 
 // ==========================================
 // --- Fixed Curved AppBar Delegate Class ---

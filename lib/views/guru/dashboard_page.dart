@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dashboard_guru_provider.dart';
+import 'package:url_launcher/url_launcher.dart'; // Import url_launcher
 import 'akun_google_page.dart';
 import 'gaji_guru_page.dart';
 import 'guru_piket_page.dart';
@@ -22,6 +23,18 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+
+  Future<void> _launchURL(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal membuka link: $urlString')),
+      );
+    }
+  }
+
+
   void _processLogout() async {
     final colorScheme = Theme.of(context).colorScheme;
     final confirm = await showDialog<bool>(
@@ -69,6 +82,26 @@ class _DashboardPageState extends State<DashboardPage> {
         builder: (context, dash, _) {
           // --- Daftar Menu Akses Layanan (Bebas Duplikat) ---
           final menuItems = [
+             if (dash.isAdmin) ...[
+              _buildActionCard(
+                context,
+                icon: Icons.account_balance_wallet_outlined,
+                title: 'Tabungan',
+                subtitle: 'Saldo & Mutasi',
+                isAdminOnly: true,
+                color: getVibrantColor(const Color(0xFF0284C7), const Color(0xFF38BDF8)),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TabunganPage())),
+              ),
+              _buildActionCard(
+                context,
+                icon: Icons.payments_outlined,
+                title: 'Pembayaran',
+                subtitle: 'Yaumiyah & DU',
+                isAdminOnly: true,
+                color: getVibrantColor(const Color(0xFF16A34A), const Color(0xFF4ADE80)),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PembayaranPage())),
+              ),
+            ],
             _buildActionCard(
               context,
               icon: Icons.menu_book_outlined,
@@ -119,40 +152,37 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             _buildActionCard(
               context,
-              icon: Icons.g_mobiledata,
+              icon: Icons.g_mobiledata_sharp,
               title: 'Akun Google',
               subtitle: 'Tautkan Login',
               color: getVibrantColor(const Color(0xFF7C3AED), const Color(0xFFA78BFA)),
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AkunGooglePage())),
             ),
-            //  _buildActionCard(
-            //   context,
-            //   icon: Icons.receipt_long_outlined,
-            //   title: 'Riwayat Bisyaroh',
-            //   subtitle: 'Slip Pendapatan',
-            //   color: getVibrantColor(const Color(0xFFB45309), const Color(0xFFF59E0B)),
-            //   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GajiGuruPage())),
-            // ),
-            if (dash.isAdmin) ...[
-              _buildActionCard(
-                context,
-                icon: Icons.account_balance_wallet_outlined,
-                title: 'Tabungan',
-                subtitle: 'Saldo & Mutasi',
-                isAdminOnly: true,
-                color: getVibrantColor(const Color(0xFF0284C7), const Color(0xFF38BDF8)),
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TabunganPage())),
-              ),
-              _buildActionCard(
-                context,
-                icon: Icons.payments_outlined,
-                title: 'Pembayaran',
-                subtitle: 'Yaumiyah & DU',
-                isAdminOnly: true,
-                color: getVibrantColor(const Color(0xFF16A34A), const Color(0xFF4ADE80)),
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PembayaranPage())),
-              ),
-            ],
+           _buildActionCard(
+              context,
+              icon: Icons.chat_bubble_outline_rounded,
+              title: 'SALURAN WA MMU A44',
+              subtitle: 'Info Pesantren',
+              color: getVibrantColor(const Color(0xFF128C7E), const Color(0xFF25D366)),
+              onTap: () => _launchURL('https://whatsapp.com/channel/0029VbCQjOtCXC3H0T0s7o2a'),
+            ),
+            _buildActionCard(
+              context,
+              icon: Icons.camera_alt_outlined,
+              title: 'Instagram',
+              subtitle: '@instragram/mmua44warungdowo',
+              color: getVibrantColor(const Color(0xFFC13584), const Color(0xFFE1306C)),
+              onTap: () => _launchURL('https://www.instagram.com/mmua44warungdowo/'),
+            ),
+            _buildActionCard(
+              context,
+              icon: Icons.play_circle_outline_rounded,
+              title: 'MMU A44 TV',
+              subtitle: 'Chanel Resmi MMU A44',
+              color: getVibrantColor(const Color(0xFFC4302B), const Color(0xFFFF0000)),
+              onTap: () => _launchURL('https://youtube.com/@mmua44'),
+            ),
+           
           ];
 
           return Scaffold(

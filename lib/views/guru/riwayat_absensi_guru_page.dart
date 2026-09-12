@@ -91,9 +91,9 @@ class _RiwayatAbsensiGuruPageState extends State<RiwayatAbsensiGuruPage> {
 
   Widget _buildTeacherPicker(RiwayatGuruProvider provider, ColorScheme colorScheme) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha:0.5),
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: colorScheme.outlineVariant.withValues(alpha:0.5)),
       ),
@@ -116,7 +116,7 @@ class _RiwayatAbsensiGuruPageState extends State<RiwayatAbsensiGuruPage> {
                     child: Text(
                       '${t['name'] ?? '-'} (${t['lembaga'] ?? 'ALL'})',
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: colorScheme.onSurface),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
                     ),
                   ))
               .toList(),
@@ -397,7 +397,7 @@ class _RiwayatAbsensiGuruPageState extends State<RiwayatAbsensiGuruPage> {
 
   Widget _buildEmptyState(BuildContext context, String message) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Container(
+    return Center( child:Container(
       padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 16),
       alignment: Alignment.center,
       child: Column(
@@ -411,13 +411,13 @@ class _RiwayatAbsensiGuruPageState extends State<RiwayatAbsensiGuruPage> {
           ),
         ],
       ),
-    );
+     ) );
   }
 
   Widget _buildShimmerLoading(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final baseColor = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
-    final highlightColor = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final highlightColor = isDark ? Colors.grey.shade700 : Colors.grey.shade300;
 
     return Shimmer.fromColors(
       baseColor: baseColor,
