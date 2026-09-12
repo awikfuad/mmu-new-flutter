@@ -76,7 +76,7 @@ class ApiService {
           // Sync baseUrl terbaru jika runtime override berubah
           options.baseUrl = effectiveBaseUrl;
 
-          if (_isAuthEndpoint(options.path)) {
+          if (_isPublicAuthEndpoint(options.path)) {
             return handler.next(options);
           }
 
@@ -95,19 +95,24 @@ class ApiService {
     );
   }
 
-  bool _isAuthEndpoint(String path) {
+  /// Hanya endpoint auth yang BENAR-BENAR publik (tanpa Bearer token):
+  /// login*, google (login), refresh-token, logout.
+  /// Endpoint auth lain (google/status, link-google, change-password) TETAP
+  /// butuh token — jangan lumpuhkan header di sini agar `GET /auth/google/status`
+  /// & `POST /auth/link-google` tidak gagal 401 tanpa header.
+  bool _isPublicAuthEndpoint(String path) {
     final p = path.toLowerCase();
-    // Semua endpoint /auth/* bersifat publik (tidak butuh Bearer token):
-    // login, login-student, login-parent, google, link-google, google/status,
-    // refresh-token, logout. Mencegah 401 "needLink" pada /auth/google memicu
-    // rotasi refresh token / clear-auth yang mengaburkan pesan aslinya.
-    return p.contains('/auth/');
+    if (p.contains('/auth/login')) return true; // login-admin/teacher/student/parent + login unified
+    if (p == '/auth/google') return true;
+    if (p == '/auth/refresh-token') return true;
+    if (p == '/auth/logout') return true;
+    return false;
   }
 
   bool _shouldAttemptRefresh(DioException e) {
     final code = e.response?.statusCode;
     if (code != 401 && code != 403) return false;
-    if (_isAuthEndpoint(e.requestOptions.path)) return false;
+    if (_isPublicAuthEndpoint(e.requestOptions.path)) return false;
 
     if (code == 403) {
       final msg = e.response?.data is Map
