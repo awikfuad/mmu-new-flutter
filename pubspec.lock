@@ -537,10 +537,10 @@ packages:
     dependency: "direct main"
     description:
       name: kiosk_mode
-      sha256: "4763ff3f0b21940c2048a6e116b6e4b9896ed7f791cf5b3fdb3e0a9a8f16a0f8"
+      sha256: "67b2d45e8f22d8b23cf8938264a3c442b87b9360357dcea9b72aa0a8316b1248"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0+1"
+    version: "0.8.0+1"
   leak_tracker:
     dependency: transitive
     description:
