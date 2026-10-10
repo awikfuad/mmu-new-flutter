@@ -5,6 +5,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../data/api/api_service.dart';
 import '../../providers/pembayaran_provider.dart';
 import '../../utils/format.dart';
+import '../../utils/snackbar_helper.dart';
 import '../../widgets/murid_picker_sheet.dart';
 
 class PembayaranPage extends StatefulWidget {
@@ -27,13 +28,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
     );
     if (!mounted) return;
     if (saved == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Pembayaran berhasil dicatat!'),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      showSuccessSnackBar(context, 'Pembayaran berhasil dicatat!');
       if (mounted) {
         prov.loadTransactions();
       }
@@ -746,11 +741,12 @@ class _InputPaymentSheetState extends State<_InputPaymentSheet> {
 
   Future<void> _submit() async {
     if (_selected == null) {
-      _showError('Silakan pilih santri terlebih dahulu.');
+      showErrorSnackBar(context, 'Silakan pilih santri terlebih dahulu.');
       return;
     }
     if (!_payYaumiyah && !_payDaftarUlang) {
-      _showError(
+      showErrorSnackBar(
+        context,
         'Pilih minimal satu jenis pembayaran (Yaumiyah / Daftar Ulang).',
       );
       return;
@@ -759,16 +755,16 @@ class _InputPaymentSheetState extends State<_InputPaymentSheet> {
     final daftarUlangAmount =
         int.tryParse(_daftarUlangController.text.trim()) ?? 0;
     if (_payYaumiyah && (yaumiyahAmount <= 0 || _month == null)) {
-      _showError('Lengkapi bulan & nominal pembayaran Yaumiyah.');
+      showErrorSnackBar(context, 'Lengkapi bulan & nominal pembayaran Yaumiyah.');
       return;
     }
     if (_payDaftarUlang && daftarUlangAmount <= 0) {
-      _showError('Lengkapi nominal pembayaran Daftar Ulang.');
+      showErrorSnackBar(context, 'Lengkapi nominal pembayaran Daftar Ulang.');
       return;
     }
     if (_paymentMethod == 'TRANSFER' &&
         _transferNoteController.text.trim().isEmpty) {
-      _showError('Keterangan pelacakan transfer wajib diisi.');
+      showErrorSnackBar(context, 'Keterangan pelacakan transfer wajib diisi.');
       return;
     }
 
@@ -797,19 +793,8 @@ class _InputPaymentSheetState extends State<_InputPaymentSheet> {
       if (e is DioException) {
         message = e.response?.data?['message']?.toString() ?? message;
       }
-      _showError(message);
+      showErrorSnackBar(context, message);
     }
-  }
-
-  void _showError(String message) {
-    final colorScheme = Theme.of(context).colorScheme;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: colorScheme.error,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
   }
 
   @override

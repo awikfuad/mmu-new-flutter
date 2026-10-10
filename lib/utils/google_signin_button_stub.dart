@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 Widget? buildGoogleSignInButton({
   required String clientId,
   required void Function(String idToken) onIdToken,
+  bool registration = false,
 }) {
   return null;
 }

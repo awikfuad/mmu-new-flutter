@@ -2,19 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../providers/auth_provider.dart';
 import '../../providers/student_dashboard_provider.dart';
-import '../../providers/theme_provider.dart';
-import '../../theme/theme_selector_dialog.dart';
-import '../../utils/format.dart';
 import '../../utils/foto_helper.dart';
+import '../../utils/snackbar_helper.dart';
+
+import '../info/menu_info.dart';
 import 'absensi_kbm_murid_page.dart';
 import 'absensi_kegiatan_murid_page.dart';
 import 'pembayaran_murid_page.dart';
-import 'student_perilaku_page.dart';
-import 'student_prestasi_page.dart';
+import 'student_change_password_dialog.dart';
 import 'student_jadwal_page.dart';
 import 'student_kalender_page.dart';
+import 'student_perilaku_page.dart';
+import 'student_prestasi_page.dart';
+import 'student_ujian_page.dart';
 import 'tabungan_murid_page.dart';
 
 class StudentDashboardPage extends StatefulWidget {
@@ -26,13 +29,40 @@ class StudentDashboardPage extends StatefulWidget {
 
 class _StudentDashboardPageState extends State<StudentDashboardPage> {
   DateTime? _lastBackPressed;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkDefaultPassword());
+  }
+
+  /// Login santri memakai password awal (tanggal lahir / default) yang tidak
+  /// memenuhi kriteria → paksa ganti password sebelum memakai aplikasi.
+  Future<void> _checkDefaultPassword() async {
+    if (!mounted) return;
+    final auth = context.read<AuthProvider>();
+    if (!auth.isStudent || !auth.mustChangePassword) return;
+
+    final changed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const StudentChangePasswordDialog(),
+    );
+
+    if (changed == true && mounted) {
+      showSuccessSnackBar(
+        context,
+        'Password berhasil diubah.',
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
   Future<void> _launchURL(String urlString) async {
     final Uri url = Uri.parse(urlString);
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal membuka link: $urlString')),
-      );
+      showErrorSnackBar(context, 'Gagal membuka link: $urlString');
     }
   }
 
@@ -63,18 +93,9 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
       ),
     );
 
-    if (confirm == true) {
-      if (!mounted) return;
+    if (confirm == true && mounted) {
       await context.read<AuthProvider>().logout();
     }
-  }
-
-  void _openThemeSelector() {
-    final themeProvider = context.read<ThemeProvider>();
-    showDialog(
-      context: context,
-      builder: (_) => ThemeSelectorDialog(themeProvider: themeProvider),
-    );
   }
 
   void _openPage(Widget page) {
@@ -101,59 +122,65 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
                 return;
               }
               _lastBackPressed = now;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Tekan kembali sekali lagi untuk keluar'),
-                  duration: Duration(seconds: 2),
-                ),
+              showInfoSnackBar(
+                context,
+                'Tekan kembali sekali lagi untuk keluar',
+                duration: const Duration(seconds: 2),
               );
             },
             child: Scaffold(
               appBar: AppBar(
-              elevation: 0,
-              title: const Text(
-                'E-Presensi Santri',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                elevation: 0,
+                title: const Text(
+                  'E-Presensi Santri',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+                backgroundColor: colorScheme.surface,
+                foregroundColor: colorScheme.onSurface,
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.info_outline),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AboutAppPage(),
+                        ),
+                      );
+                    },
+                    tooltip: 'Tentang Aplikasi',
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.logout_rounded),
+                    onPressed: _processLogout,
+                    tooltip: 'Logout',
+                  ),
+                ],
               ),
-              backgroundColor: colorScheme.surface,
-              foregroundColor: colorScheme.onSurface,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.palette_outlined),
-                  onPressed: _openThemeSelector,
-                  tooltip: 'Pengaturan Tema',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.logout_rounded),
-                  onPressed: _processLogout,
-                  tooltip: 'Logout',
-                ),
-              ],
-            ),
-            body: dash.isLoading
-                ? _buildShimmerLoading(context)
-                : RefreshIndicator(
-                    onRefresh: dash.fetchDashboardData,
-                    child: ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(16),
-                      children: [
-                        _buildProfileCard(dash, lembaga, className),
-                        const SizedBox(height: 16),
-                        _buildGridMenu(dash),
-                        const SizedBox(height: 20),
-                        Center(
-                          child: Text(
-                            'MMU A-44 \u2022 E-Presensi Santri',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+              body: dash.isLoading
+                  ? _buildShimmerLoading(context)
+                  : RefreshIndicator(
+                      onRefresh: dash.fetchDashboardData,
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          _buildProfileCard(dash, lembaga, className),
+                          const SizedBox(height: 16),
+                          _buildGridMenu(dash),
+                          const SizedBox(height: 20),
+                          Center(
+                            child: Text(
+                              'MMU A-44 \u2022 E-Presensi Santri',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: colorScheme.onSurfaceVariant.withAlpha(180),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
             ),
           );
         },
@@ -164,6 +191,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
   Widget _buildProfileCard(
       StudentDashboardProvider dash, String lembaga, String className) {
     final colorScheme = Theme.of(context).colorScheme;
+   
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -175,7 +203,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.primary.withValues(alpha: 0.2),
+            color: colorScheme.primary.withAlpha(51),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -188,12 +216,16 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
             children: [
               Builder(builder: (_) {
                 final fotoUrl = resolveFotoUrl(dash.foto);
+                final bool hasFoto = fotoUrl != null && fotoUrl.trim().isNotEmpty;
+
                 return CircleAvatar(
                   radius: 24,
-                  backgroundColor: colorScheme.onPrimary.withValues(alpha: 0.2),
-                  backgroundImage: cachedFotoProvider(fotoUrl),
-                  onBackgroundImageError: (_, _) {},
-                  child: fotoUrl == null ? Icon(Icons.person, color: colorScheme.onPrimary, size: 28) : null,
+                  backgroundColor: colorScheme.onPrimary.withAlpha(51),
+                  backgroundImage: hasFoto ? cachedFotoProvider(fotoUrl) : null,
+                  onBackgroundImageError: hasFoto ? (_, _) {} : null,
+                  child: !hasFoto
+                      ? Icon(Icons.person, color: colorScheme.onPrimary, size: 28)
+                      : null,
                 );
               }),
               const SizedBox(width: 12),
@@ -214,21 +246,31 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
                     Text(
                       'NIM: ${dash.nim}',
                       style: TextStyle(
-                        color: colorScheme.onPrimary.withValues(alpha: 0.85),
+                        color: colorScheme.onPrimary.withAlpha(217),
+                        fontSize: 12,
+                      ),
+                    ),
+                    Text(
+                      'Kelas: $className \u2022 ${dash.namaRombel}',
+                      style: TextStyle(
+                        color: colorScheme.onPrimary.withAlpha(217),
                         fontSize: 12,
                       ),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: colorScheme.onPrimary.withValues(alpha: 0.2),
+                  color: colorScheme.onPrimary.withAlpha(51),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   lembaga,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: colorScheme.onPrimary,
                     fontWeight: FontWeight.bold,
@@ -238,55 +280,54 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(child: _buildProfileStat('Kelas', className)),
-              Expanded(
-                child: _buildProfileStat(
-                  'Saldo Tabungan',
-                  formatRp(dash.balance),
-                ),
-              ),
-              if (dash.namaRombel.isNotEmpty && dash.namaRombel != '-')
-                Expanded(child: _buildProfileStat('Rombel', dash.namaRombel)),
-              if (dash.tanggalLahir != null && dash.tanggalLahir!.isNotEmpty)
-                Expanded(
-                  child: _buildProfileStat('Tgl Lahir', dash.tanggalLahir!),
-                ),
-            ],
-          ),
+          // const SizedBox(height: 16),
+          // Scroll horizontal untuk statistik profil agar tidak terpotong di layar kecil
+          // SingleChildScrollView(
+          //   scrollDirection: Axis.horizontal,
+          //   child: Row(
+          //     children: [
+          //       _buildProfileStat('Kelas', className),
+          //       const SizedBox(width: 16),
+          //       _buildProfileStat(
+          //         'Saldo Tabungan',
+          //         formatRp(dash.balance),
+          //       ),
+                
+                
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );
   }
 
-  Widget _buildProfileStat(String label, String value) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: colorScheme.onPrimary.withValues(alpha: 0.8),
-            fontSize: 10,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: colorScheme.onPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 13,
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _buildProfileStat(String label, String value) {
+  //   final colorScheme = Theme.of(context).colorScheme;
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Text(
+  //         label,
+  //         style: TextStyle(
+  //           color: colorScheme.onPrimary.withAlpha(204),
+  //           fontSize: 10,
+  //         ),
+  //       ),
+  //       const SizedBox(height: 2),
+  //       Text(
+  //         value,
+  //         maxLines: 1,
+  //         overflow: TextOverflow.ellipsis,
+  //         style: TextStyle(
+  //           color: colorScheme.onPrimary,
+  //           fontWeight: FontWeight.bold,
+  //           fontSize: 13,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildGridMenu(StudentDashboardProvider dash) {
     final theme = Theme.of(context);
@@ -353,7 +394,14 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
         color: getVibrantColor(const Color(0xFF7E22CE), const Color(0xFFA855F7)),
         onTap: () => _openPage(const StudentKalenderPage()),
       ),
-       _MenuItem(
+      _MenuItem(
+        icon: Icons.assignment_outlined,
+        title: 'Ujian',
+        subtitle: 'CBT Kode Akses',
+        color: getVibrantColor(const Color(0xFF0F766E), const Color(0xFF14B8A6)),
+        onTap: () => _openPage(const StudentUjianPage()),
+      ),
+      _MenuItem(
         icon: Icons.chat_bubble_outline_rounded,
         title: 'SALURAN WA MMU A44',
         subtitle: 'Info Pesantren',
@@ -374,11 +422,10 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
         color: getVibrantColor(const Color(0xFFC4302B), const Color(0xFFFF0000)),
         onTap: () => _launchURL('https://youtube.com/@mmua44'),
       ),
-
     ];
 
     return GridView.count(
-      crossAxisCount: 4, // Diubah menjadi 4 kolom
+      crossAxisCount: 4,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 10,
@@ -419,7 +466,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+              color: colorScheme.outlineVariant.withAlpha(76),
             ),
           ),
           child: Column(
@@ -428,7 +475,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.15),
+                  color: color.withAlpha(38),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, size: 20, color: color),

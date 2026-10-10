@@ -75,29 +75,29 @@ Future<void> submitAttendance(int activityId) async {
   notifyListeners(); // Memunculkan loading indicator di UI
 
   try {
-    // 1. Ambil lokasi via GeofenceHelper (cek layanan GPS + minta izin + hard timeout).
-    //    - Mengecek isLocationServiceEnabled & requestPermission terlebih dahulu,
-    //      sehingga di Android dialog izin lokasi muncul bila belum pernah diberikan.
-    //    - Jika layanan mati / izin ditolak / timeout → geo null, request tetap
-    //      terkirim tanpa lokasi (backend menolak 403 dgn pesan jelas, bukan hang).
-    GeoPosition? geo;
-    try {
-      geo = await GeofenceHelper.getCurrentLocation()
-          .timeout(const Duration(seconds: 12));
-    } catch (locErr) {
-      debugPrint('Gagal mengambil lokasi GPS: $locErr');
-    }
-
-    // 2. Kirim request ke Backend
+    // 2. Kirim request ke Backend dihitung status dulu
     final teacherId = currentTeacherId;
     if (teacherId == null) {
       throw 'Data guru tidak ditemukan. Silakan login ulang.';
+    }
+    final status = getStatus(teacherId).toUpperCase();
+
+    // 1. Lokasi GPS hanya wajib utk status HADIR (geofence). IZIN/SAKIT/ALPA
+    //    menandakan guru tidak berada di lokasi → tidak perlu meminta GPS.
+    GeoPosition? geo;
+    if (status == 'HADIR') {
+      try {
+        geo = await GeofenceHelper.getCurrentLocation()
+            .timeout(const Duration(seconds: 12));
+      } catch (locErr) {
+        debugPrint('Gagal mengambil lokasi GPS: $locErr');
+      }
     }
 
     final Map<String, dynamic> requestData = {
   'kegiatan_id': activityId,
   'teacher_id': teacherId,
-  'status': getStatus(teacherId).toUpperCase(),
+  'status': status,
   'latitude': geo?.latitude,
   'longitude': geo?.longitude,
   'accuracy': geo?.accuracy,

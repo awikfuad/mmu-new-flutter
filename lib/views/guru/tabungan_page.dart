@@ -6,6 +6,7 @@ import '../../data/api/api_service.dart';
 import '../../providers/pembayaran_provider.dart';
 import '../../utils/format.dart';
 import '../../utils/foto_helper.dart';
+import '../../utils/snackbar_helper.dart';
 import '../../widgets/murid_picker_sheet.dart';
 
 class TabunganPage extends StatefulWidget {
@@ -31,14 +32,7 @@ class _TabunganPageState extends State<TabunganPage> {
     );
     if (!mounted) return;
     if (saved == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Transaksi tabungan berhasil dicatat!'),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
+      showSuccessSnackBar(context, 'Transaksi tabungan berhasil dicatat!');
       context.read<TabunganAdminProvider>().loadTransactions();
     }
   }
@@ -765,20 +759,20 @@ class _InputSavingsSheetState extends State<_InputSavingsSheet> {
 
   Future<void> _submit() async {
     if (_selected == null) {
-      _showError('Silakan pilih santri terlebih dahulu.');
+      showErrorSnackBar(context, 'Silakan pilih santri terlebih dahulu.');
       return;
     }
     final amount = int.tryParse(_amountController.text.trim()) ?? 0;
     if (amount <= 0) {
-      _showError('Nominal transaksi harus lebih besar dari Rp 0.');
+      showErrorSnackBar(context, 'Nominal transaksi harus lebih besar dari Rp 0.');
       return;
     }
 
     if (_transactionType == 'PENARIKAN' &&
         _balance != null &&
         amount > _balance!) {
-      _showError(
-          'Saldo tidak mencukupi! Saldo saat ini: ${formatRp(_balance!)}');
+      showErrorSnackBar(
+          context, 'Saldo tidak mencukupi! Saldo saat ini: ${formatRp(_balance!)}');
       return;
     }
 
@@ -807,20 +801,8 @@ class _InputSavingsSheetState extends State<_InputSavingsSheet> {
     
     message = e.response?.data?['message']?.toString() ?? message;
   }
-  _showError(message);
+  showErrorSnackBar(context, message);
 }
-  }
-
-  void _showError(String message) {
-    final colorScheme = Theme.of(context).colorScheme;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: colorScheme.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
   }
 
   @override

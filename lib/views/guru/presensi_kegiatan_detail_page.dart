@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/presensi_kegiatan_provider.dart';
+import '../../utils/snackbar_helper.dart';
 
 class PresensiKegiatanDetailPage extends StatelessWidget {
   final int activityId;
@@ -143,13 +144,9 @@ class _PresensiKegiatanDetailBody extends StatelessWidget {
                             if (!context.mounted) return;
                             final err = context.read<PresensiKegiatanProvider>().error;
                             if (err != null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Gagal menyimpan: $err'), backgroundColor: colorScheme.error, duration: const Duration(seconds: 5)),
-                              );
+                              showErrorSnackBar(context, 'Gagal menyimpan: $err', duration: const Duration(seconds: 5));
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: const Text('Presensi kegiatan berhasil disimpan!'), backgroundColor: colorScheme.primary),
-                              );
+                              showSuccessSnackBar(context, 'Presensi kegiatan berhasil disimpan!');
                               Navigator.pop(context);
                             }
                           },

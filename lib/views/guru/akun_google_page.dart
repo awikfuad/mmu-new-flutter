@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/google_signin_button.dart';
+import '../../utils/snackbar_helper.dart';
 
 /// Halaman "Akun Google" — self-service agar guru/admin menautkan atau
 /// memutuskan tautan akun Google-nya sendiri (mirip menu Profil di web).
@@ -47,21 +48,7 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
     });
   }
 
-  void _showSnack(String message, {bool isError = false}) {
-    if (!mounted) return;
-    final colorScheme = Theme.of(context).colorScheme;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: isError ? colorScheme.error : colorScheme.primary,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-  }
+  static const Duration _snackDuration = Duration(seconds: 2);
 
   Future<void> _linkWithGoogle() async {
     if (_googleBusy) return;
@@ -81,16 +68,19 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
             e.code == GoogleSignInExceptionCode.interrupted) {
           return; // Pengguna membatalkan
         }
-        _showSnack('Gagal memilih akun Google: $e', isError: true);
+        if (!mounted) return;
+        showErrorSnackBar(context, 'Gagal memilih akun Google: $e', duration: _snackDuration);
         return;
       }
 
       final String? idToken = account.authentication.idToken;
 
       if (idToken == null) {
-        _showSnack(
+        if (!mounted) return;
+        showErrorSnackBar(
+          context,
           'Tidak menerima ID token dari Google. Pastikan Client ID sesuai.',
-          isError: true,
+          duration: _snackDuration,
         );
         return;
       }
@@ -102,7 +92,7 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
       );
     } catch (e) {
       if (!mounted) return;
-      _showSnack('Gagal menautkan akun Google: $e', isError: true);
+      showErrorSnackBar(context, 'Gagal menautkan akun Google: $e', duration: _snackDuration);
     } finally {
       if (mounted) setState(() => _googleBusy = false);
     }
@@ -120,10 +110,10 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
 
   if (!mounted) return;
   if (success) {
-    _showSnack(auth.successMessage ?? 'Akun Google berhasil ditautkan.');
+    showSuccessSnackBar(context, auth.successMessage ?? 'Akun Google berhasil ditautkan.', duration: _snackDuration);
     await _loadStatus(); // Refresh status tampilan menjadi 'Terhubung'
   } else {
-    _showSnack(auth.errorMessage ?? 'Gagal menautkan akun Google.', isError: true);
+    showErrorSnackBar(context, auth.errorMessage ?? 'Gagal menautkan akun Google.', duration: _snackDuration);
   }
 }
 
@@ -163,10 +153,10 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
     final success = await auth.unlinkGoogle();
     if (!mounted) return;
     if (success) {
-      _showSnack(auth.successMessage ?? 'Tautan Google diputuskan.');
+      showSuccessSnackBar(context, auth.successMessage ?? 'Tautan Google diputuskan.', duration: _snackDuration);
       await _loadStatus();
     } else {
-      _showSnack(auth.errorMessage ?? 'Gagal memutuskan tautan Google.', isError: true);
+      showErrorSnackBar(context, auth.errorMessage ?? 'Gagal memutuskan tautan Google.', duration: _snackDuration);
     }
   }
 

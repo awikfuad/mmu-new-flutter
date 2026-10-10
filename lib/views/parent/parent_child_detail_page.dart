@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/parent_provider.dart';
 import '../../utils/format.dart';
 import '../../utils/foto_helper.dart';
+import '../../utils/snackbar_helper.dart';
 import '../../widgets/academic_year_selector.dart';
 
 class ParentChildDetailPage extends StatefulWidget {
@@ -1133,18 +1134,11 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                                 ),
                               );
                               if (nominal == null || nominal <= 0) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Nominal tidak valid'),
-                                    backgroundColor: Colors.red,
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
+                                showErrorSnackBar(context, 'Nominal tidak valid');
                                 return;
                               }
                               setModal(() => loading = true);
                               final parentProvider = context.read<ParentProvider>();
-                              final messenger = ScaffoldMessenger.of(context);
                               final navigator = Navigator.of(ctx);
                               final ok = await parentProvider.submitPaymentRequest(
                                 widget.nim,
@@ -1152,29 +1146,19 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                                 month: jenis == 'YAUMIYAH' ? bulan : null,
                                 amount: nominal,
                               );
-                              if (!ctx.mounted || !context.mounted) return;
+                              if (!mounted || !ctx.mounted) return;
                               setModal(() => loading = false);
                               if (ok) {
                                 navigator.pop();
-                                messenger.showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Pengajuan terkirim! Menunggu persetujuan admin.',
-                                    ),
-                                    backgroundColor: Colors.green,
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
+                                showSuccessSnackBar(
+                                  context,
+                                  'Pengajuan terkirim! Menunggu persetujuan admin.',
                                 );
                               } else {
-                                messenger.showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      parentProvider.error ??
-                                          'Gagal mengirim pengajuan',
-                                    ),
-                                    backgroundColor: Colors.red,
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
+                                showErrorSnackBar(
+                                  context,
+                                  parentProvider.error ??
+                                      'Gagal mengirim pengajuan',
                                 );
                               }
                             },
@@ -1582,13 +1566,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                       onPressed: () async {
                         final alasan = alasanCtrl.text.trim();
                         if (alasan.isEmpty) {
-                          ScaffoldMessenger.of(ctx).showSnackBar(
-                            SnackBar(
-                              content: const Text('Alasan wajib diisi'),
-                              backgroundColor: cs.error,
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
+                          showErrorSnackBar(ctx, 'Alasan wajib diisi');
                           return;
                         }
                         final fmtMulai =
@@ -1606,17 +1584,11 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                           keterangan: keteranganCtrl.text.trim(),
                         );
                         if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                ok
-                                    ? 'Pengajuan berhasil dikirim!'
-                                    : 'Gagal mengirim pengajuan',
-                              ),
-                              backgroundColor: ok ? Colors.green : cs.error,
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
+                          if (ok) {
+                            showSuccessSnackBar(context, 'Pengajuan berhasil dikirim!');
+                          } else {
+                            showErrorSnackBar(context, 'Gagal mengirim pengajuan');
+                          }
                           if (ok) _loadAllData();
                         }
                       },

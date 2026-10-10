@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import '../data/api/api_service.dart';
+import '../utils/snackbar_helper.dart';
 
 /// Bottom sheet untuk membayar iuran dari SALDO TABUNGAN santri.
 /// [childNim] diisi saat dipanggil dari portal orang tua → endpoint parent.
@@ -57,11 +58,11 @@ class _BayarDariTabunganSheetState extends State<_BayarDariTabunganSheet> {
   Future<void> _submit() async {
     final amount = int.tryParse(_amountController.text.trim()) ?? 0;
     if (amount <= 0) {
-      _showError('Nominal pembayaran harus lebih besar dari Rp 0.');
+      showErrorSnackBar(context, 'Nominal pembayaran harus lebih besar dari Rp 0.');
       return;
     }
     if (_paymentType == 'YAUMIYAH' && _month == null) {
-      _showError('Pilih bulan iuran terlebih dahulu.');
+      showErrorSnackBar(context, 'Pilih bulan iuran terlebih dahulu.');
       return;
     }
 
@@ -82,19 +83,8 @@ class _BayarDariTabunganSheetState extends State<_BayarDariTabunganSheet> {
       if (e is DioException) {
         message = e.response?.data?['message']?.toString() ?? message;
       }
-      _showError(message);
+      showErrorSnackBar(context, message);
     }
-  }
-
-  void _showError(String message) {
-    final colorScheme = Theme.of(context).colorScheme;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: colorScheme.error,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
   }
 
   @override

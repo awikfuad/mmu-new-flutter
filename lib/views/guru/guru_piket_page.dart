@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/guru_piket_provider.dart';
+import '../../utils/snackbar_helper.dart';
 import 'presensi_kelas_page.dart';
 
 class GuruPiketPage extends StatelessWidget {
@@ -83,23 +84,11 @@ class _GuruPiketBody extends StatelessWidget {
     if (!context.mounted) return;
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Anda sekarang menjadi Guru Piket di kelas ini.'),
-          backgroundColor: colorScheme.primary,
-          // color: colorScheme.onPrimary,
-        ),
-      );
+      showSuccessSnackBar(context, 'Anda sekarang menjadi Guru Piket di kelas ini.');
       await _openPresensi(context, schedule);
     } else {
       final err = context.read<GuruPiketProvider>().error;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(err ?? 'Gagal mengambil alih piket'),
-          backgroundColor: colorScheme.error,
-          // color: colorScheme.onError,
-        ),
-      );
+      showErrorSnackBar(context, err ?? 'Gagal mengambil alih piket');
     }
   }
 
@@ -118,7 +107,6 @@ class _GuruPiketBody extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-           
           ),
         ),
          backgroundColor: colorScheme.primary,
@@ -191,7 +179,7 @@ class _GuruPiketBody extends StatelessWidget {
     final bool isMyPiket = myTeacherId != null && substituteId == myTeacherId;
     final bool hasOtherPiket = substituteId != null && !isMyPiket && myTeacherId != null;
     final bool isClaiming = claimingId == scheduleId;
-    final bool isActionable = isMyPiket || (!hasOtherPiket && substituteId == null);
+    final bool isActionable = true;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -265,7 +253,11 @@ class _GuruPiketBody extends StatelessWidget {
                   SizedBox(
                     height: 38,
                     child: ElevatedButton.icon(
-                      onPressed: isClaiming ? null : () => _claimPiket(context, schedule),
+                      onPressed: isClaiming
+                          ? null
+                          : isMyPiket
+                              ? () => _openPresensi(context, schedule)
+                              : () => _claimPiket(context, schedule),
                       icon: isClaiming
                           ? SizedBox(
                               width: 16,

@@ -33,8 +33,11 @@ class ScanIstighosahProvider extends ChangeNotifier {
           ? _daftarBulanHijriah[indexBulan]
           : 'Muharram';
       return {'bulan_hijriah': namaBulan, 'tahun_hijriah': today.hYear};
-    } catch (e) {
-      return {'bulan_hijriah': 'Muharram', 'tahun_hijriah': 1447};
+    } catch (_) {
+      // Fallback dinamis jika kalender hijriah gagal dimuat
+      final now = DateTime.now();
+      final estimatedHijriYear = now.year - 579;
+      return {'bulan_hijriah': 'Muharram', 'tahun_hijriah': estimatedHijriYear};
     }
   }
 
@@ -53,13 +56,21 @@ class ScanIstighosahProvider extends ChangeNotifier {
     _error = null;
     _lastSuccess = null;
     notifyListeners();
+
     String studentName = nim;
     String className = '-';
     final waktuHijriah = _getWaktuHijriah();
 
     try {
-      // Capture GPS location
-      final GeoPosition? geo = await GeofenceHelper.getCurrentLocation();
+      // Ambil lokasi GPS secara aman (non-blocking)
+      GeoPosition? geo;
+      try {
+        geo = await GeofenceHelper.getCurrentLocation();
+      } catch (_) {}
+
+      final now = DateTime.now();
+      final dateStr =
+          '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
       final payload = <String, dynamic>{
         'activity_id': activityId,
@@ -68,7 +79,7 @@ class ScanIstighosahProvider extends ChangeNotifier {
         'notes': 'Scan QR via aplikasi guru',
         'bulan_hijriah': waktuHijriah['bulan_hijriah'],
         'tahun_hijriah': waktuHijriah['tahun_hijriah'],
-        'tanggal_absensi': DateTime.now().toIso8601String().split('T')[0],
+        'tanggal_absensi': dateStr,
       };
       if (geo != null) {
         payload.addAll(geo.toMap());
@@ -79,14 +90,23 @@ class ScanIstighosahProvider extends ChangeNotifier {
         data: payload,
       );
 
-      if (response.statusCode == 200 && response.data['success'] == true) {
-        try {
-          final detail = await _api.dio.get('/muridKelas/$nim');
-          if (detail.data?['success'] == true && detail.data['data'] != null) {
-            studentName = detail.data['data']['name'] ?? nim;
-            className = detail.data['data']['class_name'] ?? '-';
-          }
-        } catch (_) {}
+      if (response.statusCode == 200 && response.data?['success'] == true) {
+        final responseData = response.data?['data'];
+        
+        // Prioritaskan mengambil detail murid dari respons POST agar scan cepat
+        if (responseData is Map) {
+          studentName = responseData['student_name'] ?? responseData['name'] ?? nim;
+          className = responseData['class_name'] ?? responseData['classroom'] ?? '-';
+        } else {
+          // Fallback fetch jika backend tidak mengembalikan detail murid
+          try {
+            final detail = await _api.dio.get('/muridKelas/$nim');
+            if (detail.data?['success'] == true && detail.data?['data'] != null) {
+              studentName = detail.data['data']['name'] ?? nim;
+              className = detail.data['data']['class_name'] ?? '-';
+            }
+          } catch (_) {}
+        }
 
         _lastStudentName = studentName;
         _lastClassName = className;
@@ -94,6 +114,9 @@ class ScanIstighosahProvider extends ChangeNotifier {
         _isProcessing = false;
         notifyListeners();
         return true;
+      } else {
+        _error = response.data?['message'] ?? 'Gagal memproses absensi.';
+        _lastSuccess = false;
       }
     } on DioException catch (e) {
       _error = e.response?.data?['message'] ??

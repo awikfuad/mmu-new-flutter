@@ -93,3 +93,21 @@ Untuk mengimplementasikan fitur-fitur di atas sesuai arsitektur backend, paket F
 
 
 * **`provider` / `flutter_bloc` / `riverpod**`: *State management* untuk mengelola status *loading*, sinkronisasi transaksi tabungan, dan jadwal piket.
+
+Qiroati ID
+43619
+083800666571
+
+Fitur pimpinan/admin 
+1. Setujui izin guru dan Setting badal 
+2. Mengabsen guru KBM 
+3. Setujui izin murid
+4. Create pengumuman 
+5. Membuat kegiatan
+6.  Import bisyaroh
+Semua Riwayat menggunakan tampilan kalender
+
+Buat notifikasi lokal/ tampil di notifikasi bar untuk guru badal (langsung)/pengumuman/kegiatan default
+
+Dicatat di docs/TASK.md sebagai Fase 25 — Integritas Referensial / Foreign Key & Keamanan Data dengan 6 subtask (T25.1–T25.6), ditandai ⬜ tugas mendatang. Ringkasan status diperbarui (184 task, 20 menunggu, Fase 25 jadi prioritas).
+

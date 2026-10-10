@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/presensi_kegiatan_guru_provider.dart';
+import '../../utils/snackbar_helper.dart';
 
 class PresensiKegiatanGuruDetailPage extends StatelessWidget {
   final int activityId;
   final String activityName;
+  final String activityTanggal;
 
   const PresensiKegiatanGuruDetailPage({
     super.key,
     required this.activityId,
-    required this.activityName,
+    required this.activityName, required this.activityTanggal, 
   });
 
   @override
@@ -27,6 +29,7 @@ class PresensiKegiatanGuruDetailPage extends StatelessWidget {
       child: _PresensiKegiatanGuruBody(
         activityId: activityId,
         activityName: activityName,
+        activityTanggal: activityTanggal,
       ),
     );
   }
@@ -35,10 +38,12 @@ class PresensiKegiatanGuruDetailPage extends StatelessWidget {
 class _PresensiKegiatanGuruBody extends StatelessWidget {
   final int activityId;
   final String activityName;
+  final String activityTanggal;
 
   const _PresensiKegiatanGuruBody({
     required this.activityId,
     required this.activityName,
+    required this.activityTanggal,
   });
 
   @override
@@ -76,6 +81,7 @@ class _PresensiKegiatanGuruBody extends StatelessWidget {
                               currentTeacherId,
                               provider,
                               colorScheme,
+                              activityTanggal,
                             )
                           : _buildAdminListView(
                               teachers,
@@ -110,19 +116,9 @@ class _PresensiKegiatanGuruBody extends StatelessWidget {
                               if (!context.mounted) return;
 
                               if (p.error != null) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Gagal menyimpan presensi: ${p.error}'),
-                                    backgroundColor: colorScheme.error,
-                                  ),
-                                );
+                                showErrorSnackBar(context, 'Gagal menyimpan presensi: ${p.error}');
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: const Text('Kehadiran Anda berhasil dikonfirmasi!'),
-                                    backgroundColor: colorScheme.primary,
-                                  ),
-                                );
+                                showSuccessSnackBar(context, 'Kehadiran Anda berhasil dikonfirmasi!');
                                 Navigator.pop(context);
                               }
                             },
@@ -149,6 +145,7 @@ class _PresensiKegiatanGuruBody extends StatelessWidget {
     int? currentTeacherId,
     PresensiKegiatanGuruProvider provider,
     ColorScheme colorScheme,
+    String activityTanggal
   ) {
     if (myData == null || currentTeacherId == null) {
       return const Center(child: Text('Data profil Anda tidak ditemukan.'));
@@ -189,6 +186,10 @@ class _PresensiKegiatanGuruBody extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
               ),
               const SizedBox(height: 16),
+              Text(
+                'Tanggal Kegiatan: $activityTanggal',
+                style: const TextStyle(fontSize: 14),
+              ),
               SegmentedButton<String>(
                 segments: const [
                   ButtonSegment(value: 'hadir', label: Text('Hadir')),

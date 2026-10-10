@@ -16,13 +16,7 @@ class _TabunganMuridPageState extends State<TabunganMuridPage> {
   //   final done = await showBayarDariTabunganSheet(context);
   //   if (done == true) {
   //     if (!mounted) return;
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: const Text('Pembayaran berhasil!'),
-  //         backgroundColor: Theme.of(context).colorScheme.primary,
-  //         behavior: SnackBarBehavior.floating,
-  //       ),
-  //     );
+  //     showSuccessSnackBar(context, 'Pembayaran berhasil!');
   //     if (mounted) {
   //       context.read<TabunganMuridProvider>().loadSavings();
   //     }

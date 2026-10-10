@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'services/notification_center.dart';
+import 'services/notification_service.dart';
 import 'providers/absensi_murid_provider.dart';
+import 'providers/biometric_provider.dart';
 import 'providers/dashboard_guru_provider.dart';
 import 'providers/gaji_guru_provider.dart';
 import 'providers/guru_piket_provider.dart';
@@ -26,6 +31,9 @@ import 'views/santri/student_dashboard_page.dart';
 import 'views/parent/parent_dashboard_page.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Inisialisasi notifikasi lokal (tanpa memblokir startup UI).
+  unawaited(NotificationService.instance.init());
   runApp(const MyApp());
 }
 
@@ -56,6 +64,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TabunganAdminProvider()),
         ChangeNotifierProvider(create: (_) => PembayaranAdminProvider()),
         ChangeNotifierProvider(create: (_) => StudentDashboardProvider()),
+        ChangeNotifierProvider(create: (_) => BiometricProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()..init()),
       ],
@@ -104,16 +113,60 @@ class AuthGate extends StatelessWidget {
           );
         }
         if (!auth.isLoggedIn) return const LoginPage();
-        if (auth.isStudent) return const StudentDashboardPage();
-        if (auth.isParent) return const ParentDashboardPage();
-        final role = auth.userRole;
-        if (role != 'admin' && role != 'teacher') {
-          // Role tidak dikenal — jangan beri akses admin, kembali ke login.
-          WidgetsBinding.instance.addPostFrameCallback((_) => auth.logout());
-          return const LoginPage();
-        }
-        return const MainNavigationWrapper();
+        return _NotificationGate(
+          child: _loggedInPage(auth),
+        );
       },
     );
   }
+
+  Widget _loggedInPage(AuthProvider auth) {
+    if (auth.isStudent) return const StudentDashboardPage();
+    if (auth.isParent) return const ParentDashboardPage();
+    final role = auth.userRole;
+    if (role != 'admin' && role != 'teacher') {
+      // Role tidak dikenal — jangan beri akses admin, kembali ke login.
+      WidgetsBinding.instance.addPostFrameCallback((_) => auth.logout());
+      return const LoginPage();
+    }
+    return const MainNavigationWrapper();
+  }
+}
+
+/// Mengecek notifikasi lokal (role-aware) setelah halaman login tampil,
+/// lalu menyegarkan tiap 30 menit selama app di foreground.
+class _NotificationGate extends StatefulWidget {
+  const _NotificationGate({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_NotificationGate> createState() => _NotificationGateState();
+}
+
+class _NotificationGateState extends State<_NotificationGate> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _start());
+  }
+
+  Future<void> _start() async {
+    await LocalNotificationCenter.instance.runChecks();
+    _timer ??= Timer.periodic(
+      const Duration(minutes: 30),
+      (_) => LocalNotificationCenter.instance.runChecks(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/input_nilai_provider.dart';
+import '../../utils/snackbar_helper.dart';
 
 class InputNilaiHarianPage extends StatelessWidget {
   final int scheduleId;
@@ -393,14 +394,11 @@ class _InputNilaiBody extends StatelessWidget {
                                 final prov = context.read<InputNilaiProvider>();
                                 String msg = prov.successMessage ?? 'Berhasil.';
                                 if (prov.error != null) msg = prov.error!;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(msg),
-                                    backgroundColor: prov.error != null
-                                        ? colorScheme.error
-                                        : colorScheme.primary,
-                                  ),
-                                );
+                                if (prov.error != null) {
+                                  showErrorSnackBar(context, msg);
+                                } else {
+                                  showSuccessSnackBar(context, msg);
+                                }
                                 if (saved > 0) Navigator.pop(context);
                               },
                         style: ElevatedButton.styleFrom(

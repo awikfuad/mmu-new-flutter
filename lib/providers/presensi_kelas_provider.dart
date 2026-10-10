@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../data/api/api_service.dart';
 import '../utils/geofence_helper.dart';
@@ -10,6 +11,8 @@ class PresensiKelasProvider extends ChangeNotifier {
   List<dynamic> _students = [];
   final Map<String, int> _studentIdByNim = {};
   final Map<String, String> _attendanceStatus = {};
+  final Map<String, String> _previousStatus = {};
+  final Map<String, bool> _alreadyAbsen = {};
   String? _error;
 
   bool get isLoading => _isLoading;
@@ -19,9 +22,6 @@ class PresensiKelasProvider extends ChangeNotifier {
   Map<String, String> get previousStatusMap => _previousStatus;
   Map<String, bool> get alreadyAbsenMap => _alreadyAbsen;
   String? get error => _error;
-
-  final Map<String, String> _previousStatus = {};
-  final Map<String, bool> _alreadyAbsen = {};
 
   int get hadirCount => _attendanceStatus.values.where((v) => v.toUpperCase() == 'HADIR').length;
   int get sakitCount => _attendanceStatus.values.where((v) => v.toUpperCase() == 'SAKIT').length;
@@ -33,13 +33,10 @@ class PresensiKelasProvider extends ChangeNotifier {
 
   int get submittedCount => _students.where((s) {
     final nim = s['nim']?.toString() ?? '';
-    final cur = (_attendanceStatus[nim] ?? 'hadir').toUpperCase();
-    final prev = _previousStatus[nim];
-    if (prev != null) return cur != prev.toUpperCase();
-    return cur != 'HADIR';
+    return _studentIdByNim.containsKey(nim);
   }).length;
 
-  // Summary untuk header
+  // Summary untuk header UI
   Map<String, int> get summary => {
         'hadir': hadirCount,
         'sakit': sakitCount,
@@ -82,6 +79,7 @@ class PresensiKelasProvider extends ChangeNotifier {
       _attendanceStatus.clear();
       _previousStatus.clear();
       _alreadyAbsen.clear();
+
       for (final m in roster) {
         final nim = m['nim']?.toString() ?? '';
         if (nim.isEmpty) continue;
@@ -92,7 +90,8 @@ class PresensiKelasProvider extends ChangeNotifier {
         _previousStatus[nim] = '';
         _alreadyAbsen[nim] = false;
       }
-      // Prefill sudah diabsen: GET /attendances/class/:classroom_id?session_name=&date=today
+
+      // Prefill status presensi jika sudah pernah diisi hari ini
       try {
         final today = DateTime.now();
         final todayStr =
@@ -104,6 +103,7 @@ class PresensiKelasProvider extends ChangeNotifier {
         final rows = (res.data?['data'] ?? []) as List;
         final Map<String, String> byStudentId = {};
         final Map<String, String> byNim = {};
+
         for (final r in rows) {
           final st = (r['status'] ?? '').toString().toUpperCase();
           if (st.isEmpty) continue;
@@ -111,6 +111,7 @@ class PresensiKelasProvider extends ChangeNotifier {
           if (r['student_id'] != null) byStudentId[r['student_id'].toString()] = norm;
           if (r['nim'] != null) byNim[r['nim'].toString()] = norm;
         }
+
         for (final m in roster) {
           final nim = m['nim']?.toString() ?? '';
           final sid = _studentIdByNim[nim]?.toString();
@@ -127,10 +128,10 @@ class PresensiKelasProvider extends ChangeNotifier {
           }
         }
       } catch (_) {
-        // prefill gagal tidak fatal — tetap default hadir
+        // Prefill gagal tidak fatal — tetap default hadir
       }
     } catch (e) {
-      _error = 'Gagal mengambil data murid: $e';
+      _error = _extractMessage(e, 'Gagal mengambil data murid:');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -147,13 +148,14 @@ class PresensiKelasProvider extends ChangeNotifier {
     required String sessionName,
   }) async {
     _isSaving = true;
+    _error = null;
     notifyListeners();
 
     final List<String> skippedNames = [];
     final List<String> failedNames = [];
+    final Map<int, Map<String, dynamic>> payloadMap = {};
 
     try {
-      // Capture GPS location once for all submissions
       GeoPosition? geo;
       try {
         geo = await GeofenceHelper.getCurrentLocation();
@@ -161,7 +163,6 @@ class PresensiKelasProvider extends ChangeNotifier {
         // GPS gagal tidak fatal — submit tanpa koordinat
       }
 
-      // Kumpulkan semua payload yang perlu dikirim (hanya yang berubah)
       final List<Map<String, dynamic>> payloads = [];
       for (final student in _students) {
         final nim = student['nim']?.toString() ?? '';
@@ -173,9 +174,6 @@ class PresensiKelasProvider extends ChangeNotifier {
         }
 
         final status = (_attendanceStatus[nim] ?? 'hadir').toUpperCase();
-        final prev = _previousStatus[nim];
-        final isChanged = prev != null && prev.isNotEmpty ? status != prev.toUpperCase() : status != 'HADIR';
-        if (!isChanged) continue;
 
         final payload = <String, dynamic>{
           'student_id': studentId,
@@ -188,31 +186,51 @@ class PresensiKelasProvider extends ChangeNotifier {
           payload.addAll(geo.toMap());
         }
         payloads.add(payload);
+        payloadMap[studentId] = {'nim': nim, 'student': student, 'payload': payload};
       }
 
-      // Submit semua secara paralel, gagal per-murid tidak membatalkan lainnya
+      // Submit semua secara paralel
       await Future.wait(
-        payloads.map((p) => _api.dio.post('/attendances', data: p).catchError((e) {
-          final name = _students.firstWhere(
-            (s) => s['nim']?.toString() == p['student_id'].toString(),
-            orElse: () => {'name': p['student_id'].toString()},
-          )['name'];
-          failedNames.add(name?.toString() ?? p['student_id'].toString());
+        payloads.map((p) => _api.dio.post('/attendances', data: p).then((_) {
+          // Jika sukses, sinkronkan state lokal untuk murid ini
+          final studentId = p['student_id'] as int;
+          final nim = payloadMap[studentId]?['nim'] as String?;
+          if (nim != null) {
+            final st = (p['status'] as String).toUpperCase();
+            _previousStatus[nim] = st;
+            _alreadyAbsen[nim] = true;
+          }
+        }).catchError((e) {
+          final studentId = p['student_id'] as int;
+          final student = payloadMap[studentId]?['student'];
+          final name = student?['name'] ?? student?['nama'] ?? studentId.toString();
+          failedNames.add(name.toString());
           return e;
         })),
         eagerError: false,
       );
 
       if (failedNames.isNotEmpty) {
-        _error = 'Gagal menyimpan: ${failedNames.join(", ")}';
+        _error = 'Gagal menyimpan presensi untuk: ${failedNames.join(", ")}';
       }
     } catch (e) {
-      _error = 'Gagal menyimpan presensi: $e';
+      _error = _extractMessage(e, 'Gagal menyimpan presensi:');
     } finally {
       _isSaving = false;
       notifyListeners();
     }
 
     return skippedNames;
+  }
+
+  String _extractMessage(Object e, String prefix) {
+    if (e is DioException) {
+      final data = e.response?.data;
+      if (data is Map && data['message'] != null) {
+        return '${data['message']}';
+      }
+      return e.message ?? '$prefix $e';
+    }
+    return '$prefix $e';
   }
 }

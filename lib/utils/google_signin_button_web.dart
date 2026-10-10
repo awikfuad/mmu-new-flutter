@@ -5,14 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:google_sign_in_web/web_only.dart' as gsi_web;
 
+bool _gsiInitialized = false;
+
 class _GoogleSignInWebButton extends StatefulWidget {
   const _GoogleSignInWebButton({
     required this.clientId,
     required this.onIdToken,
+    this.registration = false,
   });
 
   final String clientId;
   final void Function(String idToken) onIdToken;
+  final bool registration;
 
   @override
   State<_GoogleSignInWebButton> createState() => _GoogleSignInWebButtonState();
@@ -33,7 +37,14 @@ class _GoogleSignInWebButtonState extends State<_GoogleSignInWebButton> {
   // ── DITARUH DI SINI (METHOD _init) ──
   Future<void> _init() async {
     try {
-      await GoogleSignIn.instance.initialize(clientId: widget.clientId);
+      // `GoogleSignIn.instance` (web) hanya boleh di-`initialize()` SEKALI
+      // per sesi app — memanggil lagi melempar `StateError`. Tombol adalah
+      // StatefulWidget yang bisa di-mount ulang (mis. toggle register ↔
+      // login), jadi inisialisasi di-guard dengan flag modul.
+      if (!_gsiInitialized) {
+        await GoogleSignIn.instance.initialize(clientId: widget.clientId);
+        _gsiInitialized = true;
+      }
 
       _authSub = GoogleSignIn.instance.authenticationEvents.listen((event) {
         if (!mounted) return;
@@ -89,7 +100,9 @@ class _GoogleSignInWebButtonState extends State<_GoogleSignInWebButton> {
           size: gsi_web.GSIButtonSize.large,
           shape: gsi_web.GSIButtonShape.pill,
           theme: gsi_web.GSIButtonTheme.outline,
-          text: gsi_web.GSIButtonText.continueWith,
+          text: widget.registration
+              ? gsi_web.GSIButtonText.signupWith
+              : gsi_web.GSIButtonText.continueWith,
           
         ),
       ),
@@ -100,9 +113,11 @@ class _GoogleSignInWebButtonState extends State<_GoogleSignInWebButton> {
 Widget? buildGoogleSignInButton({
   required String clientId,
   required void Function(String idToken) onIdToken,
+  bool registration = false,
 }) {
   return _GoogleSignInWebButton(
     clientId: clientId,
     onIdToken: onIdToken,
+    registration: registration,
   );
 }

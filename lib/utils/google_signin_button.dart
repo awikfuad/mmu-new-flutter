@@ -13,9 +13,11 @@ import 'google_signin_button_stub.dart'
 Widget? buildGoogleSignInButton({
   required String clientId,
   required void Function(String idToken) onIdToken,
+  bool registration = false,
 }) {
   return impl.buildGoogleSignInButton(
     clientId: clientId,
     onIdToken: onIdToken,
+    registration: registration,
   );
 }

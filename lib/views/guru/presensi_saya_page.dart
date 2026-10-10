@@ -30,6 +30,39 @@ class _PresensiSayaBody extends StatelessWidget {
         child: Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: color)),
       );
 
+  Widget _absenStatusBadge(Map summary, ColorScheme colorScheme) {
+    final int sudah = int.tryParse('${summary['sudah'] ?? 0}') ?? 0;
+    final bool done = sudah > 0;
+    final Color color = done ? Colors.green.shade600 : Colors.orange.shade600;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            done ? Icons.check_circle : Icons.radio_button_unchecked,
+            size: 11,
+            color: color,
+          ),
+          const SizedBox(width: 3),
+          Text(
+            done ? 'Sudah absen' : 'Belum absen',
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _openScheduleOptions(BuildContext context, dynamic schedule) {
     final scheduleId = _toInt(schedule['schedule_id']) ?? _toInt(schedule['id']);
     if (scheduleId == null) return;
@@ -356,6 +389,10 @@ class _PresensiSayaBody extends StatelessWidget {
                         color: accent,
                       ),
                     ),
+                    if (sum != null) ...[
+                      const SizedBox(height: 4),
+                      _absenStatusBadge(sum, colorScheme),
+                    ],
                   ],
                 ),
                 const SizedBox(width: 4),

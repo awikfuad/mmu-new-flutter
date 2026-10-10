@@ -8,6 +8,7 @@ class DashboardGuruProvider extends ChangeNotifier {
 
   bool _isLoading = true;
   bool _isAdmin = false;
+  bool _isPimpinan = false;
   String _teacherName = '';
   String _academicYearInfo = '';
   List<dynamic> _schedules = [];
@@ -16,6 +17,7 @@ class DashboardGuruProvider extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
   bool get isAdmin => _isAdmin;
+  bool get isPimpinan => _isPimpinan;
   String get teacherName => _teacherName;
   String get academicYearInfo => _academicYearInfo;
   List<dynamic> get schedules => _schedules;
@@ -36,13 +38,15 @@ class DashboardGuruProvider extends ChangeNotifier {
         final user = await LocalStorage.getUser();
         _teacherName = user?['name'] ?? 'Guru';
         _isAdmin = user?['role'] == 'admin';
+        _isPimpinan = user?['is_pimpinan'] == true;
         _academicYearInfo = response.data['date'] ?? '-';
         _currentDay = response.data['message'] ?? 'Hari Ini';
         _schedules = response.data['data'] ?? [];
         _fetchSummaries();
       }
     } on DioException catch (e) {
-      _error = e.response?.data?['message'] ?? 'Gagal memuat jadwal: ${e.message}';
+      _error =
+          e.response?.data?['message'] ?? 'Gagal memuat jadwal: ${e.message}';
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -52,18 +56,28 @@ class DashboardGuruProvider extends ChangeNotifier {
   Future<void> _fetchSummaries() async {
     final today = DateTime.now();
     final todayStr =
-        '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-    for (final s in _schedules) {
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    final futures = _schedules.map((s) async {
       final cid = s['classroom_id'];
       final sess = (s['session_name'] ?? 'PAGI').toString();
       final sid = s['schedule_id'] ?? s['id'];
-      if (cid == null || sid == null) continue;
+      if (cid == null || sid == null) return;
+
       try {
-        final res = await _api.dio.get('/attendances/class/$cid', queryParameters: {'session_name': sess, 'date': todayStr});
+        final res = await _api.dio.get(
+          '/attendances/class/$cid',
+          queryParameters: {'session_name': sess, 'date': todayStr},
+        );
         final sum = res.data?['summary'];
-        if (sum is Map) _summaries[int.tryParse(sid.toString()) ?? sid.hashCode] = Map<String, dynamic>.from(sum);
+        if (sum is Map) {
+          _summaries[int.tryParse(sid.toString()) ?? sid.hashCode] =
+              Map<String, dynamic>.from(sum);
+        }
       } catch (_) {}
-    }
+    });
+
+    await Future.wait(futures);
     notifyListeners();
   }
 }

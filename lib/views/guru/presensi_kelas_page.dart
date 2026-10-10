@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/presensi_kelas_provider.dart';
 import '../../utils/foto_helper.dart';
+import '../../utils/snackbar_helper.dart';
 
 class PresensiKelasPage extends StatelessWidget {
   final int scheduleId;
@@ -94,6 +95,8 @@ class _PresensiKelasBody extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+         backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -102,20 +105,19 @@ class _PresensiKelasBody extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
+                
               ),
             ),
             Text(
               'Kelas: $className',
               style: TextStyle(
                 fontSize: 12,
-                color: colorScheme.onSurfaceVariant,
+                
               ),
             ),
           ],
         ),
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
+       
         elevation: 0,
       ),
       body: isLoading
@@ -217,7 +219,12 @@ class _PresensiKelasBody extends StatelessWidget {
                                             ),
                                           ),
                                         ),
-                                        if (already)
+                                        
+                                          Text(
+                                      '${student['nim'] ?? '-'}${prev != null && prev.isNotEmpty && prev.toLowerCase() != currentStatus ? ' • sebelumnya: $prev' : ''}',
+                                      style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
+                                    ),
+                                    if (already)
                                           Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                             decoration: BoxDecoration(
@@ -228,13 +235,8 @@ class _PresensiKelasBody extends StatelessWidget {
                                           ),
                                       ],
                                     ),
-                                    Text(
-                                      '${student['nim'] ?? '-'}${prev != null && prev.isNotEmpty && prev.toLowerCase() != currentStatus ? ' • sebelumnya: $prev' : ''}',
-                                      style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                                    
+                               
                               Row(
                                 children: ['hadir', 'sakit', 'izin', 'alfa'].map((status) {
                                   final isSelected = currentStatus == status;
@@ -271,6 +273,9 @@ class _PresensiKelasBody extends StatelessWidget {
                                   );
                                 }).toList(),
                               ),
+                                 ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -304,13 +309,7 @@ class _PresensiKelasBody extends StatelessWidget {
                             } else {
                               message = 'Presensi ${prov.submittedCount} santri disimpan (H:${prov.hadirCount} S:${prov.sakitCount} I:${prov.izinCount} A:${prov.alfaCount})';
                             }
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(message),
-                                backgroundColor: colorScheme.primary,
-                                // color: colorScheme.onPrimary,
-                              ),
-                            );
+                            showSuccessSnackBar(context, message);
                             Navigator.pop(context);
                           },
                     style: ElevatedButton.styleFrom(

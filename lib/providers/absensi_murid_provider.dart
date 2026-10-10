@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../data/api/api_service.dart';
 
@@ -23,13 +24,30 @@ class AbsensiKbmMuridProvider extends ChangeNotifier {
       final params = <String, dynamic>{};
       if (academicYearId != null) params['academic_year_id'] = academicYearId;
       final response = await _api.dio.get('/students/me/kbm', queryParameters: params);
-      _records = response.data['data'] as List? ?? [];
+      
+      final data = response.data;
+      if (data is Map && data['data'] is List) {
+        _records = data['data'] as List;
+      } else {
+        _records = [];
+      }
     } catch (e) {
-      _error = 'Gagal memuat absensi: $e';
+      _error = _extractError(e, 'Gagal memuat absensi KBM');
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  String _extractError(Object e, String fallback) {
+    if (e is DioException) {
+      final data = e.response?.data;
+      if (data is Map && data['message'] != null) {
+        return data['message'].toString();
+      }
+      return e.message ?? fallback;
+    }
+    return '$fallback: $e';
   }
 }
 
@@ -55,12 +73,29 @@ class AbsensiKegiatanMuridProvider extends ChangeNotifier {
       final params = <String, dynamic>{};
       if (academicYearId != null) params['academic_year_id'] = academicYearId;
       final response = await _api.dio.get('/students/me/kegiatan', queryParameters: params);
-      _records = response.data['data'] as List? ?? [];
+      
+      final data = response.data;
+      if (data is Map && data['data'] is List) {
+        _records = data['data'] as List;
+      } else {
+        _records = [];
+      }
     } catch (e) {
-      _error = 'Gagal memuat kegiatan: $e';
+      _error = _extractError(e, 'Gagal memuat kegiatan');
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  String _extractError(Object e, String fallback) {
+    if (e is DioException) {
+      final data = e.response?.data;
+      if (data is Map && data['message'] != null) {
+        return data['message'].toString();
+      }
+      return e.message ?? fallback;
+    }
+    return '$fallback: $e';
   }
 }

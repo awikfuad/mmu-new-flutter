@@ -9,3 +9,6 @@ export 'student_jadwal_page.dart';
 export 'student_kalender_page.dart';
 export 'student_perilaku_page.dart';
 export 'student_prestasi_page.dart';
+export 'student_ujian_page.dart';
+export 'scan_kode_ujian_page.dart';
+export 'kerjakan_ujian_page.dart';

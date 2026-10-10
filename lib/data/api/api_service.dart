@@ -30,12 +30,14 @@ class ApiService {
   // Kosong = gunakan DEFAULT_API_URL.
   static const String _overrideBaseUrl = String.fromEnvironment(
     'OVERRIDE_API_URL',
-    defaultValue: 'https://mmu-new-backend.vercel.app/api',
+    defaultValue: '',
+    // defaultValue: 'http://localhost:5000/api',
   );
+  
   // DEFAULT_API_URL: fallback untuk local development.
   static const String _defaultBaseUrl = String.fromEnvironment(
     'DEFAULT_API_URL',
-    defaultValue: 'http://localhost:5000/api',
+    defaultValue: 'https://api-presensi.mmua44.my.id/api',
   );
 
   static String get _rawBaseUrl =>
@@ -53,10 +55,11 @@ class ApiService {
     return url;
   }
 
-  // Runtime override via SharedPreferences
+  // Runtime override via SharedPreferences / UI Settings
   static String? _runtimeOverride;
   static Future<void> setRuntimeBaseUrl(String url) async {
     _runtimeOverride = url.trim().replaceAll(RegExp(r'/+$'), '');
+    _instance.dio.options.baseUrl = effectiveBaseUrl;
   }
 
   static String get effectiveBaseUrl => _runtimeOverride ?? baseUrl;
@@ -97,13 +100,11 @@ class ApiService {
 
   /// Hanya endpoint auth yang BENAR-BENAR publik (tanpa Bearer token):
   /// login*, google (login), refresh-token, logout.
-  /// Endpoint auth lain (google/status, link-google, change-password) TETAP
-  /// butuh token — jangan lumpuhkan header di sini agar `GET /auth/google/status`
-  /// & `POST /auth/link-google` tidak gagal 401 tanpa header.
   bool _isPublicAuthEndpoint(String path) {
     final p = path.toLowerCase();
     if (p.contains('/auth/login')) return true; // login-admin/teacher/student/parent + login unified
     if (p == '/auth/google') return true;
+    if (p == '/auth/register-google') return true; // registrasi Google publik (tanpa token)
     if (p == '/auth/refresh-token') return true;
     if (p == '/auth/logout') return true;
     return false;
@@ -149,7 +150,7 @@ class ApiService {
     // Jika refresh sedang berjalan di request lain, tunggu hingga selesai
     if (_refreshCompleter != null && !_refreshCompleter!.isCompleted) {
       await _refreshCompleter!.future;
-        final freshToken = await LocalStorage.getAccessToken();
+      final freshToken = await LocalStorage.getAccessToken();
       if (freshToken != null) {
         try {
           final retryOptions = e.requestOptions.copyWith();
@@ -211,8 +212,7 @@ class ApiService {
       return handler.next(refreshError);
     } catch (_) {
       _completeRefresh();
-      // Non-Dio exception (e.g. TypeError, FormatException) — jangan force logout,
-      // biarkan request gagal natural. Sesi bisa pulih di request berikutnya.
+      // Non-Dio exception (e.g. TypeError, FormatException) — jangan force logout
       return handler.next(e);
     }
   }

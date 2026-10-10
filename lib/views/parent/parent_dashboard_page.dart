@@ -4,9 +4,9 @@ import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/parent_provider.dart';
-import '../../providers/theme_provider.dart';
-import '../../theme/theme_selector_dialog.dart';
 import '../../utils/foto_helper.dart';
+import '../../utils/snackbar_helper.dart';
+import '../info/menu_info.dart';
 import 'parent_child_detail_page.dart';
 
 class ParentDashboardPage extends StatefulWidget {
@@ -22,9 +22,7 @@ Future<void> _launchURL(String urlString) async {
     final Uri url = Uri.parse(urlString);
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal membuka link: $urlString')),
-      );
+      showErrorSnackBar(context, 'Gagal membuka link: $urlString');
     }
   }
   void _processLogout() async {
@@ -58,12 +56,24 @@ Future<void> _launchURL(String urlString) async {
     }
   }
 
-  void _openThemeSelector() {
-    final themeProvider = context.read<ThemeProvider>();
-    showDialog(
-      context: context,
-      builder: (_) => ThemeSelectorDialog(themeProvider: themeProvider),
+  
+
+  /// Membuka halaman "Tentang Aplikasi" (info + ganti password + login sidik jari).
+  void _openAboutApp() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AboutAppPage()),
     );
+  }
+
+  /// Kembali dari portal wali ke portal guru (sesi guru dipulihkan).
+  Future<void> _backToTeacher() async {
+    final auth = context.read<AuthProvider>();
+    final ok = await auth.switchBackToTeacher();
+    if (!mounted) return;
+    if (!ok) {
+      showErrorSnackBar(context, 'Sesi guru tidak ditemukan. Silakan login ulang.');
+    }
   }
 
   @override
@@ -83,6 +93,7 @@ Future<void> _launchURL(String urlString) async {
         ..fetchChildren(),
       child: Consumer<ParentProvider>(
         builder: (context, parent, _) {
+          final auth = context.watch<AuthProvider>();
           return PopScope(
             canPop: false,
             onPopInvokedWithResult: (didPop, result) async {
@@ -94,11 +105,10 @@ Future<void> _launchURL(String urlString) async {
                 return;
               }
               _lastBackPressed = now;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Tekan kembali sekali lagi untuk keluar'),
-                  duration: Duration(seconds: 2),
-                ),
+              showInfoSnackBar(
+                context,
+                'Tekan kembali sekali lagi untuk keluar',
+                duration: const Duration(seconds: 2),
               );
             },
             child: Scaffold(
@@ -119,29 +129,16 @@ Future<void> _launchURL(String urlString) async {
                             delegate: _CurvedAppBarDelegate(
                               colorScheme: colorScheme,
                               topPadding: topPadding,
-                              onThemeTap: _openThemeSelector,
+                              onAboutTap: _openAboutApp,
                               onLogoutTap: _processLogout,
+                              showBackToTeacher: auth.hasTeacherSessionBackup,
+                              onBackToTeacher: _backToTeacher,
                               profile: _buildProfileCard(parent, colorScheme),
                               maxExtentHeight: 180.0 + topPadding,
                               minExtentHeight: kToolbarHeight + topPadding,
                             ),
                           ),
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 24.0,
-                              ),
-
-                              child: Text(
-                                'Portal Orang Tua',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: colorScheme.onSurfaceVariant
-                                      .withValues(alpha: 0.7),
-                                ),
-                              ),
-                            ),
-                          ),
+                         
                           // --- 2. Main Content Section ---
                           SliverPadding(
                             padding: const EdgeInsets.all(16.0),
@@ -192,10 +189,10 @@ Future<void> _launchURL(String urlString) async {
                             ),
                             sliver: SliverGrid.count(
                               crossAxisCount:
-                                  4, // 4 Kolom (sesuai layout menu sebelumnya)
-                              mainAxisSpacing: 10,
+                                  3, // 4 Kolom (sesuai layout menu sebelumnya)
+                              mainAxisSpacing: 12,
                               crossAxisSpacing: 8,
-                              childAspectRatio: 0.76,
+                              childAspectRatio: 0.85,
                               children: [
                                 _buildActionCard(
                                   context,
@@ -470,7 +467,7 @@ Future<void> _launchURL(String urlString) async {
     final className = child['class_name'] ?? '-';
     final namaRombel = child['nama_rombel']?.toString() ?? '';
     final rombelSuffix = namaRombel.trim().isNotEmpty
-        ? ' • Rombel: $namaRombel'
+        ? ' • $namaRombel'
         : '';
     final sumber = (child['sumber'] ?? 'madrasah').toString().toUpperCase();
     final hubungan = child['hubungan'] ?? '';
@@ -758,8 +755,10 @@ Future<void> _launchURL(String urlString) async {
 class _CurvedAppBarDelegate extends SliverPersistentHeaderDelegate {
   final ColorScheme colorScheme;
   final double topPadding;
-  final VoidCallback onThemeTap;
+  final VoidCallback onAboutTap;
   final VoidCallback onLogoutTap;
+  final bool showBackToTeacher;
+  final VoidCallback onBackToTeacher;
   final Widget profile;
   final double maxExtentHeight;
   final double minExtentHeight;
@@ -767,8 +766,10 @@ class _CurvedAppBarDelegate extends SliverPersistentHeaderDelegate {
   _CurvedAppBarDelegate({
     required this.colorScheme,
     required this.topPadding,
-    required this.onThemeTap,
+    required this.onAboutTap,
     required this.onLogoutTap,
+    required this.showBackToTeacher,
+    required this.onBackToTeacher,
     required this.profile,
     required this.maxExtentHeight,
     required this.minExtentHeight,
@@ -824,14 +825,24 @@ class _CurvedAppBarDelegate extends SliverPersistentHeaderDelegate {
                       ),
                     ),
                     const Spacer(),
+                    if (showBackToTeacher)
+                      IconButton(
+                        icon: Icon(
+                          Icons.swap_horiz_rounded,
+                          color: colorScheme.onPrimary,
+                        ),
+                        onPressed: onBackToTeacher,
+                        tooltip: 'Kembali ke Portal Guru',
+                      ),
                     IconButton(
                       icon: Icon(
-                        Icons.palette_outlined,
+                        Icons.info_outline,
                         color: colorScheme.onPrimary,
                       ),
-                      onPressed: onThemeTap,
-                      tooltip: 'Pengaturan Tema',
+                      onPressed: onAboutTap,
+                      tooltip: 'Tentang Aplikasi',
                     ),
+                   
                     IconButton(
                       icon: Icon(
                         Icons.logout_rounded,
@@ -866,6 +877,7 @@ class _CurvedAppBarDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(covariant _CurvedAppBarDelegate oldDelegate) {
     return oldDelegate.colorScheme != colorScheme ||
         oldDelegate.topPadding != topPadding ||
+        oldDelegate.showBackToTeacher != showBackToTeacher ||
         oldDelegate.maxExtentHeight != maxExtentHeight ||
         oldDelegate.minExtentHeight != minExtentHeight;
   }

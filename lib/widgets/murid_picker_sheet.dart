@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/api/api_service.dart';
 import '../utils/foto_helper.dart';
+import '../utils/snackbar_helper.dart';
 
 /// Membuka bottom sheet untuk memilih santri/murid dari /muridKelas.
 /// Mengembalikan Map murid terpilih (id, name, nim, class_name, ...) atau null bila dibatalkan.
@@ -55,13 +56,7 @@ class _MuridPickerSheetState extends State<_MuridPickerSheet> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal memuat daftar murid: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      showErrorSnackBar(context, 'Gagal memuat daftar murid: $e');
     }
   }
 
