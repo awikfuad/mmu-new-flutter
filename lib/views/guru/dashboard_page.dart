@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dashboard_guru_provider.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'absensi_guru_kbm_page.dart';
 import 'arsip_soalan_page.dart';
 import 'gaji_guru_page.dart';
@@ -209,7 +210,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const IzinGuruAdminPage()),
+          CupertinoPageRoute(builder: (_) => const IzinGuruAdminPage()),
         ),
       ),
       _buildActionCard(
@@ -224,7 +225,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const AbsensiGuruKbmPage()),
+          CupertinoPageRoute(builder: (_) => const AbsensiGuruKbmPage()),
         ),
       ),
       _buildActionCard(
@@ -239,7 +240,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const IzinSakitAdminPage()),
+          CupertinoPageRoute(builder: (_) => const IzinSakitAdminPage()),
         ),
       ),
       _buildActionCard(
@@ -254,7 +255,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const PengumumanAdminPage()),
+          CupertinoPageRoute(builder: (_) => const PengumumanAdminPage()),
         ),
       ),
       _buildActionCard(
@@ -269,7 +270,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const KelolaKegiatanPage()),
+          CupertinoPageRoute(builder: (_) => const KelolaKegiatanPage()),
         ),
       ),
       _buildActionCard(
@@ -284,7 +285,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const PiketPimpinanPage()),
+          CupertinoPageRoute(builder: (_) => const PiketPimpinanPage()),
         ),
       ),
       _buildActionCard(
@@ -299,7 +300,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const PrestasiPelanggaranPage()),
+          CupertinoPageRoute(builder: (_) => const PrestasiPelanggaranPage()),
         ),
       ),
     ];
@@ -332,7 +333,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const PresensiSayaPage()),
+                CupertinoPageRoute(builder: (_) => const PresensiSayaPage()),
               ),
             ),
             _buildActionCard(
@@ -346,7 +347,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
+                CupertinoPageRoute(
                   builder: (_) => const KegiatanNonAkademikPage(),
                 ),
               ),
@@ -362,7 +363,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
+                CupertinoPageRoute(
                   builder: (_) => const KegiatanInternalGuruPage(),
                 ),
               ),
@@ -378,7 +379,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const GajiGuruPage()),
+                CupertinoPageRoute(builder: (_) => const GajiGuruPage()),
               ),
             ),
             _buildActionCard(
@@ -392,7 +393,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const ArsipSoalanPage()),
+                CupertinoPageRoute(builder: (_) => const ArsipSoalanPage()),
               ),
             ),
             _buildActionCard(
@@ -406,7 +407,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const PortalWaliPage()),
+                CupertinoPageRoute(builder: (_) => const PortalWaliPage()),
               ),
             ),
           ];
@@ -425,7 +426,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const TabunganPage()),
+                  CupertinoPageRoute(builder: (_) => const TabunganPage()),
                 ),
               ),
               _buildActionCard(
@@ -440,7 +441,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const PembayaranPage()),
+                  CupertinoPageRoute(builder: (_) => const PembayaranPage()),
                 ),
               ),
               ..._pimpinanFeatureCards(context, getVibrantColor),
@@ -456,7 +457,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
           return Scaffold(
             body: dash.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? _buildDashboardShimmer(context)
                 : RefreshIndicator(
                     onRefresh: dash.fetchDashboardData,
                     child: CustomScrollView(
@@ -518,7 +519,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                     TextButton.icon(
                                       onPressed: () => Navigator.push(
                                         context,
-                                        MaterialPageRoute(
+                                        CupertinoPageRoute(
                                           builder: (_) =>
                                               const JadwalMingguanPage(),
                                         ),
@@ -673,7 +674,7 @@ class _DashboardPageState extends State<DashboardPage> {
           child: InkWell(
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(
+              CupertinoPageRoute(
                 builder: (_) => PiketHariIniPage(
                   piketStart: startTime,
                   piketEnd: endTime,
@@ -1065,7 +1066,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     Navigator.pop(ctx);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
+                      CupertinoPageRoute(
                         builder: (_) => PresensiKelasPage(
                           scheduleId: scheduleId,
                           classroomId: classroomId,
@@ -1104,7 +1105,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     Navigator.pop(ctx);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
+                      CupertinoPageRoute(
                         builder: (_) => InputNilaiHarianPage(
                           scheduleId: scheduleId,
                           classroomId: classroomId,
@@ -1615,4 +1616,40 @@ class CurvedUpClipper extends CustomClipper<Path> {
   bool shouldReclip(covariant CurvedUpClipper oldClipper) {
     return oldClipper.curveDepth != curveDepth;
   }
+}
+
+Widget _buildDashboardShimmer(BuildContext context) {
+  final cs = Theme.of(context).colorScheme;
+  return ThemedShimmer(
+    child: ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      children: [
+        ShimmerBox(height: 210, radius: 0, color: cs.surfaceContainerHigh),
+        const SizedBox(height: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const ShimmerBox(height: 14, width: 140),
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: List.generate(
+                  6,
+                  (_) => const ShimmerBox(
+                    height: 96,
+                    width: 150,
+                    radius: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }

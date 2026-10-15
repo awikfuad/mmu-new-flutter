@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../utils/cupertino_sheet.dart';
 import '../data/api/api_service.dart';
 import '../utils/snackbar_helper.dart';
+import 'shimmer_loader.dart';
 
 /// Bottom sheet untuk membayar iuran dari SALDO TABUNGAN santri.
 /// [childNim] diisi saat dipanggil dari portal orang tua → endpoint parent.
@@ -185,13 +186,10 @@ class _BayarDariTabunganSheetState extends State<_BayarDariTabunganSheet> {
                 ),
                 onPressed: _submitting ? null : _submit,
                 child: _submitting
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
+                    ? const ShimmerSpinner(
+                        size: 22,
+                        strokeWidth: 2,
+                        color: Colors.white,
                       )
                     : const Text(
                         'Bayar dari Tabungan',

@@ -4,6 +4,7 @@ import '../../providers/presensi_saya_provider.dart';
 import 'input_nilai_harian_page.dart';
 import 'presensi_kelas_page.dart';
 import '../../utils/cupertino_sheet.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 class PresensiSayaPage extends StatelessWidget {
@@ -26,7 +27,51 @@ class _PresensiSayaBody extends StatelessWidget {
   bool _isPiket(dynamic s) =>
       (s['teaching_status'] ?? '').toString().toUpperCase() == 'PIKET';
 
-  Widget _badge(String label, Color color) => Container(
+  Widget _buildShimmer(BuildContext context) {
+  return ThemedShimmer(
+    child: ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      children: [
+        const ShimmerBox(height: 56, radius: 12),
+        const SizedBox(height: 16),
+        ...List.generate(
+          5,
+          (_) => Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant),
+            ),
+            child: Row(
+              children: const [
+                ShimmerBox(height: 44, width: 44, radius: 22),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ShimmerBox(height: 14, width: 160),
+                      SizedBox(height: 8),
+                      ShimmerBox(height: 12, width: 180),
+                      SizedBox(height: 8),
+                      ShimmerBox(height: 18, width: 140, radius: 6),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _badge(String label, Color color) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6), border: Border.all(color: color.withValues(alpha: 0.3))),
         child: Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: color)),
@@ -126,7 +171,7 @@ class _PresensiSayaBody extends StatelessWidget {
                     Navigator.pop(ctx);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
+                      CupertinoPageRoute(
                         builder: (_) => PresensiKelasPage(
                           scheduleId: scheduleId,
                           classroomId: classroomId,
@@ -155,7 +200,7 @@ class _PresensiSayaBody extends StatelessWidget {
                     Navigator.pop(ctx);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
+                      CupertinoPageRoute(
                         builder: (_) => InputNilaiHarianPage(
                           scheduleId: scheduleId,
                           classroomId: classroomId,
@@ -202,7 +247,7 @@ class _PresensiSayaBody extends StatelessWidget {
         foregroundColor: colorScheme.onPrimary,
       ),
       body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildShimmer(context)
           : RefreshIndicator(
               onRefresh: () => context.read<PresensiSayaProvider>().load(),
               child: ListView(

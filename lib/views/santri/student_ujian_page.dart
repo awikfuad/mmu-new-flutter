@@ -8,6 +8,7 @@ import '../../providers/student_ujian_provider.dart';
 import '../../utils/snackbar_helper.dart';
 import 'kerjakan_ujian_page.dart';
 import 'scan_kode_ujian_page.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 class StudentUjianPage extends StatefulWidget {
@@ -146,7 +147,7 @@ class _StudentUjianPageState extends State<StudentUjianPage> {
               pendingScan = true;
               setDialogState(() {});
               final result = await Navigator.of(dialogContext).push<Map<String, dynamic>>(
-                MaterialPageRoute(builder: (_) => const ScanKodeUjianPage()),
+                CupertinoPageRoute(builder: (_) => const ScanKodeUjianPage()),
               );
               pendingScan = false;
               if (!dialogContext.mounted) return;
@@ -193,8 +194,8 @@ class _StudentUjianPageState extends State<StudentUjianPage> {
                       isDense: true,
                       suffixIcon: pendingScan
                           ? const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              padding: EdgeInsets.symmetric(horizontal: 14),
+                              child: ShimmerSpinner(size: 16, strokeWidth: 2),
                             )
                           : IconButton(
                               icon: const Icon(CupertinoIcons.qrcode_viewfinder),
@@ -264,7 +265,7 @@ class _StudentUjianPageState extends State<StudentUjianPage> {
     try {
       await Navigator.push(
         context,
-        MaterialPageRoute(
+        CupertinoPageRoute(
           builder: (_) => KerjakanUjianPage(
             ujianId: ujian.ujianId,
             kode: resultKode,

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/input_nilai_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 class InputNilaiHarianPage extends StatelessWidget {
@@ -127,7 +128,7 @@ class _InputNilaiBody extends StatelessWidget {
         elevation: 0,
       ),
       body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildNilaiShimmer(context)
           : provider.error != null
               ? Center(
                   child: Column(
@@ -410,13 +411,10 @@ class _InputNilaiBody extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12)),
                         ),
                         child: provider.isSaving
-                            ? SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                  color: colorScheme.onPrimary,
-                                  strokeWidth: 2.5,
-                                ),
+                            ? ShimmerSpinner(
+                                size: 24,
+                                color: colorScheme.onPrimary,
+                                strokeWidth: 2.5,
                               )
                             : Text(
                                 'SIMPAN NILAI (${provider.changedCount} ubah)',
@@ -431,7 +429,72 @@ class _InputNilaiBody extends StatelessWidget {
     );
   }
 
-  Widget _infoChip(String label, int count, Color color) {
+  Widget _buildNilaiShimmer(BuildContext context) {
+  final colorScheme = Theme.of(context).colorScheme;
+  return ThemedShimmer(
+    child: Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
+          color: colorScheme.surfaceContainerLow,
+          child: const Row(
+            children: [
+              ShimmerBox(height: 22, width: 64, radius: 8),
+              SizedBox(width: 8),
+              ShimmerBox(height: 22, width: 64, radius: 8),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          color: colorScheme.surfaceContainerHighest,
+          child: const Row(
+            children: [
+              Expanded(child: ShimmerBox(height: 12)),
+              SizedBox(width: 12),
+              ShimmerBox(height: 12, width: 80),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 12),
+            itemCount: 8,
+            itemBuilder: (context, index) => const SkeletonCard(
+              margin: EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(
+                children: [
+                  ShimmerBox(height: 32, width: 32, radius: 16),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ShimmerBox(height: 13, width: 140),
+                        SizedBox(height: 6),
+                        ShimmerBox(height: 11, width: 90),
+                      ],
+                    ),
+                  ),
+                  ShimmerBox(height: 36, width: 80, radius: 8),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(16),
+          color: colorScheme.surface,
+          child: const ShimmerBox(height: 50, radius: 12),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _infoChip(String label, int count, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(

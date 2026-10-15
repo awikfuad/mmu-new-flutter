@@ -94,7 +94,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
   }
 
   void _openPage(Widget page) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+    Navigator.push(context, CupertinoPageRoute(builder: (_) => page));
   }
 
   @override
@@ -138,7 +138,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
+                        CupertinoPageRoute(
                           builder: (_) => const AboutAppPage(),
                         ),
                       );

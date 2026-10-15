@@ -409,7 +409,7 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
   }
 
   Widget _buildShimmerLoading(BuildContext context) {
-     final cs = Theme.of(context).colorScheme;
+    //  final cs = Theme.of(context).colorScheme;
     return Shimmer.fromColors(
       baseColor: Colors.grey.shade300,
       highlightColor: Colors.grey.shade100,

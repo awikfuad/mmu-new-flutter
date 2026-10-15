@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 /// Dialog wajib ganti password — muncul setelah login santri memakai password
@@ -214,11 +215,7 @@ class _StudentChangePasswordDialogState
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (_submitting)
-                  const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+                  const ShimmerSpinner(size: 18, strokeWidth: 2)
                 else
                   const Icon(CupertinoIcons.checkmark),
                 const SizedBox(width: 8),

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/izin_guru_admin_provider.dart';
 import '../../utils/snackbar_helper.dart';
 import '../../utils/cupertino_sheet.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 class IzinGuruAdminPage extends StatelessWidget {
@@ -66,7 +67,7 @@ class _IzinGuruListBody extends StatelessWidget {
           const Divider(height: 1),
           Expanded(
             child: provider.isLoading
-                ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
+                ? _buildIzinGuruListShimmer()
                 : provider.list.isEmpty
                     ? _emptyState(context)
                     : RefreshIndicator(
@@ -95,7 +96,7 @@ class _IzinGuruListBody extends StatelessWidget {
                                 onTap: () async {
                                   await Navigator.push(
                                     context,
-                                    MaterialPageRoute(
+                                    CupertinoPageRoute(
                                       builder: (_) => _IzinGuruDetailPage(izinId: id, izin: item),
                                     ),
                                   );
@@ -192,7 +193,41 @@ class _IzinGuruListBody extends StatelessWidget {
     }
   }
 
-  Widget _filterChip(BuildContext context, String label, {required bool selected, required VoidCallback onTap}) {
+  Widget _buildIzinGuruListShimmer() {
+  return ShimmerListSkeleton(
+    padding: const EdgeInsets.fromLTRB(12, 10, 12, 90),
+    itemCount: 5,
+    itemBuilder: (context, index) => const SkeletonCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: ShimmerBox(height: 14)),
+              ShimmerBox(height: 18, width: 46, radius: 6),
+              SizedBox(width: 6),
+              ShimmerBox(height: 18, width: 56, radius: 6),
+            ],
+          ),
+          SizedBox(height: 10),
+          ShimmerBox(height: 13),
+          SizedBox(height: 6),
+          ShimmerBox(height: 13, width: 180),
+          SizedBox(height: 12),
+          Row(
+            children: [
+              ShimmerBox(height: 12, width: 150),
+              SizedBox(width: 8),
+              ShimmerBox(height: 18, width: 60, radius: 6),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _filterChip(BuildContext context, String label, {required bool selected, required VoidCallback onTap}) {
     final colorScheme = Theme.of(context).colorScheme;
     return ChoiceChip(
       label: Text(label, style: TextStyle(fontSize: 12, fontWeight: selected ? FontWeight.bold : FontWeight.normal)),
@@ -519,7 +554,7 @@ class _IzinGuruDetailPageState extends State<_IzinGuruDetailPage> {
         foregroundColor: colorScheme.onPrimary,
       ),
       body: provider.isLoading && provider.detailIzinId == widget.izinId
-          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
+          ? _buildShimmerLoading(context)
           : RefreshIndicator(
               color: colorScheme.primary,
               onRefresh: () => provider.fetchDetail(widget.izinId),
@@ -600,6 +635,54 @@ class _IzinGuruDetailPageState extends State<_IzinGuruDetailPage> {
               label: const Text('Tandai Selesai'),
             )
           : null,
+    );
+  }
+
+  Widget _buildShimmerLoading(BuildContext context) {
+    return ShimmerListSkeleton(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 90),
+      itemCount: 4,
+      itemBuilder: (context, index) => index == 0
+          ? const SkeletonCard(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(child: ShimmerBox(height: 16)),
+                      ShimmerBox(height: 18, width: 46, radius: 6),
+                      SizedBox(width: 6),
+                      ShimmerBox(height: 18, width: 56, radius: 6),
+                    ],
+                  ),
+                  SizedBox(height: 12),
+                  ShimmerBox(height: 13),
+                  SizedBox(height: 6),
+                  ShimmerBox(height: 12, width: 170),
+                  SizedBox(height: 6),
+                  ShimmerBox(height: 12, width: 200),
+                ],
+              ),
+            )
+          : const SkeletonCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      ShimmerBox(height: 22, width: 64, radius: 8),
+                      SizedBox(width: 8),
+                      Expanded(child: ShimmerBox(height: 14)),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  ShimmerBox(height: 12, width: 120),
+                  SizedBox(height: 8),
+                  ShimmerBox(height: 36, radius: 8),
+                ],
+              ),
+            ),
     );
   }
 

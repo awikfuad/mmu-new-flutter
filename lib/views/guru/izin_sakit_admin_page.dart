@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/izin_sakit_admin_provider.dart';
 import '../../utils/snackbar_helper.dart';
 import '../../utils/cupertino_sheet.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 class IzinSakitAdminPage extends StatelessWidget {
@@ -129,7 +130,7 @@ class _IzinSakitBody extends StatelessWidget {
           const Divider(height: 1),
           Expanded(
             child: provider.isLoading
-                ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
+                ? _buildShimmerLoading(context)
                 : provider.list.isEmpty
                     ? _emptyState(context)
                     : RefreshIndicator(
@@ -513,4 +514,43 @@ class _IzinSakitFormState extends State<_IzinSakitForm> {
       ),
     );
   }
+}
+
+Widget _buildShimmerLoading(BuildContext context) {
+  return ShimmerListSkeleton(
+    itemCount: 5,
+    itemBuilder: (context, index) => SkeletonCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(child: ShimmerBox(height: 14)),
+              const ShimmerBox(height: 18, width: 48, radius: 6),
+              const SizedBox(width: 6),
+              const ShimmerBox(height: 18, width: 60, radius: 6),
+            ],
+          ),
+          const SizedBox(height: 10),
+          const ShimmerBox(height: 11, width: 120),
+          const SizedBox(height: 10),
+          const ShimmerBox(height: 13),
+          const SizedBox(height: 6),
+          const ShimmerBox(height: 13, width: 180),
+          const SizedBox(height: 12),
+          const ShimmerBox(height: 12, width: 160),
+          const SizedBox(height: 12),
+          Row(
+            children: const [
+              Expanded(child: ShimmerBox(height: 34, radius: 8)),
+              SizedBox(width: 8),
+              Expanded(child: ShimmerBox(height: 34, radius: 8)),
+              SizedBox(width: 8),
+              ShimmerBox(height: 34, width: 34, radius: 8),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
 }

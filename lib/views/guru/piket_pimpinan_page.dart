@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/piket_pimpinan_provider.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 class PiketPimpinanPage extends StatelessWidget {
@@ -85,7 +86,7 @@ class _PiketPimpinanBody extends StatelessWidget {
           ),
         ),
         body: provider.isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? _buildShimmer(context)
             : RefreshIndicator(
                 onRefresh: provider.load,
                 child: TabBarView(
@@ -95,6 +96,41 @@ class _PiketPimpinanBody extends StatelessWidget {
                   ],
                 ),
               ),
+      ),
+    );
+  }
+
+  Widget _buildShimmer(BuildContext context) {
+    return ThemedShimmer(
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        children: [
+          const ShimmerBox(height: 76, radius: 14),
+          const SizedBox(height: 16),
+          ...List.generate(
+            4,
+            (_) => Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Row(
+                children: const [
+                  ShimmerBox(height: 44, width: 44, radius: 10),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ShimmerBox(height: 14, width: 120),
+                        SizedBox(height: 8),
+                        ShimmerBox(height: 36, width: 200, radius: 10),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

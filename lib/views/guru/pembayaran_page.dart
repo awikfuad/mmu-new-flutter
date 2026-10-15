@@ -7,6 +7,7 @@ import '../../providers/pembayaran_provider.dart';
 import '../../utils/format.dart';
 import '../../utils/snackbar_helper.dart';
 import '../../widgets/murid_picker_sheet.dart';
+import '../../widgets/shimmer_loader.dart';
 import '../../utils/cupertino_sheet.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -1179,13 +1180,10 @@ class _InputPaymentSheetState extends State<_InputPaymentSheet> {
                 ),
                 onPressed: _submitting ? null : _submit,
                 child: _submitting
-                    ? SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: colorScheme.onPrimary,
-                        ),
+                    ? ShimmerSpinner(
+                        size: 22,
+                        strokeWidth: 2,
+                        color: colorScheme.onPrimary,
                       )
                     : const Text(
                         'Simpan Pembayaran',

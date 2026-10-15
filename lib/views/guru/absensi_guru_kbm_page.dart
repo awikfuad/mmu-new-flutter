@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/absensi_guru_kbm_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 class AbsensiGuruKbmPage extends StatelessWidget {
@@ -162,7 +163,7 @@ class _AbsensiGuruKbmBody extends StatelessWidget {
 
           Expanded(
             child: provider.isLoading
-                ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
+                ? _buildRosterShimmer()
                 : provider.roster.isEmpty
                     ? _emptyState(context)
                     : RefreshIndicator(
@@ -289,14 +290,51 @@ class _AbsensiGuruKbmBody extends StatelessWidget {
               backgroundColor: colorScheme.primary,
               foregroundColor: colorScheme.onPrimary,
               icon: provider.isSaving
-                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  ? const ShimmerSpinner(size: 18, strokeWidth: 2, color: Colors.white)
                   : const Icon(CupertinoIcons.floppy_disk),
               label: Text(provider.isSaving ? 'Menyimpan...' : 'Simpan Absensi'),
             ),
     );
   }
 
-  Widget _summaryChip(BuildContext context, String count, String label, Color color) {
+  Widget _buildRosterShimmer() {
+  return ShimmerListSkeleton(
+    padding: const EdgeInsets.fromLTRB(12, 10, 12, 90),
+    itemCount: 5,
+    itemBuilder: (context, index) => const SkeletonCard(
+      margin: EdgeInsets.symmetric(vertical: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: ShimmerBox(height: 14)),
+              ShimmerBox(height: 18, width: 56, radius: 6),
+            ],
+          ),
+          SizedBox(height: 10),
+          ShimmerBox(height: 11, width: 150),
+          SizedBox(height: 12),
+          Row(
+            children: [
+              ShimmerBox(height: 24, width: 40, radius: 8),
+              SizedBox(width: 6),
+              ShimmerBox(height: 24, width: 40, radius: 8),
+              SizedBox(width: 6),
+              ShimmerBox(height: 24, width: 40, radius: 8),
+              SizedBox(width: 6),
+              ShimmerBox(height: 24, width: 40, radius: 8),
+            ],
+          ),
+          SizedBox(height: 12),
+          ShimmerBox(height: 38, radius: 8),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _summaryChip(BuildContext context, String count, String label, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(

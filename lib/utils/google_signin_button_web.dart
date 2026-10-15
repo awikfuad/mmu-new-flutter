@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:google_sign_in_web/web_only.dart' as gsi_web;
+import '../widgets/shimmer_loader.dart';
 
 bool _gsiInitialized = false;
 
@@ -82,11 +83,7 @@ class _GoogleSignInWebButtonState extends State<_GoogleSignInWebButton> {
         height: 48,
         width: double.infinity,
         child: Center(
-          child: SizedBox(
-            height: 20,
-            width: 20,
-            child: CircularProgressIndicator(strokeWidth: 2.5),
-          ),
+          child: ShimmerSpinner(size: 20, strokeWidth: 2.5),
         ),
       );
     }

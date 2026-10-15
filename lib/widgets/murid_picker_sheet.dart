@@ -3,6 +3,7 @@ import '../utils/cupertino_sheet.dart';
 import '../data/api/api_service.dart';
 import '../utils/foto_helper.dart';
 import '../utils/snackbar_helper.dart';
+import 'shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 /// Membuka bottom sheet untuk memilih santri/murid dari /muridKelas.
@@ -133,7 +134,7 @@ class _MuridPickerSheetState extends State<_MuridPickerSheet> {
           const SizedBox(height: 8),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const _MuridPickerShimmer()
                 : _filtered.isEmpty
                     ? Center(
                         child: Text(
@@ -180,6 +181,39 @@ class _MuridPickerSheetState extends State<_MuridPickerSheet> {
                       ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _MuridPickerShimmer extends StatelessWidget {
+  const _MuridPickerShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return ThemedShimmer(
+      child: ListView.builder(
+        padding: const EdgeInsets.all(8),
+        itemCount: 8,
+        itemBuilder: (context, index) => const Padding(
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+          child: Row(
+            children: [
+              ShimmerBox(height: 40, width: 40, radius: 20),
+              SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ShimmerBox(height: 13, width: 160),
+                    SizedBox(height: 8),
+                    ShimmerBox(height: 11, width: 200),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/pengumuman_provider.dart';
 import '../../utils/snackbar_helper.dart';
 import '../../utils/cupertino_sheet.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 class PengumumanAdminPage extends StatelessWidget {
@@ -81,7 +82,7 @@ class _PengumumanBody extends StatelessWidget {
           const Divider(height: 1),
           Expanded(
             child: provider.isLoading
-                ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
+                ? _buildPengumumanShimmer()
                 : provider.list.isEmpty
                     ? _emptyState(context)
                     : RefreshIndicator(
@@ -202,7 +203,43 @@ class _PengumumanBody extends StatelessWidget {
     );
   }
 
-  Widget _filterChip(BuildContext context, String label, {required bool selected, required VoidCallback onTap}) {
+  Widget _buildPengumumanShimmer() {
+  return ShimmerListSkeleton(
+    padding: const EdgeInsets.fromLTRB(12, 10, 12, 90),
+    itemCount: 5,
+    itemBuilder: (context, index) => const SkeletonCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: ShimmerBox(height: 15)),
+              ShimmerBox(height: 18, width: 52, radius: 6),
+              SizedBox(width: 6),
+              ShimmerBox(height: 18, width: 56, radius: 6),
+            ],
+          ),
+          SizedBox(height: 10),
+          ShimmerBox(height: 13),
+          SizedBox(height: 6),
+          ShimmerBox(height: 13),
+          SizedBox(height: 6),
+          ShimmerBox(height: 13, width: 200),
+          SizedBox(height: 12),
+          Row(
+            children: [
+              ShimmerBox(height: 12, width: 150),
+              Spacer(),
+              ShimmerBox(height: 18, width: 20, radius: 6),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _filterChip(BuildContext context, String label, {required bool selected, required VoidCallback onTap}) {
     final colorScheme = Theme.of(context).colorScheme;
     return ChoiceChip(
       label: Text(label, style: TextStyle(fontSize: 12, fontWeight: selected ? FontWeight.bold : FontWeight.normal)),

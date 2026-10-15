@@ -57,7 +57,7 @@ Future<void> _launchURL(String urlString) async {
   void _openAboutApp() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const AboutAppPage()),
+      CupertinoPageRoute(builder: (_) => const AboutAppPage()),
     );
   }
 
@@ -481,7 +481,7 @@ Future<void> _launchURL(String urlString) async {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
+            CupertinoPageRoute(
               builder: (_) => ParentChildDetailPage(
                 nim: nim.toString(),
                 childName: name.toString(),

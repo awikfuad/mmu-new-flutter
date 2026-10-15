@@ -5,10 +5,44 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/google_signin_button.dart';
 import '../../utils/snackbar_helper.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 /// Halaman "Akun Google" — self-service agar guru/admin menautkan atau
 /// memutuskan tautan akun Google-nya sendiri (mirip menu Profil di web).
+Widget _buildAkunGoogleShimmer(BuildContext context) {
+  final cs = Theme.of(context).colorScheme;
+  return ThemedShimmer(
+    child: ListView(
+      padding: const EdgeInsets.all(16),
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: cs.outlineVariant),
+          ),
+          child: Column(
+            children: const [
+              ShimmerBox(height: 64, width: 64, radius: 32),
+              SizedBox(height: 16),
+              ShimmerBox(height: 16, width: 180),
+              SizedBox(height: 10),
+              ShimmerBox(height: 13, width: 220),
+              SizedBox(height: 20),
+              ShimmerBox(height: 46, radius: 12),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        const ShimmerBox(height: 120, radius: 14),
+      ],
+    ),
+  );
+}
+
 class AkunGooglePage extends StatefulWidget {
   const AkunGooglePage({super.key});
 
@@ -169,7 +203,7 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
         foregroundColor: colorScheme.onPrimary,
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildAkunGoogleShimmer(context)
           : RefreshIndicator(
               onRefresh: _loadStatus,
               child: ListView(
@@ -313,11 +347,7 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
                           child: ElevatedButton.icon(
                             onPressed: _googleBusy ? null : _linkWithGoogle,
                             icon: _googleBusy
-                                ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(strokeWidth: 2.5),
-                                  )
+                                ? const ShimmerSpinner(size: 18, strokeWidth: 2.5)
                                 : const Icon(CupertinoIcons.antenna_radiowaves_left_right, size: 22),
                             label: const Text('Hubungkan Akun Google'),
                             style: ElevatedButton.styleFrom(

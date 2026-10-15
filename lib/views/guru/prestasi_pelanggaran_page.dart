@@ -4,6 +4,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/prestasi_pelanggaran_provider.dart';
 import '../../utils/snackbar_helper.dart';
 import '../../utils/cupertino_sheet.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 class PrestasiPelanggaranPage extends StatelessWidget {
@@ -141,7 +142,7 @@ class _PrestasiPelanggaranBody extends StatelessWidget {
           const Divider(height: 1),
           Expanded(
             child: provider.isLoading
-                ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
+                ? _buildPrestasiShimmer()
                 : provider.list.isEmpty
                     ? _emptyState(context)
                     : RefreshIndicator(
@@ -264,7 +265,47 @@ class _PrestasiPelanggaranBody extends StatelessWidget {
     );
   }
 
-  Widget _filterChip(BuildContext context, String label, {required bool selected, required VoidCallback onTap}) {
+  Widget _buildPrestasiShimmer() {
+  return ShimmerListSkeleton(
+    padding: const EdgeInsets.fromLTRB(12, 10, 12, 90),
+    itemCount: 5,
+    itemBuilder: (context, index) => const SkeletonCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: ShimmerBox(height: 15)),
+              ShimmerBox(height: 18, width: 70, radius: 6),
+              SizedBox(width: 6),
+              ShimmerBox(height: 18, width: 20, radius: 6),
+            ],
+          ),
+          SizedBox(height: 10),
+          ShimmerBox(height: 11, width: 120),
+          SizedBox(height: 10),
+          ShimmerBox(height: 13),
+          SizedBox(height: 6),
+          ShimmerBox(height: 13, width: 200),
+          SizedBox(height: 12),
+          Row(
+            children: [
+              ShimmerBox(height: 18, width: 60, radius: 6),
+              Spacer(),
+              ShimmerBox(height: 12, width: 100),
+              SizedBox(width: 8),
+              ShimmerBox(height: 12, width: 48),
+            ],
+          ),
+          SizedBox(height: 10),
+          ShimmerBox(height: 16, width: 70, radius: 6),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _filterChip(BuildContext context, String label, {required bool selected, required VoidCallback onTap}) {
     final colorScheme = Theme.of(context).colorScheme;
     return ChoiceChip(
       label: Text(label, style: TextStyle(fontSize: 12, fontWeight: selected ? FontWeight.bold : FontWeight.normal)),

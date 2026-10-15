@@ -9,6 +9,7 @@ import '../../providers/biometric_provider.dart';
 import '../../utils/google_signin_button.dart';
 import '../../utils/snackbar_helper.dart';
 import 'package:flutter/cupertino.dart';
+import '../../widgets/shimmer_loader.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -599,11 +600,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       isDefaultAction: true,
                       onPressed: submitting ? null : submit,
                       child: submitting
-                          ? const SizedBox(
-                              height: 18,
-                              width: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
+                          ? const ShimmerSpinner(size: 18, strokeWidth: 2)
                           : const Text('Kirim Pendaftaran'),
                     ),
                   ],
@@ -939,68 +936,83 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                               const SizedBox(height: 8),
 
                               Row(
-                                children: [
-                                  Expanded(
-                                    child: FilledButton(
-                                      style: FilledButton.styleFrom(
-                                        minimumSize: const Size.fromHeight(52),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(14),
-                                        ),
-                                      ),
-                                      onPressed:
-                                          auth.isLoading ? null : _processLogin,
-                                      child: auth.isLoading
-                                          ? const SizedBox(
-                                              height: 22,
-                                              width: 22,
-                                              child: CircularProgressIndicator(
-                                                color: Colors.amber,
-                                                strokeWidth: 2.5,
-                                              ),
-                                            )
-                                          : const Text(
-                                              'MASUK',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                letterSpacing: 0.5,
-                                              ),
-                                            ),
-                                    ),
-                                  ),
-                                  if (bio.isBiometricEnabled) ...[
-                                    const SizedBox(width: 10),
-                                    IconButton.filledTonal(
-                                      style: IconButton.styleFrom(
-                                        minimumSize: const Size(52, 52),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(14),
-                                        ),
-                                      ),
-                                      icon: bio.isLoading
-                                          ? SizedBox(
-                                              width: 24,
-                                              height: 24,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                color: cs.primary,
-                                              ),
-                                            )
-                                          : Icon(
-                                              CupertinoIcons.lock,
-                                              size: 28,
-                                              color: cs.primary,
-                                            ),
-                                      onPressed: (bio.isLoading || auth.isLoading)
-                                          ? null
-                                          : _loginWithBiometrics,
-                                      tooltip: 'Masuk dengan Biometrik',
-                                    ),
-                                  ],
-                                ],
-                              ),
-
+  children: [
+    Expanded(
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: auth.isLoading
+            ? Container(
+                key: const ValueKey('loading_indicator'),
+                height: 52,
+                decoration: BoxDecoration(
+                  color: cs.primary.withAlpha(50),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Center(
+                  child: ShimmerSpinner(
+                    size: 24,
+                    strokeWidth: 2.5,
+                    color: cs.primary,
+                  ),
+                ),
+              )
+            : FilledButton(
+                key: const ValueKey('login_button'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                onPressed: _processLogin,
+                child: const Text(
+                  'MASUK',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+      ),
+    ),
+    AnimatedSize(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (bio.isBiometricEnabled) ...[
+            const SizedBox(width: 10),
+            IconButton.filledTonal(
+              style: IconButton.styleFrom(
+                minimumSize: const Size(52, 52),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              icon: bio.isLoading
+                  ? ShimmerSpinner(
+                      size: 24,
+                      strokeWidth: 2,
+                      color: cs.primary,
+                    )
+                  : Icon(
+                      CupertinoIcons.lock,
+                      size: 28,
+                      color: cs.primary,
+                    ),
+              onPressed: (bio.isLoading || auth.isLoading)
+                  ? null
+                  : _loginWithBiometrics,
+              tooltip: 'Masuk dengan Biometrik',
+            ),
+          ],
+        ],
+      ),
+    ),
+  ],
+),
                               if (_googleEnabled || _googleRegisterEnabled) ...[
                                 const SizedBox(height: 18),
                                 Row(
@@ -1062,13 +1074,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                               ? null
                                               : _registerWithGoogle,
                                           child: _googleBusy
-                                              ? SizedBox(
-                                                  height: 20,
-                                                  width: 20,
-                                                  child: CircularProgressIndicator(
-                                                    strokeWidth: 2.5,
-                                                    color: cs.primary,
-                                                  ),
+                                              ? ShimmerSpinner(
+                                                  size: 20,
+                                                  strokeWidth: 2.5,
+                                                  color: cs.primary,
                                                 )
                                               : Row(
                                                   mainAxisAlignment:
@@ -1120,13 +1129,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                             ? null
                                             : _loginWithGoogle,
                                         child: _googleBusy
-                                            ? SizedBox(
-                                                height: 20,
-                                                width: 20,
-                                                child: CircularProgressIndicator(
-                                                  strokeWidth: 2.5,
-                                                  color: cs.primary,
-                                                ),
+                                            ? ShimmerSpinner(
+                                                size: 20,
+                                                strokeWidth: 2.5,
+                                                color: cs.primary,
                                               )
                                             : Row(
                                                 mainAxisAlignment:

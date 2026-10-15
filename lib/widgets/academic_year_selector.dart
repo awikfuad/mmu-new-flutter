@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'shimmer_loader.dart';
 import 'package:dio/dio.dart';
 import '../data/api/api_service.dart';
 
@@ -90,7 +91,7 @@ class _AcademicYearSelectorState extends State<AcademicYearSelector> {
     if (_loading) {
       return SizedBox(
         height: 36,
-        child: Center(child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))),
+        child: const Center(child: ShimmerSpinner(size: 16, strokeWidth: 2)),
       );
     }
     if (_years.isEmpty) return const SizedBox.shrink();

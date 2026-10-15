@@ -2,7 +2,68 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/presensi_kegiatan_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
+
+Widget _buildShimmer(BuildContext context) {
+  final cs = Theme.of(context).colorScheme;
+  return ThemedShimmer(
+    child: Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: cs.outlineVariant),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            itemCount: 8,
+            itemBuilder: (context, index) => const Card(
+              margin: EdgeInsets.symmetric(vertical: 4),
+              elevation: 0,
+              child: Padding(
+                padding: EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    ShimmerBox(height: 36, width: 36, radius: 18),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ShimmerBox(height: 13, width: 160),
+                          SizedBox(height: 6),
+                          ShimmerBox(height: 11, width: 90),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    ShimmerBox(height: 28, width: 48, radius: 8),
+                    SizedBox(width: 6),
+                    ShimmerBox(height: 28, width: 48, radius: 8),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
 class PresensiKegiatanDetailPage extends StatelessWidget {
   final int activityId;
@@ -60,7 +121,7 @@ class _PresensiKegiatanDetailBody extends StatelessWidget {
         ],
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildShimmer(context)
           : Column(
               children: [
                 Padding(
@@ -158,7 +219,7 @@ class _PresensiKegiatanDetailBody extends StatelessWidget {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     child: isSaving
-                        ? CircularProgressIndicator(color: colorScheme.onPrimary)
+                        ? ShimmerSpinner(size: 24, color: colorScheme.onPrimary, strokeWidth: 2.5)
                         : const Text('SIMPAN PRESENSI KEGIATAN', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                 ),

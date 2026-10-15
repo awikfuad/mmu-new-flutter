@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/kelola_kegiatan_provider.dart';
 import '../../utils/snackbar_helper.dart';
 import '../../utils/cupertino_sheet.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 class KelolaKegiatanPage extends StatelessWidget {
@@ -68,7 +69,7 @@ class _KelolaKegiatanBody extends StatelessWidget {
         foregroundColor: colorScheme.onPrimary,
       ),
       body: provider.isLoading
-          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
+          ? _buildKegiatanShimmer()
           : provider.list.isEmpty
               ? _emptyState(context)
               : RefreshIndicator(
@@ -211,7 +212,41 @@ class _KelolaKegiatanBody extends StatelessWidget {
     );
   }
 
-  Widget _emptyState(BuildContext context) {
+  Widget _buildKegiatanShimmer() {
+  return ShimmerListSkeleton(
+    padding: const EdgeInsets.fromLTRB(12, 10, 12, 90),
+    itemCount: 5,
+    itemBuilder: (context, index) => const SkeletonCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: ShimmerBox(height: 15)),
+              ShimmerBox(height: 18, width: 76, radius: 6),
+            ],
+          ),
+          SizedBox(height: 10),
+          ShimmerBox(height: 13, width: 160),
+          SizedBox(height: 10),
+          ShimmerBox(height: 13),
+          SizedBox(height: 6),
+          ShimmerBox(height: 13, width: 220),
+          SizedBox(height: 12),
+          Row(
+            children: [
+              ShimmerBox(height: 12, width: 120),
+              Spacer(),
+              ShimmerBox(height: 18, width: 20, radius: 6),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _emptyState(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Center(
       child: Column(

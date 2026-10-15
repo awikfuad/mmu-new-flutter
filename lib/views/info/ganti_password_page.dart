@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/biometric_provider.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 /// Halaman ganti password mandiri — berlaku utk semua role (guru/admin,
@@ -220,11 +221,7 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
           FilledButton.icon(
             onPressed: _submitting ? null : _submit,
             icon: _submitting
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+                ? const ShimmerSpinner(size: 18, strokeWidth: 2)
                 : const Icon(CupertinoIcons.checkmark),
             label: Text(_submitting ? 'Menyimpan...' : 'Simpan'),
           ),

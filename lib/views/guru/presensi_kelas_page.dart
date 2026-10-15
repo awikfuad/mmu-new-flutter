@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/presensi_kelas_provider.dart';
 import '../../utils/foto_helper.dart';
 import '../../utils/snackbar_helper.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 class PresensiKelasPage extends StatelessWidget {
@@ -69,7 +70,86 @@ class _PresensiKelasBody extends StatelessWidget {
     }
   }
 
-  Widget _buildCountChip(String label, Color color, int count) {
+  Widget _buildPresensiKelasShimmer(BuildContext context) {
+  final colorScheme = Theme.of(context).colorScheme;
+  return ThemedShimmer(
+    child: Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
+          color: colorScheme.surfaceContainerLow,
+          child: Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: const [
+              ShimmerBox(height: 22, width: 70, radius: 8),
+              ShimmerBox(height: 22, width: 70, radius: 8),
+              ShimmerBox(height: 22, width: 60, radius: 8),
+              ShimmerBox(height: 22, width: 60, radius: 8),
+              ShimmerBox(height: 22, width: 70, radius: 8),
+              ShimmerBox(height: 22, width: 90, radius: 8),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          color: colorScheme.surfaceContainerHighest,
+          child: const Row(
+            children: [
+              Expanded(child: ShimmerBox(height: 12)),
+              SizedBox(width: 12),
+              ShimmerBox(height: 12, width: 90),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            itemCount: 8,
+            itemBuilder: (context, index) => const SkeletonCard(
+              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              child: Row(
+                children: [
+                  ShimmerBox(height: 36, width: 36, radius: 18),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ShimmerBox(height: 13, width: 140),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [
+                            ShimmerBox(height: 24, width: 40, radius: 8),
+                            SizedBox(width: 6),
+                            ShimmerBox(height: 24, width: 40, radius: 8),
+                            SizedBox(width: 6),
+                            ShimmerBox(height: 24, width: 40, radius: 8),
+                            SizedBox(width: 6),
+                            ShimmerBox(height: 24, width: 40, radius: 8),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(16),
+          color: colorScheme.surface,
+          child: const ShimmerBox(height: 50, radius: 12),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildCountChip(String label, Color color, int count) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -122,7 +202,7 @@ class _PresensiKelasBody extends StatelessWidget {
         elevation: 0,
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
+          ? _buildPresensiKelasShimmer(context)
           : Column(
               children: [
                 // Ringkasan jumlah hadir/sakit/izin/alpa/belum
@@ -320,13 +400,10 @@ class _PresensiKelasBody extends StatelessWidget {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: isSaving
-                        ? SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              color: colorScheme.onPrimary,
-                              strokeWidth: 2.5,
-                            ),
+                        ? ShimmerSpinner(
+                            size: 24,
+                            color: colorScheme.onPrimary,
+                            strokeWidth: 2.5,
                           )
                         : const Text(
                             'SIMPAN PRESENSI',

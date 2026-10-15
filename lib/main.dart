@@ -29,6 +29,7 @@ import 'views/common/main_navigation_wrapper.dart';
 import 'views/santri/student_dashboard_page.dart';
 import 'views/parent/parent_dashboard_page.dart';
 import 'package:flutter/cupertino.dart';
+import 'widgets/shimmer_loader.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -99,11 +100,7 @@ class AuthGate extends StatelessWidget {
                 children: [
                   Icon(CupertinoIcons.book, size: 56, color: Theme.of(context).colorScheme.primary),
                   const SizedBox(height: 16),
-                  const SizedBox(
-                    width: 28,
-                    height: 28,
-                    child: CircularProgressIndicator(strokeWidth: 2.8),
-                  ),
+                  const ShimmerSpinner(size: 28, strokeWidth: 2.8),
                   const SizedBox(height: 12),
                   Text('Memuat...', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
                 ],

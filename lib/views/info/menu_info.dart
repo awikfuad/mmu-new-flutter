@@ -9,6 +9,7 @@ import '../../utils/snackbar_helper.dart';
 import '../../theme/theme_selector_dialog.dart';
 import '../guru/akun_google_page.dart';
 import 'ganti_password_page.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 class AboutAppPage extends StatefulWidget {
@@ -47,7 +48,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
   Future<void> _openGantiPassword() async {
     final changed = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(builder: (_) => const GantiPasswordPage()),
+      CupertinoPageRoute(builder: (_) => const GantiPasswordPage()),
     );
     if (changed == true && mounted) {
       showSuccessSnackBar(context, 'Password berhasil diubah.');
@@ -241,11 +242,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (loading)
-                      const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                      const ShimmerSpinner(size: 16, strokeWidth: 2)
                     else
                       const Icon(CupertinoIcons.lock, size: 18),
                     const SizedBox(width: 6),
@@ -505,7 +502,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
+                          CupertinoPageRoute(
                             builder: (_) => const AkunGooglePage(),
                           ),
                         );

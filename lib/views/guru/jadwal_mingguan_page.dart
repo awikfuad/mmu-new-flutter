@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/jadwal_mingguan_provider.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 class JadwalMingguanPage extends StatelessWidget {
@@ -70,7 +71,7 @@ class _JadwalMingguanBody extends StatelessWidget {
         foregroundColor: colorScheme.onPrimary,
       ),
       body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildShimmer(context)
           : RefreshIndicator(
               onRefresh: () => provider.load(teacherId: provider.selectedTeacherId),
               child: ListView(
@@ -100,7 +101,69 @@ class _JadwalMingguanBody extends StatelessWidget {
     );
   }
 
-  Widget _buildTeacherPicker(BuildContext context, JadwalMingguanProvider provider) {
+  Widget _buildShimmer(BuildContext context) {
+  final cs = Theme.of(context).colorScheme;
+  return ThemedShimmer(
+    child: ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      children: [
+        ...List.generate(
+          3,
+          (_) => Container(
+            margin: const EdgeInsets.only(bottom: 14),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: cs.outlineVariant),
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 10),
+                  child: Row(
+                    children: const [
+                      ShimmerBox(height: 14, width: 110),
+                      Spacer(),
+                      ShimmerBox(height: 18, width: 60, radius: 6),
+                    ],
+                  ),
+                ),
+                ...List.generate(
+                  3,
+                  (_) => Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
+                    child: Row(
+                      children: const [
+                        ShimmerBox(height: 40, width: 52, radius: 6),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ShimmerBox(height: 13, width: 150),
+                              SizedBox(height: 6),
+                              ShimmerBox(height: 11, width: 190),
+                            ],
+                          ),
+                        ),
+                        ShimmerBox(height: 18, width: 56, radius: 6),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildTeacherPicker(BuildContext context, JadwalMingguanProvider provider) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),

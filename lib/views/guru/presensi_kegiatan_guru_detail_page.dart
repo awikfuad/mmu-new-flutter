@@ -2,7 +2,51 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/presensi_kegiatan_guru_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
+
+Widget _buildShimmer(BuildContext context) {
+  final cs = Theme.of(context).colorScheme;
+  return ThemedShimmer(
+    child: Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(12),
+            itemCount: 6,
+            itemBuilder: (context, index) => Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: cs.outlineVariant),
+              ),
+              child: Row(
+                children: const [
+                  ShimmerBox(height: 44, width: 44, radius: 22),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ShimmerBox(height: 14, width: 160),
+                        SizedBox(height: 8),
+                        ShimmerBox(height: 12, width: 110),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  ShimmerBox(height: 32, width: 64, radius: 8),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
 class PresensiKegiatanGuruDetailPage extends StatelessWidget {
   final int activityId;
@@ -69,7 +113,7 @@ class _PresensiKegiatanGuruBody extends StatelessWidget {
         foregroundColor: colorScheme.onPrimary,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildShimmer(context)
           : Column(
               children: [
                 Expanded(
@@ -130,7 +174,7 @@ class _PresensiKegiatanGuruBody extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                       child: isSaving
-                          ? CircularProgressIndicator(color: colorScheme.primary)
+                          ? ShimmerSpinner(size: 24, color: colorScheme.primary, strokeWidth: 2.5)
                           : const Text('KONFIRMASI KEHADIRAN SAYA', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                   ),

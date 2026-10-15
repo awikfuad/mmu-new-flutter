@@ -9,7 +9,49 @@ import '../../data/models/ujian_models.dart';
 import '../../providers/student_ujian_provider.dart';
 import '../../utils/snackbar_helper.dart';
 import '../../utils/cupertino_sheet.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
+
+Widget _buildExamShimmer(ColorScheme cs) {
+  return ThemedShimmer(
+    child: ListView(
+      padding: const EdgeInsets.all(16),
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        const ShimmerBox(height: 56, radius: 12),
+        const SizedBox(height: 16),
+        ...List.generate(
+          2,
+          (_) => Container(
+            margin: const EdgeInsets.only(bottom: 14),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: cs.outlineVariant),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                ShimmerBox(height: 14),
+                SizedBox(height: 10),
+                ShimmerBox(height: 14, width: 220),
+                SizedBox(height: 18),
+                ShimmerBox(height: 44, radius: 10),
+                SizedBox(height: 10),
+                ShimmerBox(height: 44, radius: 10),
+                SizedBox(height: 10),
+                ShimmerBox(height: 44, radius: 10),
+                SizedBox(height: 10),
+                ShimmerBox(height: 44, radius: 10),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
 class KerjakanUjianPage extends StatefulWidget {
   final int ujianId;
@@ -125,7 +167,7 @@ class _KerjakanUjianPageState extends State<KerjakanUjianPage> {
 
   Widget _buildBody(StudentUjianProvider provider, ColorScheme colorScheme) {
     if (provider.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildExamShimmer(colorScheme);
     }
 
     final hasil = provider.hasil;
@@ -606,11 +648,7 @@ class _UjianExamViewState extends State<_UjianExamView> with WidgetsBindingObser
                 FilledButton.icon(
                   onPressed: widget.provider.isSubmitting ? null : _manualSubmit,
                   icon: widget.provider.isSubmitting
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
+                      ? const ShimmerSpinner(size: 16, strokeWidth: 2)
                       : const Icon(CupertinoIcons.paperplane, size: 16),
                   label: Text(
                     widget.provider.isSubmitting ? 'Mengirim...' : 'Kumpulkan',

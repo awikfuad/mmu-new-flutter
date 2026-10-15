@@ -2,11 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 
 /// "Portal Wali + Guru" (v3.40) — pintasan bagi guru/pimpinan yang juga
 /// orang tua: hubungkan akun wali (No HP) lalu masuki portal orang tua
 /// tanpa login ulang.
+Widget _buildPortalWaliShimmer(BuildContext context) {
+  final cs = Theme.of(context).colorScheme;
+  return ThemedShimmer(
+    child: ListView(
+      padding: const EdgeInsets.all(20),
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        const ShimmerBox(height: 84, radius: 14),
+        const SizedBox(height: 20),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: cs.outlineVariant),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              ShimmerBox(height: 16, width: 160),
+              SizedBox(height: 14),
+              ShimmerBox(height: 46, radius: 12),
+              SizedBox(height: 12),
+              ShimmerBox(height: 46, radius: 12),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 class PortalWaliPage extends StatefulWidget {
   const PortalWaliPage({super.key});
 
@@ -103,7 +136,7 @@ class _PortalWaliPageState extends State<PortalWaliPage> {
         foregroundColor: colorScheme.onPrimary,
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildPortalWaliShimmer(context)
           : ListView(
               padding: const EdgeInsets.all(20),
               children: [

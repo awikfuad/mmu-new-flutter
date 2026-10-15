@@ -5,8 +5,47 @@ import '../../utils/format.dart';
 import '../../utils/foto_helper.dart';
 import '../../utils/snackbar_helper.dart';
 import '../../widgets/academic_year_selector.dart';
+import '../../widgets/shimmer_loader.dart';
 import '../../utils/cupertino_sheet.dart';
 import 'package:flutter/cupertino.dart';
+
+Widget _buildChildDetailShimmer(BuildContext context) {
+  final cs = Theme.of(context).colorScheme;
+  return ThemedShimmer(
+    child: ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      children: [
+        Container(
+          height: 260,
+          color: cs.surfaceContainerHigh,
+          padding: const EdgeInsets.fromLTRB(20, 90, 20, 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              ShimmerBox(height: 72, width: 72, radius: 36),
+              SizedBox(height: 16),
+              ShimmerBox(height: 18, width: 180),
+              SizedBox(height: 10),
+              ShimmerBox(height: 13, width: 120),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: List.generate(
+              9,
+              (_) => const ShimmerBox(height: 84, width: 96, radius: 16),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
 class ParentChildDetailPage extends StatefulWidget {
   final String nim;
@@ -61,7 +100,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
       body: Consumer<ParentProvider>(
         builder: (context, parent, _) {
           if (parent.isLoading && parent.childProfile == null) {
-            return const Center(child: CircularProgressIndicator());
+            return _buildChildDetailShimmer(context);
           }
 
           if (parent.error != null && parent.childProfile == null) {
@@ -1156,13 +1195,10 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                               }
                             },
                       child: loading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
+                          ? const ShimmerSpinner(
+                              size: 20,
+                              color: Colors.white,
+                              strokeWidth: 2,
                             )
                           : const Text(
                               'Kirim Pengajuan',

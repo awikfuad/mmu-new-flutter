@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../providers/piket_hari_ini_provider.dart';
@@ -79,7 +80,7 @@ class _PiketHariIniBody extends StatelessWidget {
     // Buka presensi kelas yang baru diambil alih.
     await Navigator.push(
       context,
-      MaterialPageRoute(
+      CupertinoPageRoute(
         builder: (_) => PresensiKelasPage(
           scheduleId: scheduleId,
           classroomId: _toInt(s['classroom_id']) ?? 0,
@@ -120,7 +121,7 @@ class _PiketHariIniBody extends StatelessWidget {
         ),
       ),
       body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildShimmer(context)
           : RefreshIndicator(
               onRefresh: () => context.read<PiketHariIniProvider>().load(),
               child: ListView(
@@ -176,7 +177,51 @@ class _PiketHariIniBody extends StatelessWidget {
     );
   }
 
-  Widget _buildEmpty(ColorScheme colorScheme,
+  Widget _buildShimmer(BuildContext context) {
+  return ThemedShimmer(
+    child: ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      children: [
+        const ShimmerBox(height: 64, radius: 12),
+        const SizedBox(height: 16),
+        ...List.generate(
+          5,
+          (_) => Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant),
+            ),
+            child: Row(
+              children: const [
+                ShimmerBox(height: 44, width: 44, radius: 22),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ShimmerBox(height: 14, width: 160),
+                      SizedBox(height: 8),
+                      ShimmerBox(height: 18, width: 120, radius: 6),
+                      SizedBox(height: 8),
+                      ShimmerBox(height: 12, width: 180),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildEmpty(ColorScheme colorScheme,
       {required IconData icon, required String text}) {
     return Padding(
       padding: const EdgeInsets.only(top: 60),

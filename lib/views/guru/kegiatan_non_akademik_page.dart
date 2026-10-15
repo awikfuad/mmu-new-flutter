@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/kegiatan_list_provider.dart';
+import '../../widgets/shimmer_loader.dart';
 import 'presensi_kegiatan_detail_page.dart';
 import 'scan_istighosah_page.dart';
 import 'package:flutter/cupertino.dart';
@@ -41,7 +42,7 @@ class _KegiatanNonAkademikPageState extends State<KegiatanNonAkademikPage> {
         foregroundColor: colorScheme.onPrimary,
       ),
       body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildShimmer()
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: provider.activities.isEmpty
@@ -87,7 +88,7 @@ class _KegiatanNonAkademikPageState extends State<KegiatanNonAkademikPage> {
                               )) {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(
+                                  CupertinoPageRoute(
                                     builder: (context) => ScanIstighosahPage(
                                       activityId: activity['id'],
                                       activityName: activityName,
@@ -97,7 +98,7 @@ class _KegiatanNonAkademikPageState extends State<KegiatanNonAkademikPage> {
                               } else {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(
+                                  CupertinoPageRoute(
                                     builder: (context) =>
                                         PresensiKegiatanDetailPage(
                                           activityId: activity['id'],
@@ -117,4 +118,40 @@ class _KegiatanNonAkademikPageState extends State<KegiatanNonAkademikPage> {
       ),
     );
   }
+}
+
+Widget _buildShimmer() {
+  return ThemedShimmer(
+    child: ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: 6,
+      itemBuilder: (context, index) => const Card(
+        margin: EdgeInsets.only(bottom: 12),
+        elevation: 0,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              ShimmerBox(height: 40, width: 40, radius: 20),
+              SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ShimmerBox(height: 14),
+                    SizedBox(height: 8),
+                    ShimmerBox(height: 11, width: 170),
+                    SizedBox(height: 6),
+                    ShimmerBox(height: 11, width: 130),
+                  ],
+                ),
+              ),
+              SizedBox(width: 12),
+              ShimmerBox(height: 16, width: 16, radius: 4),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }
