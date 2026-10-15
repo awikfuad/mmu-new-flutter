@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../utils/snackbar_helper.dart';
+import 'package:flutter/cupertino.dart';
 
 class ScanKodeUjianPage extends StatefulWidget {
   const ScanKodeUjianPage({super.key});
@@ -82,7 +83,7 @@ class _ScanKodeUjianPageState extends State<ScanKodeUjianPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.videocam_off, size: 64, color: colorScheme.error),
+                      Icon(CupertinoIcons.videocam, size: 64, color: colorScheme.error),
                       const SizedBox(height: 16),
                       Text(
                         'Gagal Membuka Kamera: ${error.errorCode}',
@@ -97,7 +98,7 @@ class _ScanKodeUjianPageState extends State<ScanKodeUjianPage> {
                       const SizedBox(height: 20),
                       ElevatedButton.icon(
                         onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.keyboard_alt_outlined),
+                        icon: const Icon(CupertinoIcons.keyboard),
                         label: const Text('Masukkan Kode Manual'),
                       ),
                     ],

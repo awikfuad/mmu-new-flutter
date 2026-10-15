@@ -9,6 +9,7 @@ import '../../providers/arsip_soalan_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/foto_helper.dart';
 import '../../utils/snackbar_helper.dart';
+import 'package:flutter/cupertino.dart';
 
 class ArsipSoalanPage extends StatefulWidget {
   const ArsipSoalanPage({super.key});
@@ -51,29 +52,24 @@ class _ArsipSoalanPageState extends State<ArsipSoalanPage> {
 
   Future<void> _confirmDelete(Map item) async {
     final provider = context.read<ArsipSoalanProvider>();
-    final confirm = await showDialog<bool>(
+    final confirm = await showCupertinoDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      barrierDismissible: true,
+      builder: (ctx) => CupertinoAlertDialog(
         title: const Text('Hapus Arsip Soal'),
         content: Text(
           'Hapus arsip "${item['judul'] ?? '-'}" beserta file PDF-nya? '
           'Tindakan ini tidak bisa dibatalkan.',
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(ctx, false),
             child: const Text('Batal'),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-            ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(
-              'Hapus',
-              style: TextStyle(color: Theme.of(ctx).colorScheme.onError),
-            ),
+            child: const Text('Hapus'),
           ),
         ],
       ),
@@ -111,7 +107,7 @@ class _ArsipSoalanPageState extends State<ArsipSoalanPage> {
               actions: [
                 IconButton(
                   tooltip: 'Muat ulang',
-                  icon: const Icon(Icons.refresh),
+                  icon: const Icon(CupertinoIcons.refresh),
                   onPressed: provider.isLoading
                       ? null
                       : () => provider.fetchList(),
@@ -160,12 +156,12 @@ class _ArsipSoalanPageState extends State<ArsipSoalanPage> {
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
               hintText: 'Cari judul / keterangan arsip...',
-              prefixIcon: const Icon(Icons.search_rounded),
+              prefixIcon: const Icon(CupertinoIcons.search),
               suffixIcon: _searchCtrl.text.isEmpty
                   ? null
                   : IconButton(
                       tooltip: 'Bersihkan',
-                      icon: const Icon(Icons.close_rounded),
+                      icon: const Icon(CupertinoIcons.xmark),
                       onPressed: () {
                         _searchCtrl.clear();
                         provider.fetchList(search: '');
@@ -274,7 +270,7 @@ class _ArsipSoalanPageState extends State<ArsipSoalanPage> {
       children: [
         const SizedBox(height: 80),
         Icon(
-          Icons.error_outline_rounded,
+          CupertinoIcons.exclamationmark_circle,
           size: 64,
           color: colorScheme.error.withValues(alpha: 0.4),
         ),
@@ -288,7 +284,7 @@ class _ArsipSoalanPageState extends State<ArsipSoalanPage> {
         Center(
           child: FilledButton.tonalIcon(
             onPressed: () => provider.fetchList(),
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(CupertinoIcons.refresh),
             label: const Text('Coba Lagi'),
           ),
         ),
@@ -308,7 +304,7 @@ class _ArsipSoalanPageState extends State<ArsipSoalanPage> {
         children: [
           const SizedBox(height: 80),
           Icon(
-            Icons.folder_open_outlined,
+            CupertinoIcons.folder_open,
             size: 64,
             color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
           ),
@@ -337,7 +333,7 @@ class _ArsipSoalanPageState extends State<ArsipSoalanPage> {
       children: [
         Row(
           children: [
-            Icon(Icons.folder_special_outlined, size: 20, color: colorScheme.primary),
+            Icon(CupertinoIcons.folder, size: 20, color: colorScheme.primary),
             const SizedBox(width: 8),
             Text(
               'Daftar Arsip Soal',
@@ -413,7 +409,7 @@ class _ArsipSoalanPageState extends State<ArsipSoalanPage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
-                      Icons.picture_as_pdf_outlined,
+                      CupertinoIcons.doc_text,
                       size: 22,
                       color: colorScheme.error,
                     ),
@@ -464,7 +460,7 @@ class _ArsipSoalanPageState extends State<ArsipSoalanPage> {
                           Row(
                             children: [
                               Icon(
-                                Icons.schedule_rounded,
+                                CupertinoIcons.clock,
                                 size: 12,
                                 color: colorScheme.onSurfaceVariant
                                     .withValues(alpha: 0.7),
@@ -488,7 +484,7 @@ class _ArsipSoalanPageState extends State<ArsipSoalanPage> {
                     tooltip: 'Aksi',
                     padding: EdgeInsets.zero,
                     icon: Icon(
-                      Icons.more_vert_rounded,
+                      CupertinoIcons.ellipsis_vertical,
                       size: 20,
                       color: colorScheme.onSurfaceVariant,
                     ),
@@ -503,7 +499,7 @@ class _ArsipSoalanPageState extends State<ArsipSoalanPage> {
                       const PopupMenuItem(
                         value: 'open',
                         child: ListTile(
-                          leading: Icon(Icons.open_in_new_rounded),
+                          leading: Icon(CupertinoIcons.arrow_up_right_square),
                           title: Text('Buka File'),
                           contentPadding: EdgeInsets.zero,
                         ),
@@ -513,7 +509,7 @@ class _ArsipSoalanPageState extends State<ArsipSoalanPage> {
                           value: 'delete',
                           child: ListTile(
                             leading: Icon(
-                              Icons.delete_outline_rounded,
+                              CupertinoIcons.trash,
                               color: colorScheme.error,
                             ),
                             title: const Text('Hapus'),

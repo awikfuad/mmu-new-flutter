@@ -8,6 +8,8 @@ import '../../utils/format.dart';
 import '../../utils/foto_helper.dart';
 import '../../utils/snackbar_helper.dart';
 import '../../widgets/murid_picker_sheet.dart';
+import '../../utils/cupertino_sheet.dart';
+import 'package:flutter/cupertino.dart';
 
 class TabunganPage extends StatefulWidget {
   const TabunganPage({super.key});
@@ -18,13 +20,8 @@ class TabunganPage extends StatefulWidget {
 
 class _TabunganPageState extends State<TabunganPage> {
   Future<void> _openTransactionSheet() async {
-    final saved = await showModalBottomSheet<bool>(
+    final saved = await showCupertinoBottomSheet<bool>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
       builder: (_) => ChangeNotifierProvider.value(
         value: context.read<TabunganAdminProvider>(),
         child: const _InputSavingsSheet(),
@@ -71,7 +68,7 @@ class _TabunganPageState extends State<TabunganPage> {
                 backgroundColor: colorScheme.primary,
                 foregroundColor: colorScheme.onPrimary,
                 elevation: 3,
-                icon: const Icon(Icons.add_rounded),
+                icon: const Icon(CupertinoIcons.add),
                 label: const Text(
                   'Catat Transaksi',
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -155,7 +152,7 @@ class _TabunganPageState extends State<TabunganPage> {
             child: _summaryChip(
               formatRp(provider.totalSetoran),
               'Total Setoran',
-              Icons.arrow_downward_rounded,
+              CupertinoIcons.arrow_down,
               colorScheme.primary,
             ),
           ),
@@ -164,7 +161,7 @@ class _TabunganPageState extends State<TabunganPage> {
             child: _summaryChip(
               formatRp(provider.totalPenarikan),
               'Total Penarikan',
-              Icons.arrow_upward_rounded,
+              CupertinoIcons.arrow_up,
               colorScheme.error,
             ),
           ),
@@ -185,7 +182,7 @@ class _TabunganPageState extends State<TabunganPage> {
                 child: _summaryChip(
                   formatRp(provider.totalSetoran),
                   'Total Setoran',
-                  Icons.arrow_downward_rounded,
+                  CupertinoIcons.arrow_down,
                   Colors.green,
                 ),
               ),
@@ -194,7 +191,7 @@ class _TabunganPageState extends State<TabunganPage> {
                 child: _summaryChip(
                   formatRp(provider.totalPenarikan),
                   'Total Penarikan',
-                  Icons.arrow_upward_rounded,
+                  CupertinoIcons.arrow_up,
                   colorScheme.error,
                 ),
               ),
@@ -207,7 +204,7 @@ class _TabunganPageState extends State<TabunganPage> {
                 child: _summaryChip(
                   '${provider.totalPeriode}',
                   'Jumlah Periode',
-                  Icons.calendar_month_outlined,
+                  CupertinoIcons.calendar,
                   colorScheme.primary,
                 ),
               ),
@@ -216,7 +213,7 @@ class _TabunganPageState extends State<TabunganPage> {
                 child: _summaryChip(
                   formatRp(provider.totalBersih),
                   'Saldo Bersih',
-                  Icons.savings_outlined,
+                  CupertinoIcons.money_dollar,
                   Colors.teal,
                 ),
               ),
@@ -257,7 +254,7 @@ class _TabunganPageState extends State<TabunganPage> {
                 Row(
                   children: [
                     Icon(
-                      Icons.calendar_month_outlined,
+                      CupertinoIcons.calendar,
                       size: 18,
                       color: colorScheme.primary,
                     ),
@@ -349,13 +346,8 @@ class _TabunganPageState extends State<TabunganPage> {
   void _showPeriodDetail(dynamic r) {
     final colorScheme = Theme.of(context).colorScheme;
     final items = (r['items'] as List?) ?? [];
-    showModalBottomSheet<void>(
+    showCupertinoBottomSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
       builder: (ctx) => DraggableScrollableSheet(
         expand: false,
         initialChildSize: 0.7,
@@ -366,7 +358,7 @@ class _TabunganPageState extends State<TabunganPage> {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
               child: Row(
                 children: [
-                  Icon(Icons.calendar_month_outlined, color: colorScheme.primary),
+                  Icon(CupertinoIcons.calendar, color: colorScheme.primary),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -379,7 +371,7 @@ class _TabunganPageState extends State<TabunganPage> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded),
+                    icon: const Icon(CupertinoIcons.xmark),
                     onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
@@ -490,8 +482,8 @@ class _TabunganPageState extends State<TabunganPage> {
                     backgroundColor: color.withValues(alpha:0.12),
                     child: Icon(
                       isPenarikan
-                          ? Icons.arrow_upward_rounded
-                          : Icons.arrow_downward_rounded,
+                          ? CupertinoIcons.arrow_up
+                          : CupertinoIcons.arrow_down,
                       size: 16,
                       color: color,
                     ),
@@ -548,7 +540,7 @@ class _TabunganPageState extends State<TabunganPage> {
                 children: [
                   Expanded(
                     child: _infoRow(
-                      Icons.payments_outlined,
+                      CupertinoIcons.creditcard,
                       formatRp(t['amount']),
                       fontWeight: FontWeight.bold,
                       color: color,
@@ -556,7 +548,7 @@ class _TabunganPageState extends State<TabunganPage> {
                   ),
                   Expanded(
                     child: _infoRow(
-                      Icons.event_outlined,
+                      CupertinoIcons.calendar,
                       dateOnly(t['saving_date']?.toString()),
                     ),
                   ),
@@ -565,7 +557,7 @@ class _TabunganPageState extends State<TabunganPage> {
               if (t['notes'] != null && t['notes'].toString().isNotEmpty) ...[
                 const SizedBox(height: 6),
                 _infoRow(
-                  Icons.text_snippet_outlined,
+                  CupertinoIcons.doc_text,
                   t['notes'].toString(),
                 ),
               ],
@@ -667,7 +659,7 @@ class _EmptyState extends StatelessWidget {
     return Column(
       children: [
         Icon(
-          Icons.savings_outlined,
+          CupertinoIcons.money_dollar,
           size: 64,
           color: colorScheme.onSurfaceVariant.withValues(alpha:0.4),
         ),
@@ -844,7 +836,7 @@ class _InputSavingsSheetState extends State<_InputSavingsSheet> {
 
             Row(
               children: [
-                Icon(Icons.savings_rounded, color: colorScheme.primary),
+                Icon(CupertinoIcons.money_dollar, color: colorScheme.primary),
                 const SizedBox(width: 10),
                 Text(
                   'Catat Transaksi Tabungan',
@@ -881,7 +873,7 @@ class _InputSavingsSheetState extends State<_InputSavingsSheet> {
                     ? Row(
                         children: [
                           Icon(
-                            Icons.person_search_rounded,
+                            CupertinoIcons.person_badge_plus,
                             color: colorScheme.primary,
                           ),
                           const SizedBox(width: 10),
@@ -894,7 +886,7 @@ class _InputSavingsSheetState extends State<_InputSavingsSheet> {
                           ),
                           const Spacer(),
                           Icon(
-                            Icons.chevron_right_rounded,
+                            CupertinoIcons.chevron_right,
                             color: colorScheme.primary,
                           ),
                         ],
@@ -908,7 +900,7 @@ class _InputSavingsSheetState extends State<_InputSavingsSheet> {
                             onBackgroundImageError: (_, _) {},
                             child: resolveFotoUrl(_selected!['foto']?.toString()) == null
                                 ? Icon(
-                                    Icons.person,
+                                    CupertinoIcons.person,
                                     color: colorScheme.onPrimaryContainer,
                                     size: 20,
                                   )
@@ -973,7 +965,7 @@ class _InputSavingsSheetState extends State<_InputSavingsSheet> {
                 child: Row(
                   children: [
                     Icon(
-                      Icons.account_balance_wallet_outlined,
+                      CupertinoIcons.creditcard,
                       size: 20,
                       color: infoColor,
                     ),
@@ -1019,7 +1011,7 @@ class _InputSavingsSheetState extends State<_InputSavingsSheet> {
                     ),
                     if (!_balanceLoading)
                       Icon(
-                        Icons.info_outline_rounded,
+                        CupertinoIcons.info_circle,
                         size: 16,
                         color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                       ),
@@ -1063,7 +1055,7 @@ class _InputSavingsSheetState extends State<_InputSavingsSheet> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.arrow_downward_rounded,
+                            CupertinoIcons.arrow_down,
                             size: 16,
                             color: _transactionType == 'SETORAN'
                                 ? colorScheme.primary
@@ -1108,7 +1100,7 @@ class _InputSavingsSheetState extends State<_InputSavingsSheet> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.arrow_upward_rounded,
+                            CupertinoIcons.arrow_up,
                             size: 16,
                             color: _transactionType == 'PENARIKAN'
                                 ? colorScheme.error
@@ -1173,8 +1165,8 @@ class _InputSavingsSheetState extends State<_InputSavingsSheet> {
                 children: [
                   Icon(
                     _transactionType == 'PENARIKAN'
-                        ? Icons.trending_down_rounded
-                        : Icons.trending_up_rounded,
+                        ? CupertinoIcons.arrow_down_right
+                        : CupertinoIcons.arrow_up_right,
                     size: 16,
                     color: penarikanMelebihiSaldo
                         ? colorScheme.error

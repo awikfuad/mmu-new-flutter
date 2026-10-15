@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/izin_sakit_admin_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import '../../utils/cupertino_sheet.dart';
+import 'package:flutter/cupertino.dart';
 
 class IzinSakitAdminPage extends StatelessWidget {
   const IzinSakitAdminPage({super.key});
@@ -57,15 +59,19 @@ class _IzinSakitBody extends StatelessWidget {
 
   Future<void> _delete(BuildContext context, dynamic item) async {
     final id = int.tryParse('${item['id'] ?? ''}') ?? 0;
-    final confirm = await showDialog<bool>(
+    final confirm = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
         title: const Text('Hapus Catatan'),
         content: const Text('Catatan izin/sakit ini akan dihapus permanen. Lanjutkan?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Hapus'),
           ),
@@ -182,7 +188,7 @@ class _IzinSakitBody extends StatelessWidget {
                                     const SizedBox(height: 6),
                                     Row(
                                       children: [
-                                        Icon(Icons.date_range_outlined, size: 14, color: colorScheme.onSurfaceVariant),
+                                        Icon(CupertinoIcons.calendar, size: 14, color: colorScheme.onSurfaceVariant),
                                         const SizedBox(width: 4),
                                         Expanded(
                                           child: Text(
@@ -208,7 +214,7 @@ class _IzinSakitBody extends StatelessWidget {
                                                 foregroundColor: Colors.green.shade700,
                                                 side: BorderSide(color: Colors.green.shade600),
                                               ),
-                                              icon: const Icon(Icons.check, size: 18),
+                                              icon: const Icon(CupertinoIcons.checkmark, size: 18),
                                               label: const Text('Setujui'),
                                             ),
                                           ),
@@ -220,20 +226,20 @@ class _IzinSakitBody extends StatelessWidget {
                                                 foregroundColor: colorScheme.error,
                                                 side: BorderSide(color: colorScheme.error),
                                               ),
-                                              icon: const Icon(Icons.close, size: 18),
+                                              icon: const Icon(CupertinoIcons.xmark, size: 18),
                                               label: const Text('Tolak'),
                                             ),
                                           ),
                                           IconButton(
                                             onPressed: () => _delete(context, item),
-                                            icon: Icon(Icons.delete_outline, size: 20, color: colorScheme.outline),
+                                            icon: Icon(CupertinoIcons.trash, size: 20, color: colorScheme.outline),
                                           ),
                                         ],
                                       )
                                     else
                                       Row(
                                         children: [
-                                          Icon(Icons.info_outline, size: 14, color: colorScheme.onSurfaceVariant),
+                                          Icon(CupertinoIcons.info_circle, size: 14, color: colorScheme.onSurfaceVariant),
                                           const SizedBox(width: 4),
                                           Text(
                                             status == 'DISETUJUI' ? 'Izin disetujui, murid dibolehkan absen.' : 'Izin ditolak.',
@@ -242,7 +248,7 @@ class _IzinSakitBody extends StatelessWidget {
                                           const Spacer(),
                                           IconButton(
                                             onPressed: () => _delete(context, item),
-                                            icon: Icon(Icons.delete_outline, size: 20, color: colorScheme.outline),
+                                            icon: Icon(CupertinoIcons.trash, size: 20, color: colorScheme.outline),
                                           ),
                                         ],
                                       ),
@@ -260,7 +266,7 @@ class _IzinSakitBody extends StatelessWidget {
         onPressed: () => _openCreateForm(context),
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
-        icon: const Icon(Icons.add),
+        icon: const Icon(CupertinoIcons.add),
         label: const Text('Catat Izin'),
       ),
     );
@@ -270,10 +276,8 @@ class _IzinSakitBody extends StatelessWidget {
     final pr = context.read<IzinSakitAdminProvider>();
     await pr.fetchStudents();
     if (!context.mounted) return;
-    final created = await showModalBottomSheet<bool>(
+    final created = await showCupertinoBottomSheet<bool>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (_) => ChangeNotifierProvider.value(
         value: pr,
         child: _IzinSakitForm(students: pr.students),
@@ -314,7 +318,7 @@ class _IzinSakitBody extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.event_note_outlined, size: 48, color: colorScheme.outline),
+          Icon(CupertinoIcons.calendar, size: 48, color: colorScheme.outline),
           const SizedBox(height: 10),
           Text('Belum ada catatan izin/sakit', style: TextStyle(color: colorScheme.onSurfaceVariant)),
         ],
@@ -422,7 +426,7 @@ class _IzinSakitFormState extends State<_IzinSakitForm> {
                 Text('Catat Izin/Sakit Murid',
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
                 const Spacer(),
-                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
+                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(CupertinoIcons.xmark)),
               ],
             ),
             const SizedBox(height: 4),
@@ -495,7 +499,7 @@ class _IzinSakitFormState extends State<_IzinSakitForm> {
         decoration: InputDecoration(labelText: label, border: OutlineInputBorder(), contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12)),
         child: Row(
           children: [
-            Icon(Icons.calendar_today_outlined, size: 16, color: colorScheme.primary),
+            Icon(CupertinoIcons.calendar_today, size: 16, color: colorScheme.primary),
             const SizedBox(width: 6),
             Expanded(
               child: Text(

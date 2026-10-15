@@ -7,6 +7,8 @@ import '../../providers/pembayaran_provider.dart';
 import '../../utils/format.dart';
 import '../../utils/snackbar_helper.dart';
 import '../../widgets/murid_picker_sheet.dart';
+import '../../utils/cupertino_sheet.dart';
+import 'package:flutter/cupertino.dart';
 
 class PembayaranPage extends StatefulWidget {
   const PembayaranPage({super.key});
@@ -17,13 +19,8 @@ class PembayaranPage extends StatefulWidget {
 
 class _PembayaranPageState extends State<PembayaranPage> {
   Future<void> _openInputSheet(PembayaranAdminProvider prov) async {
-    final saved = await showModalBottomSheet<bool>(
+    final saved = await showCupertinoBottomSheet<bool>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (context) => const _InputPaymentSheet(),
     );
     if (!mounted) return;
@@ -69,7 +66,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                 backgroundColor: colorScheme.primary,
                 foregroundColor: colorScheme.onPrimary,
                 elevation: 4,
-                icon: const Icon(Icons.add_rounded),
+                icon: const Icon(CupertinoIcons.add),
                 label: const Text(
                   'Input Pembayaran',
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -153,7 +150,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
             child: _summaryChip(
               formatRp(provider.totalYaumiyah),
               'Total Yaumiyah',
-              Icons.calendar_today_rounded,
+              CupertinoIcons.calendar_today,
               colorScheme.primary,
             ),
           ),
@@ -162,7 +159,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
             child: _summaryChip(
               formatRp(provider.totalDaftarUlang),
               'Total Daftar Ulang',
-              Icons.assignment_turned_in_rounded,
+              CupertinoIcons.doc_checkmark,
               colorScheme.secondary,
             ),
           ),
@@ -183,7 +180,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                 child: _summaryChip(
                   formatRp(provider.totalYaumiyah),
                   'Total Yaumiyah',
-                  Icons.calendar_today_rounded,
+                  CupertinoIcons.calendar_today,
                   colorScheme.primary,
                 ),
               ),
@@ -192,7 +189,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                 child: _summaryChip(
                   formatRp(provider.totalDaftarUlang),
                   'Total Daftar Ulang',
-                  Icons.assignment_turned_in_rounded,
+                  CupertinoIcons.doc_checkmark,
                   colorScheme.secondary,
                 ),
               ),
@@ -205,7 +202,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                 child: _summaryChip(
                   '${provider.totalPeriode}',
                   'Jumlah Tanggal',
-                  Icons.calendar_month_outlined,
+                  CupertinoIcons.calendar,
                   Colors.teal,
                 ),
               ),
@@ -214,7 +211,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                 child: _summaryChip(
                   formatRp(provider.totalSemua),
                   'Total Penerimaan',
-                  Icons.payments_outlined,
+                  CupertinoIcons.creditcard,
                   Colors.green,
                 ),
               ),
@@ -255,7 +252,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                 Row(
                   children: [
                     Icon(
-                      Icons.calendar_month_outlined,
+                      CupertinoIcons.calendar,
                       size: 18,
                       color: colorScheme.primary,
                     ),
@@ -355,13 +352,8 @@ class _PembayaranPageState extends State<PembayaranPage> {
   void _showPeriodDetail(dynamic r) {
     final colorScheme = Theme.of(context).colorScheme;
     final items = (r['items'] as List?) ?? [];
-    showModalBottomSheet<void>(
+    showCupertinoBottomSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (ctx) => DraggableScrollableSheet(
         expand: false,
         initialChildSize: 0.7,
@@ -372,7 +364,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
               child: Row(
                 children: [
-                  Icon(Icons.calendar_month_outlined, color: colorScheme.primary),
+                  Icon(CupertinoIcons.calendar, color: colorScheme.primary),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -385,7 +377,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded),
+                    icon: const Icon(CupertinoIcons.xmark),
                     onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
@@ -533,7 +525,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                 children: [
                   Expanded(
                     child: _infoRow(
-                      Icons.payments_outlined,
+                      CupertinoIcons.creditcard,
                       formatRp(t['amount']),
                       fontWeight: FontWeight.bold,
                       color: colorScheme.onSurface,
@@ -542,7 +534,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                   if (t['month'] != null)
                     Expanded(
                       child: _infoRow(
-                        Icons.calendar_month_outlined,
+                        CupertinoIcons.calendar,
                         t['month'].toString(),
                       ),
                     ),
@@ -553,13 +545,13 @@ class _PembayaranPageState extends State<PembayaranPage> {
                 children: [
                   Expanded(
                     child: _infoRow(
-                      Icons.payment_rounded,
+                      CupertinoIcons.creditcard,
                       (t['payment_method'] ?? '-').toString(),
                     ),
                   ),
                   Expanded(
                     child: _infoRow(
-                      Icons.event_outlined,
+                      CupertinoIcons.calendar,
                       dateOnly(t['payment_date']?.toString()),
                     ),
                   ),
@@ -662,7 +654,7 @@ class _EmptyState extends StatelessWidget {
     return Column(
       children: [
         Icon(
-          Icons.receipt_long_outlined,
+          CupertinoIcons.doc_text,
           size: 64,
           color: colorScheme.onSurfaceVariant..withValues(alpha:0.5),
         ),
@@ -828,7 +820,7 @@ class _InputPaymentSheetState extends State<_InputPaymentSheet> {
 
             Row(
               children: [
-                Icon(Icons.receipt_long_rounded, color: colorScheme.primary),
+                Icon(CupertinoIcons.doc_text, color: colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
                   'Input Pembayaran Santri',
@@ -864,7 +856,7 @@ class _InputPaymentSheetState extends State<_InputPaymentSheet> {
                     ? Row(
                         children: [
                           Icon(
-                            Icons.person_search_rounded,
+                            CupertinoIcons.person_badge_plus,
                             color: colorScheme.primary,
                           ),
                           const SizedBox(width: 10),
@@ -877,7 +869,7 @@ class _InputPaymentSheetState extends State<_InputPaymentSheet> {
                           ),
                           const Spacer(),
                           Icon(
-                            Icons.chevron_right_rounded,
+                            CupertinoIcons.chevron_right,
                             color: colorScheme.primary,
                           ),
                         ],
@@ -888,7 +880,7 @@ class _InputPaymentSheetState extends State<_InputPaymentSheet> {
                             backgroundColor: colorScheme.primaryContainer,
                             radius: 18,
                             child: Icon(
-                              Icons.person,
+                              CupertinoIcons.person,
                               color: colorScheme.onPrimaryContainer,
                               size: 20,
                             ),
@@ -1089,7 +1081,7 @@ class _InputPaymentSheetState extends State<_InputPaymentSheet> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.payments_outlined,
+                            CupertinoIcons.creditcard,
                             size: 16,
                             color: _paymentMethod == 'CASH'
                                 ? colorScheme.primary
@@ -1133,7 +1125,7 @@ class _InputPaymentSheetState extends State<_InputPaymentSheet> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.account_balance_outlined,
+                            CupertinoIcons.building_2_fill,
                             size: 16,
                             color: _paymentMethod == 'TRANSFER'
                                 ? colorScheme.secondary

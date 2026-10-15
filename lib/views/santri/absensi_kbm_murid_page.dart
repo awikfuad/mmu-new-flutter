@@ -4,6 +4,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../providers/absensi_murid_provider.dart';
 import '../../utils/format.dart';
 import '../../widgets/academic_year_selector.dart';
+import 'package:flutter/cupertino.dart';
 
 class AbsensiKbmMuridPage extends StatefulWidget {
   const AbsensiKbmMuridPage({super.key});
@@ -64,7 +65,7 @@ class _AbsensiKbmMuridPageState extends State<AbsensiKbmMuridPage> {
                             child: Column(
                               children: [
                                 Icon(
-                                  Icons.event_busy_outlined,
+                                  CupertinoIcons.calendar_badge_minus,
                                   size: 56,
                                   color: colorScheme.onSurfaceVariant
                                       .withValues(alpha:0.5),
@@ -136,7 +137,7 @@ class _AbsensiKbmMuridPageState extends State<AbsensiKbmMuridPage> {
             ),
           ),
           Icon(
-            Icons.check_circle,
+            CupertinoIcons.checkmark_circle,
             color: colorScheme.onPrimary,
             size: 40,
           ),

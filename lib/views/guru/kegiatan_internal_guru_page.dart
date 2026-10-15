@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/kegiatan_list_provider.dart';
 import 'presensi_kegiatan_guru_detail_page.dart';
+import 'package:flutter/cupertino.dart';
 
 class KegiatanInternalGuruPage extends StatefulWidget {
   const KegiatanInternalGuruPage({super.key});
@@ -53,14 +54,14 @@ class _KegiatanInternalGuruPageState extends State<KegiatanInternalGuruPage> {
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: colorScheme.tertiary,
-                              child: Icon(Icons.co_present, color: colorScheme.onPrimary),
+                              child: Icon(CupertinoIcons.person_crop_rectangle, color: colorScheme.onPrimary),
                             ),
                             title: Text(
                               activity['activity_name'] ?? '-',
                               style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             subtitle: Text(targetLabel(activity['target'])),
-                            trailing: Icon(Icons.arrow_forward_ios, size: 16, color: colorScheme.tertiary),
+                            trailing: Icon(CupertinoIcons.forward, size: 16, color: colorScheme.tertiary),
                             onTap: () {
                               Navigator.push(
                                 context,

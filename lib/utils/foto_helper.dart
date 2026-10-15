@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../data/api/api_service.dart';
+import 'package:flutter/cupertino.dart';
 
 /// Helper terpusat untuk resolve URL foto santri/guru/admin.
 /// Backend menyimpan foto sebagai:
@@ -69,7 +70,7 @@ class CustomAvatar extends StatelessWidget {
     super.key,
     this.fotoUrl,
     this.radius = 20.0,
-    this.defaultIcon = Icons.person,
+    this.defaultIcon = CupertinoIcons.person,
     this.backgroundColor,
     this.iconColor,
   });

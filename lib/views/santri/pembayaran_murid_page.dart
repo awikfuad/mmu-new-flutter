@@ -4,6 +4,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../providers/pembayaran_provider.dart';
 import '../../utils/format.dart';
 import '../../widgets/academic_year_selector.dart';
+import 'package:flutter/cupertino.dart';
 
 class PembayaranMuridPage extends StatefulWidget {
   const PembayaranMuridPage({super.key});
@@ -134,7 +135,7 @@ class _PembayaranMuridPageState extends State<PembayaranMuridPage> {
               Row(
                 children: [
                   Icon(
-                    Icons.calendar_month_outlined,
+                    CupertinoIcons.calendar,
                     size: 14,
                     // color: colorScheme.onSurfaceVariant,
                   ),
@@ -164,7 +165,7 @@ class _PembayaranMuridPageState extends State<PembayaranMuridPage> {
               Row(
                 children: [
                   Icon(
-                    Icons.event_outlined,
+                    CupertinoIcons.calendar,
                     size: 14,
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -231,7 +232,7 @@ class _EmptyState extends StatelessWidget {
     return Column(
       children: [
         Icon(
-          Icons.receipt_long_outlined,
+          CupertinoIcons.doc_text,
           size: 64,
           color: colorScheme.onSurfaceVariant.withValues(alpha:0.5),
         ),

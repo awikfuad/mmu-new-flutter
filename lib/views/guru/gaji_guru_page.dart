@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../providers/gaji_guru_provider.dart';
 import '../../utils/format.dart';
+import 'package:flutter/cupertino.dart';
 
 class GajiGuruPage extends StatefulWidget {
   const GajiGuruPage({super.key});
@@ -32,7 +33,7 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
         foregroundColor: colorScheme.onPrimary,
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.refresh),
+                  icon: const Icon(CupertinoIcons.refresh),
                   onPressed: provider.init,
                 ),
               ],
@@ -57,7 +58,7 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
           const SizedBox(height: 80),
-          Icon(Icons.receipt_long_outlined, size: 64, color: colorScheme.onSurfaceVariant.withValues(alpha:0.3)),
+          Icon(CupertinoIcons.doc_text, size: 64, color: colorScheme.onSurfaceVariant.withValues(alpha:0.3)),
           const SizedBox(height: 16),
           Text(
             'Belum ada data Bisyaroh.',
@@ -85,7 +86,7 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
         // ── Daftar Slip ──
         Row(
           children: [
-            Icon(Icons.receipt_long_outlined, size: 20, color: colorScheme.primary),
+            Icon(CupertinoIcons.doc_text, size: 20, color: colorScheme.primary),
             const SizedBox(width: 8),
             Text(
               'Daftar Slip Bisyaroh',
@@ -114,7 +115,7 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
         Expanded(
           child: _buildSummaryCard(
             context,
-            icon: Icons.check_circle_outline,
+            icon: CupertinoIcons.check_mark_circled,
             label: 'Dibayar',
             value: '${provider.jumlahDibayar} slip',
             subValue: formatRp(provider.totalGajiDibayar),
@@ -126,7 +127,7 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
         Expanded(
           child: _buildSummaryCard(
             context,
-            icon: Icons.pending_outlined,
+            icon: CupertinoIcons.clock,
             label: 'Draft',
             value: '${provider.jumlahDraft} slip',
             subValue: formatRp(provider.totalGajiDraft),
@@ -216,7 +217,7 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
-              isPaid ? Icons.check_circle_outline : Icons.pending_outlined,
+              isPaid ? CupertinoIcons.check_mark_circled : CupertinoIcons.clock,
               color: isPaid ? Colors.green : Colors.orange,
               size: 24,
             ),
@@ -229,7 +230,7 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
             padding: const EdgeInsets.only(top: 4),
             child: Row(
               children: [
-                Icon(Icons.access_time, size: 13, color: colorScheme.onSurfaceVariant),
+                Icon(CupertinoIcons.time, size: 13, color: colorScheme.onSurfaceVariant),
                 const SizedBox(width: 4),
                 Text(
                   '${jamMengajar.toStringAsFixed(1)} jam mengajar',
@@ -326,7 +327,7 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.event_available, size: 14, color: Colors.green.shade600),
+                  Icon(CupertinoIcons.calendar_badge_plus, size: 14, color: Colors.green.shade600),
                   const SizedBox(width: 6),
                   Text(
                     'Dibayar: ${dateOnly(paidAt)}',
@@ -342,7 +343,7 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.note_outlined, size: 14, color: colorScheme.onSurfaceVariant),
+                  Icon(CupertinoIcons.doc_text, size: 14, color: colorScheme.onSurfaceVariant),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
@@ -408,6 +409,7 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
   }
 
   Widget _buildShimmerLoading(BuildContext context) {
+     final cs = Theme.of(context).colorScheme;
     return Shimmer.fromColors(
       baseColor: Colors.grey.shade300,
       highlightColor: Colors.grey.shade100,
@@ -419,7 +421,7 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
           child: Container(
             height: 80,
             decoration: BoxDecoration(
-              color: Colors.white,
+              // color: cs.surface,
               borderRadius: BorderRadius.circular(12),
             ),
           ),
@@ -435,7 +437,7 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48, color: colorScheme.error),
+            Icon(CupertinoIcons.exclamationmark_circle, size: 48, color: colorScheme.error),
             const SizedBox(height: 12),
             Text(
               provider.error ?? 'Terjadi kesalahan',
@@ -445,7 +447,7 @@ class _GajiGuruPageState extends State<GajiGuruPage> {
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: provider.init,
-              icon: const Icon(Icons.refresh, size: 18),
+              icon: const Icon(CupertinoIcons.refresh, size: 18),
               label: const Text('Coba Lagi'),
             ),
           ],

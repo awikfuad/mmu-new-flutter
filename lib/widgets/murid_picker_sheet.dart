@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
+import '../utils/cupertino_sheet.dart';
 import '../data/api/api_service.dart';
 import '../utils/foto_helper.dart';
 import '../utils/snackbar_helper.dart';
+import 'package:flutter/cupertino.dart';
 
 /// Membuka bottom sheet untuk memilih santri/murid dari /muridKelas.
 /// Mengembalikan Map murid terpilih (id, name, nim, class_name, ...) atau null bila dibatalkan.
 Future<Map<String, dynamic>?> showMuridPicker(BuildContext context) {
-  return showModalBottomSheet<Map<String, dynamic>>(
+  return showCupertinoBottomSheet<Map<String, dynamic>>(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
     builder: (context) => const _MuridPickerSheet(),
   );
 }
@@ -94,7 +91,7 @@ class _MuridPickerSheetState extends State<_MuridPickerSheet> {
                 ),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.close_rounded),
+                  icon: const Icon(CupertinoIcons.xmark),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
@@ -114,7 +111,7 @@ class _MuridPickerSheetState extends State<_MuridPickerSheet> {
                   hintText: 'Cari nama atau NIM santri...',
                   hintStyle:
                       TextStyle(color: Colors.grey.shade400, fontSize: 14),
-                  prefixIcon: const Icon(Icons.search_rounded),
+                  prefixIcon: const Icon(CupertinoIcons.search),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -123,7 +120,7 @@ class _MuridPickerSheetState extends State<_MuridPickerSheet> {
                   suffixIcon: _searchController.text.isEmpty
                       ? null
                       : IconButton(
-                          icon: const Icon(Icons.clear_rounded, size: 20),
+                          icon: const Icon(CupertinoIcons.clear, size: 20),
                           onPressed: () {
                             _searchController.clear();
                             _onSearch('');
@@ -157,7 +154,7 @@ class _MuridPickerSheetState extends State<_MuridPickerSheet> {
                               onBackgroundImageError: (_, _) {},
                               child: fotoUrl == null
                                   ? Icon(
-                                      Icons.person_outline_rounded,
+                                      CupertinoIcons.person,
                                       color: Theme.of(context).colorScheme.primary,
                                     )
                                   : null,

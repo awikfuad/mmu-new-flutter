@@ -17,6 +17,16 @@ class AuthProvider extends ChangeNotifier {
   String? _googleNeedLinkEmail;
   bool _registrationPending = false;
 
+  // ── Kredensial sesi terakhir (hanya di memori, tidak dipersist) ──
+  // Dipakai agar pengaktifan login sidik jari dari Pengaturan tidak perlu
+  // meminta password ulang (password diambil dari sesi yang sedang aktif).
+  String? _lastLoginPassword;
+
+  // ── Diagnosa kegagalan login terakhir ──
+  // true bila server MENOLAK kredensial (HTTP 401/403) — dipakai login page utk
+  // membersihkan kredensial sidik jari yg basi. false utk error jaringan.
+  bool _lastLoginAuthFailed = false;
+
   // ── Wajib ganti password (login santri dgn password awal) ──
   bool _mustChangePassword = false;
   String? _pendingLoginNim;
@@ -45,6 +55,16 @@ class AuthProvider extends ChangeNotifier {
   /// True bila permintaan registrasi Google saat ini berstatus PENDING
   /// (menunggu konfirmasi admin) — dipakai login page utk tampil pesan khusus.
   bool get registrationPending => _registrationPending;
+
+  /// Password plaintext dari login manual TERAKHIR yang berhasil (hanya di
+  /// memori). Dipakai utk mengaktifkan login sidik jari tanpa meminta input
+  /// password lagi. null bila sesi dipulihkan tanpa login (restore) atau login
+  /// melalui Google.
+  String? get lastLoginPassword => _lastLoginPassword;
+
+  /// True bila percobaan login terakhir ditolak server (kredensial salah),
+  /// bukan karena masalah jaringan.
+  bool get lastLoginAuthFailed => _lastLoginAuthFailed;
   String? get userRole => _user?['role'];
   bool get isAdmin => _user?['role'] == 'admin';
   bool get isTeacher => _user?['role'] == 'teacher';
@@ -676,6 +696,7 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = null;
     _successMessage = null;
     _googleNeedLinkEmail = null;
+    _lastLoginAuthFailed = false;
     notifyListeners();
 
     try {
@@ -720,6 +741,9 @@ class AuthProvider extends ChangeNotifier {
         debugPrint('[PIMPINAN] login($endpoint): role=${user?['role']} keys=${(user is Map) ? user.keys : 'no-user'} | is_pimpinan=${user?['is_pimpinan']} jabatan=${user?['pimpinan_jabatan']}');
         _successMessage = response.data['message']?.toString() ?? 'Login berhasil';
         _isLoggedIn = true;
+        // Simpan password sesi (null utk login Google) agar pengaktifan sidik
+        // jari dari Pengaturan tidak perlu meminta password ulang.
+        _lastLoginPassword = payload['password'] as String?;
         _isLoading = false;
         notifyListeners();
         return true;
@@ -731,6 +755,9 @@ class AuthProvider extends ChangeNotifier {
       return false;
     } on DioException catch (e) {
       _errorMessage = _dioErrorMessage(e);
+      // Tandai bila server menolak kredensial (bukan error jaringan).
+      final status = e.response?.statusCode;
+      _lastLoginAuthFailed = status == 401 || status == 403;
       if (endpoint == '/auth/google') {
         final data = e.response?.data;
         if (data is Map && data['needLink'] == true) {
@@ -807,6 +834,8 @@ class AuthProvider extends ChangeNotifier {
     _mustChangePassword = false;
     _pendingLoginNim = null;
     _pendingLoginPassword = null;
+    _lastLoginPassword = null;
+    _lastLoginAuthFailed = false;
     _errorMessage = null;
     _successMessage = null;
     notifyListeners();

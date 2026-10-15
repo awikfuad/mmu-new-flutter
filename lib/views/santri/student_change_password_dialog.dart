@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import 'package:flutter/cupertino.dart';
 
 /// Dialog wajib ganti password — muncul setelah login santri memakai password
 /// awal (tanggal lahir / password default) yang tidak memenuhi kriteria
@@ -79,7 +80,7 @@ class _StudentChangePasswordDialogState
     return Row(
       children: [
         Icon(
-          ok ? Icons.check_circle : Icons.radio_button_unchecked,
+          ok ? CupertinoIcons.checkmark_circle : CupertinoIcons.circle,
           size: 18,
           color: ok ? cs.primary : cs.outlineVariant,
         ),
@@ -102,7 +103,7 @@ class _StudentChangePasswordDialogState
         borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
       suffixIcon: IconButton(
-        icon: Icon(obscure ? Icons.visibility_off : Icons.visibility),
+        icon: Icon(obscure ? CupertinoIcons.eye_slash : CupertinoIcons.eye),
         onPressed: toggle,
       ),
     );
@@ -113,11 +114,11 @@ class _StudentChangePasswordDialogState
     final cs = Theme.of(context).colorScheme;
     return PopScope(
       canPop: false,
-      child: AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: CupertinoAlertDialog(
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.lock_reset, color: cs.primary, size: 28),
+            Icon(CupertinoIcons.lock_rotation, color: cs.primary, size: 28),
             const SizedBox(width: 10),
             const Text('Ubah Password Wajib'),
           ],
@@ -136,7 +137,7 @@ class _StudentChangePasswordDialogState
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.info_outline, size: 20, color: cs.primary),
+                    Icon(CupertinoIcons.info_circle, size: 20, color: cs.primary),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -206,16 +207,24 @@ class _StudentChangePasswordDialogState
           ),
         ),
         actions: [
-          FilledButton.icon(
+          CupertinoDialogAction(
+            isDefaultAction: true,
             onPressed: _submitting ? null : _submit,
-            icon: _submitting
-                ? const SizedBox(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_submitting)
+                  const SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(Icons.check),
-            label: Text(_submitting ? 'Menyimpan...' : 'Simpan & Masuk'),
+                else
+                  const Icon(CupertinoIcons.checkmark),
+                const SizedBox(width: 8),
+                Text(_submitting ? 'Menyimpan...' : 'Simpan & Masuk'),
+              ],
+            ),
           ),
         ],
       ),

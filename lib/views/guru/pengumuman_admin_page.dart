@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/pengumuman_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import '../../utils/cupertino_sheet.dart';
+import 'package:flutter/cupertino.dart';
 
 class PengumumanAdminPage extends StatelessWidget {
   const PengumumanAdminPage({super.key});
@@ -33,10 +35,8 @@ class _PengumumanBody extends StatelessWidget {
 
   Future<void> _openForm(BuildContext context, {Map? existing}) async {
     final pr = context.read<PengumumanProvider>();
-    final saved = await showModalBottomSheet<bool>(
+    final saved = await showCupertinoBottomSheet<bool>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (_) => ChangeNotifierProvider.value(
         value: pr,
         child: _PengumumanForm(existing: existing),
@@ -138,7 +138,7 @@ class _PengumumanBody extends StatelessWidget {
                                     const SizedBox(height: 8),
                                     Row(
                                       children: [
-                                        Icon(Icons.calendar_today_outlined, size: 14, color: colorScheme.onSurfaceVariant),
+                                        Icon(CupertinoIcons.calendar_today, size: 14, color: colorScheme.onSurfaceVariant),
                                         const SizedBox(width: 4),
                                         Text(
                                           '${_humanDate('${p['tanggal_mulai'] ?? ''}')}${p['tanggal_selesai'] != null ? ' s.d. ${_humanDate('${p['tanggal_selesai']}')}' : ''}',
@@ -146,7 +146,7 @@ class _PengumumanBody extends StatelessWidget {
                                         ),
                                         const Spacer(),
                                         PopupMenuButton<String>(
-                                          icon: Icon(Icons.more_vert, size: 18, color: colorScheme.onSurfaceVariant),
+                                          icon: Icon(CupertinoIcons.ellipsis_vertical, size: 18, color: colorScheme.onSurfaceVariant),
                                           onSelected: (v) async {
                                             if (v == 'publish') {
                                               final err = await context.read<PengumumanProvider>().togglePublish(id, !published);
@@ -196,7 +196,7 @@ class _PengumumanBody extends StatelessWidget {
         onPressed: () => _openForm(context),
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
-        icon: const Icon(Icons.add_alert_outlined),
+        icon: const Icon(CupertinoIcons.bell),
         label: const Text('Pengumuman'),
       ),
     );
@@ -227,15 +227,19 @@ class _PengumumanBody extends StatelessWidget {
   }
 
   Future<bool?> _confirmDelete(BuildContext context) {
-    return showDialog<bool>(
+    return showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
         title: const Text('Hapus Pengumuman'),
         content: const Text('Pengumuman akan dihapus permanen. Lanjutkan?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Hapus'),
           ),
@@ -250,7 +254,7 @@ class _PengumumanBody extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.campaign_outlined, size: 48, color: colorScheme.outline),
+          Icon(CupertinoIcons.speaker_3, size: 48, color: colorScheme.outline),
           const SizedBox(height: 10),
           Text('Belum ada pengumuman', style: TextStyle(color: colorScheme.onSurfaceVariant)),
         ],
@@ -377,7 +381,7 @@ class _PengumumanFormState extends State<_PengumumanForm> {
                 Text(isEdit ? 'Edit Pengumuman' : 'Pengumuman Baru',
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
                 const Spacer(),
-                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
+                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(CupertinoIcons.xmark)),
               ],
             ),
             const SizedBox(height: 4),
@@ -452,7 +456,7 @@ class _PengumumanFormState extends State<_PengumumanForm> {
         decoration: InputDecoration(labelText: label, border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)), contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12)),
         child: Row(
           children: [
-            Icon(Icons.calendar_today_outlined, size: 16, color: colorScheme.primary),
+            Icon(CupertinoIcons.calendar_today, size: 16, color: colorScheme.primary),
             const SizedBox(width: 6),
             Expanded(
               child: Text(

@@ -5,7 +5,6 @@ import '../../providers/dashboard_guru_provider.dart';
 import 'absensi_guru_kbm_page.dart';
 import 'arsip_soalan_page.dart';
 import 'gaji_guru_page.dart';
-import 'guru_piket_page.dart';
 import 'input_nilai_harian_page.dart';
 import 'izin_guru_admin_page.dart';
 import 'izin_sakit_admin_page.dart';
@@ -18,9 +17,12 @@ import 'pengumuman_admin_page.dart';
 import 'portal_wali_page.dart';
 import 'presensi_kelas_page.dart';
 import 'presensi_saya_page.dart';
+import 'piket_hari_ini_page.dart';
 import 'piket_pimpinan_page.dart';
 import 'prestasi_pelanggaran_page.dart';
 import 'tabungan_page.dart';
+import '../../utils/cupertino_sheet.dart';
+import 'package:flutter/cupertino.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -31,27 +33,21 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   Future<void> _processLogout() async {
-    final colorScheme = Theme.of(context).colorScheme;
-    final confirm = await showDialog<bool>(
+    final confirm = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
         title: const Text('Konfirmasi Logout'),
         content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Batal'),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colorScheme.error,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Logout', style: TextStyle(color: colorScheme.onError)),
+            child: const Text('Logout'),
           ),
         ],
       ),
@@ -82,11 +78,8 @@ class _DashboardPageState extends State<DashboardPage> {
   /// Dialog pindah mode: Mode Guru ⇄ Mode Pimpinan (guru yang merangkap pimpinan).
   void _showModeSwitchDialog() {
     final auth = context.read<AuthProvider>();
-    showModalBottomSheet<void>(
+    showCupertinoBottomSheet<void>(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (ctx) {
         final colorScheme = Theme.of(ctx).colorScheme;
         return SafeArea(
@@ -110,7 +103,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 Row(
                   children: [
                     Icon(
-                      Icons.swap_horiz_rounded,
+                      CupertinoIcons.arrow_left_right,
                       color: colorScheme.primary,
                       size: 20,
                     ),
@@ -141,7 +134,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     leading: CircleAvatar(
                       backgroundColor: Colors.amber.withValues(alpha: 0.12),
                       child: Icon(
-                        Icons.workspace_premium_outlined,
+                        CupertinoIcons.checkmark_seal,
                         color: Colors.amber.shade800,
                         size: 20,
                       ),
@@ -154,7 +147,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       auth.pimpinanJabatan ?? 'Pimpinan',
                       style: const TextStyle(fontSize: 12),
                     ),
-                    trailing: const Icon(Icons.chevron_right),
+                    trailing: const Icon(CupertinoIcons.chevron_right),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -168,7 +161,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     leading: CircleAvatar(
                       backgroundColor: colorScheme.primaryContainer,
                       child: Icon(
-                        Icons.person_outline,
+                        CupertinoIcons.person,
                         color: colorScheme.onPrimaryContainer,
                         size: 20,
                       ),
@@ -181,7 +174,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       'Menu pribadi & presensi KBM',
                       style: TextStyle(fontSize: 12),
                     ),
-                    trailing: const Icon(Icons.chevron_right),
+                    trailing: const Icon(CupertinoIcons.chevron_right),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -206,7 +199,7 @@ class _DashboardPageState extends State<DashboardPage> {
     return [
       _buildActionCard(
         context,
-        icon: Icons.fact_check_outlined,
+        icon: CupertinoIcons.checkmark_shield,
         title: 'Izin Guru',
         subtitle: 'Setujui & Badal',
         isAdminOnly: true,
@@ -221,7 +214,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       _buildActionCard(
         context,
-        icon: Icons.badge_outlined,
+        icon: CupertinoIcons.person_crop_circle,
         title: 'Absen Guru KBM',
         subtitle: 'Kehadiran Mengajar',
         isAdminOnly: true,
@@ -236,7 +229,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       _buildActionCard(
         context,
-        icon: Icons.event_note_outlined,
+        icon: CupertinoIcons.calendar,
         title: 'Izin Murid',
         subtitle: 'Setujui / Tolak',
         isAdminOnly: true,
@@ -251,7 +244,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       _buildActionCard(
         context,
-        icon: Icons.campaign_outlined,
+        icon: CupertinoIcons.speaker_3,
         title: 'Pengumuman',
         subtitle: 'Buat & Publikasi',
         isAdminOnly: true,
@@ -266,7 +259,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       _buildActionCard(
         context,
-        icon: Icons.event_outlined,
+        icon: CupertinoIcons.calendar,
         title: 'Kegiatan',
         subtitle: 'Buat Agenda',
         isAdminOnly: true,
@@ -281,7 +274,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       _buildActionCard(
         context,
-        icon: Icons.event_available_rounded,
+        icon: CupertinoIcons.calendar_badge_plus,
         title: 'Piket Pimpinan',
         subtitle: 'Jadwal & Presensi',
         isAdminOnly: true,
@@ -296,7 +289,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       _buildActionCard(
         context,
-        icon: Icons.emoji_events_outlined,
+        icon: CupertinoIcons.rosette,
         title: 'Prestasi & Pelanggaran',
         subtitle: 'Catat & Kelola',
         isAdminOnly: true,
@@ -330,7 +323,7 @@ class _DashboardPageState extends State<DashboardPage> {
           final personalMenuItems = [
             _buildActionCard(
               context,
-              icon: Icons.menu_book_outlined,
+              icon: CupertinoIcons.book,
               title: 'Presensi KBM',
               subtitle: 'KBM Kelas',
               color: getVibrantColor(
@@ -344,21 +337,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             _buildActionCard(
               context,
-              icon: Icons.shield_outlined,
-              title: 'Mode Piket',
-              subtitle: 'Badal Kelas',
-              color: getVibrantColor(
-                const Color(0xFF1D4ED8),
-                const Color(0xFF3B82F6),
-              ),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const GuruPiketPage()),
-              ),
-            ),
-            _buildActionCard(
-              context,
-              icon: Icons.groups_outlined,
+              icon: CupertinoIcons.person_3,
               title: 'Non-Akademik',
               subtitle: 'Kegiatan Santri',
               color: getVibrantColor(
@@ -374,7 +353,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             _buildActionCard(
               context,
-              icon: Icons.badge_outlined,
+              icon: CupertinoIcons.person_crop_circle,
               title: 'Kegiatan Guru',
               subtitle: 'Internal Asatidz',
               color: getVibrantColor(
@@ -390,7 +369,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             _buildActionCard(
               context,
-              icon: Icons.receipt_long_outlined,
+              icon: CupertinoIcons.doc_text,
               title: 'Riwayat Bisyaroh',
               subtitle: 'Slip Pendapatan',
               color: getVibrantColor(
@@ -404,7 +383,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             _buildActionCard(
               context,
-              icon: Icons.folder_special_outlined,
+              icon: CupertinoIcons.folder,
               title: 'Arsip Soalan',
               subtitle: 'Soal & Ujian',
               color: getVibrantColor(
@@ -418,7 +397,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             _buildActionCard(
               context,
-              icon: Icons.family_restroom_outlined,
+              icon: CupertinoIcons.person_3,
               title: 'Portal Wali',
               subtitle: 'Guru + Orang Tua',
               color: getVibrantColor(
@@ -436,7 +415,7 @@ class _DashboardPageState extends State<DashboardPage> {
             if (dash.isAdmin) ...[
               _buildActionCard(
                 context,
-                icon: Icons.account_balance_wallet_outlined,
+                icon: CupertinoIcons.creditcard,
                 title: 'Tabungan',
                 subtitle: 'Saldo & Mutasi',
                 isAdminOnly: true,
@@ -451,7 +430,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               _buildActionCard(
                 context,
-                icon: Icons.payments_outlined,
+                icon: CupertinoIcons.creditcard,
                 title: 'Pembayaran',
                 subtitle: 'Yaumiyah & DU',
                 isAdminOnly: true,
@@ -514,7 +493,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 Row(
                                   children: [
                                     Icon(
-                                      Icons.schedule_outlined,
+                                      CupertinoIcons.clock,
                                       size: 20,
                                       color: colorScheme.primary,
                                     ),
@@ -552,7 +531,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                         ),
                                       ),
                                       icon: const Icon(
-                                        Icons.calendar_view_week_outlined,
+                                        CupertinoIcons.calendar,
                                       ),
                                     ),
                                   ],
@@ -571,7 +550,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ),
                                 _buildSectionHeader(
                                   context,
-                                  icon: Icons.person_outline_rounded,
+                                  icon: CupertinoIcons.person,
                                   title: 'Menu Pribadi',
                                   color: colorScheme.primary,
                                 ),
@@ -589,7 +568,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   const SizedBox(height: 20),
                                   _buildSectionHeader(
                                     context,
-                                    icon: Icons.shield_outlined,
+                                    icon: CupertinoIcons.shield,
                                     title: 'Kelola Lembaga',
                                     color: Colors.amber.shade700,
                                     showAdminBadge: true,
@@ -610,7 +589,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   const SizedBox(height: 20),
                                   _buildSectionHeader(
                                     context,
-                                    icon: Icons.workspace_premium_outlined,
+                                    icon: CupertinoIcons.checkmark_seal,
                                     title: 'Mode Pimpinan',
                                     color: Colors.amber.shade700,
                                     badgeText: 'PIMPINAN',
@@ -654,7 +633,7 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Column(
         children: [
           Icon(
-            Icons.event_busy_outlined,
+            CupertinoIcons.calendar_badge_minus,
             size: 40,
             color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
           ),
@@ -668,12 +647,148 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  /// Kartu tugas Piket Guru (roster mingguan) — berbeda dari jadwal KBM.
+  /// Tap membuka halaman daftar kelas hari ini untuk diambil alih.
+  Widget _buildPiketDutyCard(
+    dynamic s,
+    ColorScheme colorScheme,
+    ThemeData theme,
+  ) {
+    final startTime = (s['start_time'] ?? '').toString();
+    final endTime = (s['end_time'] ?? '').toString();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: theme.cardTheme.color ?? colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorScheme.tertiary.withValues(alpha: 0.45),
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PiketHariIniPage(
+                  piketStart: startTime,
+                  piketEnd: endTime,
+                ),
+              ),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(color: colorScheme.tertiary, width: 4),
+                ),
+              ),
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        startTime,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.tertiary,
+                        ),
+                      ),
+                      Text(
+                        '–',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      Text(
+                        endTime,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.tertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              CupertinoIcons.arrow_left_right,
+                              size: 14,
+                              color: colorScheme.tertiary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Jadwal Piket',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Siap menggantikan guru yang berhalangan',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colorScheme.tertiary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'PIKET',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.tertiary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildScheduleCard(
     dynamic s,
     ColorScheme colorScheme,
     ThemeData theme, [
     dynamic dash,
   ]) {
+    // Tugas piket guru (roster mingguan) — bukan jadwal KBM kelas. Tap membuka
+    // daftar semua kelas hari ini untuk diambil alih (badal) bila guru berhalangan.
+    if ((s['_kind'] ?? '').toString() == 'PIKET_GURU') {
+      return _buildPiketDutyCard(s, colorScheme, theme);
+    }
+
     final subject = (s['subject_name'] ?? '-').toString();
     final className = (s['class_name'] ?? '-').toString();
     final startTime = (s['start_time'] ?? '').toString();
@@ -775,7 +890,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           Row(
                             children: [
                               Icon(
-                                Icons.swap_horiz,
+                                CupertinoIcons.arrow_left_right,
                                 size: 12,
                                 color: colorScheme.tertiary,
                               ),
@@ -886,11 +1001,8 @@ class _DashboardPageState extends State<DashboardPage> {
     final tanggal =
         '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
-    showModalBottomSheet(
+    showCupertinoBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (ctx) {
         final colorScheme = Theme.of(ctx).colorScheme;
         return SafeArea(
@@ -932,7 +1044,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   leading: CircleAvatar(
                     backgroundColor: Colors.green.withValues(alpha: 0.12),
                     child: const Icon(
-                      Icons.menu_book_outlined,
+                      CupertinoIcons.book,
                       color: Colors.green,
                       size: 20,
                     ),
@@ -945,7 +1057,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     'Kehadiran murid (H/S/I/A)',
                     style: TextStyle(fontSize: 12),
                   ),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(CupertinoIcons.chevron_right),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -971,7 +1083,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   leading: CircleAvatar(
                     backgroundColor: Colors.amber.withValues(alpha: 0.12),
                     child: const Icon(
-                      Icons.grade_outlined,
+                      CupertinoIcons.star,
                       color: Colors.amber,
                       size: 20,
                     ),
@@ -984,7 +1096,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     'Nilai harian murid (0–100)',
                     style: TextStyle(fontSize: 12),
                   ),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(CupertinoIcons.chevron_right),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -1089,7 +1201,7 @@ class _DashboardPageState extends State<DashboardPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            done ? Icons.check_circle : Icons.radio_button_unchecked,
+            done ? CupertinoIcons.checkmark_circle : CupertinoIcons.circle,
             size: 11,
             color: color,
           ),
@@ -1158,7 +1270,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
-                          Icons.star_rounded,
+                          CupertinoIcons.star,
                           size: 10,
                           color: Colors.black,
                         ),
@@ -1305,7 +1417,7 @@ class DynamicCurvedHeaderDelegate extends SliverPersistentHeaderDelegate {
                                                 colorScheme.primaryContainer,
                                             radius: 24,
                                             child: Icon(
-                                              Icons.person,
+                                              CupertinoIcons.person,
                                               color: colorScheme
                                                   .onPrimaryContainer,
                                               size: 28,
@@ -1323,7 +1435,7 @@ class DynamicCurvedHeaderDelegate extends SliverPersistentHeaderDelegate {
                                                 shape: BoxShape.circle,
                                               ),
                                               child: const Icon(
-                                                Icons.workspace_premium_rounded,
+                                                CupertinoIcons.checkmark_seal,
                                                 size: 12,
                                                 color: Colors.black,
                                               ),
@@ -1428,7 +1540,7 @@ class DynamicCurvedHeaderDelegate extends SliverPersistentHeaderDelegate {
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               Icon(
-                                                Icons.calendar_today_outlined,
+                                                CupertinoIcons.calendar_today,
                                                 size: 10,
                                                 color: colorScheme.onPrimary,
                                               ),

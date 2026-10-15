@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/piket_pimpinan_provider.dart';
+import 'package:flutter/cupertino.dart';
 
 class PiketPimpinanPage extends StatelessWidget {
   const PiketPimpinanPage({super.key});
@@ -78,8 +79,8 @@ class _PiketPimpinanBody extends StatelessWidget {
             labelColor: colorScheme.onPrimary,
             unselectedLabelColor: colorScheme.onPrimary.withValues(alpha: 0.7),
             tabs: const [
-              Tab(text: 'Jadwal Piket', icon: Icon(Icons.event_available_rounded, size: 18)),
-              Tab(text: 'Presensi', icon: Icon(Icons.fact_check_outlined, size: 18)),
+              Tab(text: 'Jadwal Piket', icon: Icon(CupertinoIcons.calendar_badge_plus, size: 18)),
+              Tab(text: 'Presensi', icon: Icon(CupertinoIcons.checkmark_shield, size: 18)),
             ],
           ),
         ),
@@ -117,7 +118,7 @@ class _PiketPimpinanBody extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(Icons.workspace_premium_outlined, color: colorScheme.primary),
+              Icon(CupertinoIcons.checkmark_seal, color: colorScheme.primary),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -269,7 +270,7 @@ class _PiketPimpinanBody extends StatelessWidget {
           CircleAvatar(
             radius: 12,
             backgroundColor: colorScheme.primaryContainer,
-            child: const Icon(Icons.person, size: 14),
+            child: const Icon(CupertinoIcons.person, size: 14),
           ),
           const SizedBox(width: 8),
           Column(
@@ -315,7 +316,7 @@ class _PiketPimpinanBody extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
-                  Icon(Icons.calendar_today_rounded, size: 18, color: colorScheme.primary),
+                  Icon(CupertinoIcons.calendar_today, size: 18, color: colorScheme.primary),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
@@ -333,7 +334,7 @@ class _PiketPimpinanBody extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Icon(Icons.edit_calendar_rounded, size: 18, color: colorScheme.onSurfaceVariant),
+                  Icon(CupertinoIcons.calendar, size: 18, color: colorScheme.onSurfaceVariant),
                 ],
               ),
             ),
@@ -346,7 +347,7 @@ class _PiketPimpinanBody extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: () => provider.loadPresensi(provider.selectedTanggal),
               style: ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
-              icon: const Icon(Icons.refresh, size: 18),
+              icon: const Icon(CupertinoIcons.refresh, size: 18),
               label: const Text('Coba Lagi'),
             ),
           ),
@@ -362,7 +363,7 @@ class _PiketPimpinanBody extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Icon(Icons.event_busy_outlined, size: 36, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
+                Icon(CupertinoIcons.calendar_badge_minus, size: 36, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
                 const SizedBox(height: 8),
                 Text(
                   'Belum ada data presensi piket.',
@@ -398,7 +399,7 @@ class _PiketPimpinanBody extends StatelessWidget {
           CircleAvatar(
             radius: 18,
             backgroundColor: colorScheme.primaryContainer,
-            child: const Icon(Icons.person, size: 20),
+            child: const Icon(CupertinoIcons.person, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(

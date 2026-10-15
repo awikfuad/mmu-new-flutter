@@ -14,7 +14,7 @@
                 "--web-port=8080",
                 "--web-browser-flag=--disable-web-security",
                 "--dart-define=GOOGLE_CLIENT_ID=904890785521-gv6k0n0taspm56anr2bq0n13i6di3o74.apps.googleusercontent.com",
-                "--dart-define=OVERRIDE_API_URL=http://localhost:5000/api"
+                "--dart-define=OVERRIDE_API_URL=https://api-presensi.mmua44.my.id/api"
             ]
         },
         {

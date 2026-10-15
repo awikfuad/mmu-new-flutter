@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../providers/presensi_saya_provider.dart';
 import 'input_nilai_harian_page.dart';
 import 'presensi_kelas_page.dart';
+import '../../utils/cupertino_sheet.dart';
+import 'package:flutter/cupertino.dart';
 
 class PresensiSayaPage extends StatelessWidget {
   const PresensiSayaPage({super.key});
@@ -45,7 +47,7 @@ class _PresensiSayaBody extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            done ? Icons.check_circle : Icons.radio_button_unchecked,
+            done ? CupertinoIcons.checkmark_circle : CupertinoIcons.circle,
             size: 11,
             color: color,
           ),
@@ -79,11 +81,8 @@ class _PresensiSayaBody extends StatelessWidget {
     final tanggal =
         '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
-    showModalBottomSheet(
+    showCupertinoBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;
         return SafeArea(
@@ -117,11 +116,11 @@ class _PresensiSayaBody extends StatelessWidget {
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.green.withAlpha(31),
-                    child: const Icon(Icons.menu_book_outlined, color: Colors.green, size: 20),
+                    child: const Icon(CupertinoIcons.book, color: Colors.green, size: 20),
                   ),
                   title: const Text('Isi Presensi', style: TextStyle(fontWeight: FontWeight.w600)),
                   subtitle: const Text('Kehadiran murid (H/S/I/A)', style: TextStyle(fontSize: 12)),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(CupertinoIcons.chevron_right),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   onTap: () {
                     Navigator.pop(ctx);
@@ -146,11 +145,11 @@ class _PresensiSayaBody extends StatelessWidget {
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.amber.withAlpha(31),
-                    child: const Icon(Icons.grade_outlined, color: Colors.amber, size: 20),
+                    child: const Icon(CupertinoIcons.star, color: Colors.amber, size: 20),
                   ),
                   title: const Text('Input Nilai', style: TextStyle(fontWeight: FontWeight.w600)),
                   subtitle: const Text('Nilai harian murid (0–100)', style: TextStyle(fontSize: 12)),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(CupertinoIcons.chevron_right),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   onTap: () {
                     Navigator.pop(ctx);
@@ -220,7 +219,7 @@ class _PresensiSayaBody extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.info_outline,
+                        Icon(CupertinoIcons.info_circle,
                             size: 20, color: colorScheme.primary),
                         const SizedBox(width: 10),
                         Expanded(
@@ -242,7 +241,7 @@ class _PresensiSayaBody extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 24),
                       child: Column(
                         children: [
-                          Icon(Icons.cloud_off_outlined,
+                          Icon(CupertinoIcons.cloud,
                               size: 48,
                               color: colorScheme.onSurfaceVariant
                                   .withValues(alpha: 0.5)),
@@ -260,7 +259,7 @@ class _PresensiSayaBody extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 60),
                       child: Column(
                         children: [
-                          Icon(Icons.event_busy_outlined,
+                          Icon(CupertinoIcons.calendar_badge_minus,
                               size: 56,
                               color: colorScheme.onSurfaceVariant
                                   .withValues(alpha: 0.4)),
@@ -313,7 +312,7 @@ class _PresensiSayaBody extends StatelessWidget {
                 CircleAvatar(
                   radius: 22,
                   backgroundColor: accent.withValues(alpha: 0.15),
-                  child: Icon(isPiket ? Icons.swap_horiz : Icons.menu_book_outlined,
+                  child: Icon(isPiket ? CupertinoIcons.arrow_left_right : CupertinoIcons.book,
                       size: 22, color: accent),
                 ),
                 const SizedBox(width: 12),
@@ -396,7 +395,7 @@ class _PresensiSayaBody extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(width: 4),
-                Icon(Icons.chevron_right, size: 18, color: colorScheme.outline),
+                Icon(CupertinoIcons.chevron_right, size: 18, color: colorScheme.outline),
               ],
             ),
           ),

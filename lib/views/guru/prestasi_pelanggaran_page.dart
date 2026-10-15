@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/prestasi_pelanggaran_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import '../../utils/cupertino_sheet.dart';
+import 'package:flutter/cupertino.dart';
 
 class PrestasiPelanggaranPage extends StatelessWidget {
   const PrestasiPelanggaranPage({super.key});
@@ -42,15 +44,19 @@ class _PrestasiPelanggaranBody extends StatelessWidget {
 
   Future<void> _delete(BuildContext context, dynamic item) async {
     final id = int.tryParse('${item['id'] ?? ''}') ?? 0;
-    final confirm = await showDialog<bool>(
+    final confirm = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
         title: const Text('Hapus Catatan'),
         content: const Text('Catatan prestasi/pelanggaran ini akan dihapus permanen. Lanjutkan?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Hapus'),
           ),
@@ -72,10 +78,8 @@ class _PrestasiPelanggaranBody extends StatelessWidget {
 
   Future<void> _openEdit(BuildContext context, dynamic item) async {
     final pr = context.read<PrestasiPelanggaranProvider>();
-    final saved = await showModalBottomSheet<bool>(
+    final saved = await showCupertinoBottomSheet<bool>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (_) => ChangeNotifierProvider.value(
         value: pr,
         child: _PrestasiForm(initial: item),
@@ -90,10 +94,8 @@ class _PrestasiPelanggaranBody extends StatelessWidget {
     final pr = context.read<PrestasiPelanggaranProvider>();
     await pr.fetchMurids();
     if (!context.mounted) return;
-    final created = await showModalBottomSheet<bool>(
+    final created = await showCupertinoBottomSheet<bool>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (_) => ChangeNotifierProvider.value(
         value: pr,
         child: _PrestasiForm(murids: pr.murids),
@@ -181,7 +183,7 @@ class _PrestasiPelanggaranBody extends StatelessWidget {
                                           IconButton(
                                             visualDensity: VisualDensity.compact,
                                             onPressed: () => _delete(context, item),
-                                            icon: Icon(Icons.delete_outline, size: 18, color: colorScheme.outline),
+                                            icon: Icon(CupertinoIcons.trash, size: 18, color: colorScheme.outline),
                                           ),
                                         ],
                                       ],
@@ -211,7 +213,7 @@ class _PrestasiPelanggaranBody extends StatelessWidget {
                                         _badge(context, _kategoriLabel('${item['kategori'] ?? ''}'),
                                             color: isPrestasi ? Colors.green.shade400 : Colors.red.shade400),
                                         const Spacer(),
-                                        Icon(Icons.date_range_outlined, size: 14, color: colorScheme.onSurfaceVariant),
+                                        Icon(CupertinoIcons.calendar, size: 14, color: colorScheme.onSurfaceVariant),
                                         const SizedBox(width: 4),
                                         Text(
                                           _humanDate('${item['tanggal'] ?? ''}'),
@@ -239,7 +241,7 @@ class _PrestasiPelanggaranBody extends StatelessWidget {
                                         padding: const EdgeInsets.symmetric(horizontal: 4),
                                         minimumSize: const Size(0, 32),
                                       ),
-                                      icon: const Icon(Icons.edit_outlined, size: 16),
+                                      icon: const Icon(CupertinoIcons.pencil, size: 16),
                                       label: const Text('Ubah', style: TextStyle(fontSize: 12)),
                                     ),
                                   ],
@@ -256,7 +258,7 @@ class _PrestasiPelanggaranBody extends StatelessWidget {
         onPressed: () => _openCreate(context),
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
-        icon: const Icon(Icons.add),
+        icon: const Icon(CupertinoIcons.add),
         label: const Text('Tambah Catatan'),
       ),
     );
@@ -292,7 +294,7 @@ class _PrestasiPelanggaranBody extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.emoji_events_outlined, size: 48, color: colorScheme.outline),
+          Icon(CupertinoIcons.rosette, size: 48, color: colorScheme.outline),
           const SizedBox(height: 10),
           Text('Belum ada catatan prestasi/pelanggaran', style: TextStyle(color: colorScheme.onSurfaceVariant)),
         ],
@@ -438,7 +440,7 @@ class _PrestasiFormState extends State<_PrestasiForm> {
                 Text(isEdit ? 'Ubah Catatan' : 'Tambah Catatan',
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
                 const Spacer(),
-                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
+                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(CupertinoIcons.xmark)),
               ],
             ),
             const SizedBox(height: 4),
@@ -519,7 +521,7 @@ class _PrestasiFormState extends State<_PrestasiForm> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.calendar_today_outlined, size: 16, color: colorScheme.primary),
+                          Icon(CupertinoIcons.calendar_today, size: 16, color: colorScheme.primary),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(

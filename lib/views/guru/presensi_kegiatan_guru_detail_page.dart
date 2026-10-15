@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/presensi_kegiatan_guru_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import 'package:flutter/cupertino.dart';
 
 class PresensiKegiatanGuruDetailPage extends StatelessWidget {
   final int activityId;
@@ -165,7 +166,7 @@ class _PresensiKegiatanGuruBody extends StatelessWidget {
               CircleAvatar(
                 radius: 36,
                 backgroundColor: colorScheme.tertiaryContainer,
-                child: Icon(Icons.person, size: 40, color: colorScheme.onTertiaryContainer),
+                child: Icon(CupertinoIcons.person, size: 40, color: colorScheme.onTertiaryContainer),
               ),
               const SizedBox(height: 12),
               Text(

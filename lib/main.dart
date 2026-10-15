@@ -8,7 +8,6 @@ import 'providers/absensi_murid_provider.dart';
 import 'providers/biometric_provider.dart';
 import 'providers/dashboard_guru_provider.dart';
 import 'providers/gaji_guru_provider.dart';
-import 'providers/guru_piket_provider.dart';
 import 'providers/kegiatan_list_provider.dart';
 import 'providers/parent_provider.dart';
 import 'providers/pembayaran_provider.dart';
@@ -29,6 +28,7 @@ import 'views/auth/login_page.dart';
 import 'views/common/main_navigation_wrapper.dart';
 import 'views/santri/student_dashboard_page.dart';
 import 'views/parent/parent_dashboard_page.dart';
+import 'package:flutter/cupertino.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,7 +47,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AbsensiKbmMuridProvider()),
         ChangeNotifierProvider(create: (_) => DashboardGuruProvider()),
         ChangeNotifierProvider(create: (_) => GajiGuruProvider()),
-        ChangeNotifierProvider(create: (_) => GuruPiketProvider()),
         ChangeNotifierProvider(create: (_) => KegiatanListProvider()),
         ChangeNotifierProvider(create: (_) => ParentProvider()),
         ChangeNotifierProvider(create: (_) => PresensiKegiatanGuruProvider()),
@@ -98,7 +97,7 @@ class AuthGate extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.school_rounded, size: 56, color: Theme.of(context).colorScheme.primary),
+                  Icon(CupertinoIcons.book, size: 56, color: Theme.of(context).colorScheme.primary),
                   const SizedBox(height: 16),
                   const SizedBox(
                     width: 28,

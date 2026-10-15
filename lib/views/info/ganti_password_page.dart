@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/biometric_provider.dart';
+import 'package:flutter/cupertino.dart';
 
 /// Halaman ganti password mandiri — berlaku utk semua role (guru/admin,
 /// santri, orang tua). Password baru diverifikasi terhadap kriteria kekuatan
@@ -76,10 +77,10 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
     setState(() => _submitting = false);
 
     if (ok) {
-      // Password akun berubah → kredensial biometrik (login sidik jari) lama
-      // tidak lagi valid. Dibersihkan agar login sidik jari tidak gagal.
+      // Password akun berubah → perbarui kredensial sidik jari agar login
+      // biometrik tetap berfungsi (tanpa perlu mengaktifkan ulang).
       if (bio.isBiometricEnabled) {
-        await bio.clearCredentials();
+        await bio.updatePassword(password);
       }
       if (mounted) Navigator.of(context).pop(true);
     } else {
@@ -93,7 +94,7 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
     return Row(
       children: [
         Icon(
-          ok ? Icons.check_circle : Icons.radio_button_unchecked,
+          ok ? CupertinoIcons.checkmark_circle : CupertinoIcons.circle,
           size: 18,
           color: ok ? cs.primary : cs.outlineVariant,
         ),
@@ -116,7 +117,7 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
         borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
       suffixIcon: IconButton(
-        icon: Icon(obscure ? Icons.visibility_off : Icons.visibility),
+        icon: Icon(obscure ? CupertinoIcons.eye_slash : CupertinoIcons.eye),
         onPressed: toggle,
       ),
     );
@@ -143,7 +144,7 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.lock_reset, size: 20, color: cs.primary),
+                Icon(CupertinoIcons.lock_rotation, size: 20, color: cs.primary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -224,7 +225,7 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(Icons.check),
+                : const Icon(CupertinoIcons.checkmark),
             label: Text(_submitting ? 'Menyimpan...' : 'Simpan'),
           ),
         ],

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../providers/student_jadwal_provider.dart';
 import '../../widgets/academic_year_selector.dart';
+import 'package:flutter/cupertino.dart';
 
 class StudentJadwalPage extends StatefulWidget {
   const StudentJadwalPage({super.key});
@@ -167,7 +168,7 @@ class _StudentJadwalPageState extends State<StudentJadwalPage> {
       alignment: Alignment.center,
       child: Column(
         children: [
-          Icon(Icons.schedule_outlined, size: 56, color: colorScheme.onSurfaceVariant.withValues(alpha:0.5)),
+          Icon(CupertinoIcons.clock, size: 56, color: colorScheme.onSurfaceVariant.withValues(alpha:0.5)),
           const SizedBox(height: 10),
           Text(
             'Belum ada jadwal pelajaran.',

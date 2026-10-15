@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/presensi_kelas_provider.dart';
 import '../../utils/foto_helper.dart';
 import '../../utils/snackbar_helper.dart';
+import 'package:flutter/cupertino.dart';
 
 class PresensiKelasPage extends StatelessWidget {
   final int scheduleId;
@@ -198,7 +199,7 @@ class _PresensiKelasBody extends StatelessWidget {
                                   backgroundImage: cachedFotoProvider(fotoUrl),
                                   onBackgroundImageError: (_, _) {},
                                   child: fotoUrl == null
-                                      ? Icon(Icons.person, size: 18, color: colorScheme.onPrimaryContainer)
+                                      ? Icon(CupertinoIcons.person, size: 18, color: colorScheme.onPrimaryContainer)
                                       : null,
                                 );
                               }),

@@ -8,6 +8,7 @@ import '../../utils/foto_helper.dart';
 import '../../utils/snackbar_helper.dart';
 import '../info/menu_info.dart';
 import 'parent_child_detail_page.dart';
+import 'package:flutter/cupertino.dart';
 
 class ParentDashboardPage extends StatefulWidget {
   const ParentDashboardPage({super.key});
@@ -26,27 +27,21 @@ Future<void> _launchURL(String urlString) async {
     }
   }
   void _processLogout() async {
-    final colorScheme = Theme.of(context).colorScheme;
-    final confirm = await showDialog<bool>(
+    final confirm = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
         title: const Text('Konfirmasi Logout'),
         content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Batal'),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colorScheme.error,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Logout', style: TextStyle(color: colorScheme.onError)),
+            child: const Text('Logout'),
           ),
         ],
       ),
@@ -196,7 +191,7 @@ Future<void> _launchURL(String urlString) async {
                               children: [
                                 _buildActionCard(
                                   context,
-                                  icon: Icons.chat_bubble_outline_rounded,
+                                  icon: CupertinoIcons.chat_bubble,
                                   title: 'SALURAN WA MMU A44',
                                   subtitle: 'Info Pesantren',
                                   color: getVibrantColor(
@@ -209,7 +204,7 @@ Future<void> _launchURL(String urlString) async {
                                 ),
                                 _buildActionCard(
                                   context,
-                                  icon: Icons.camera_alt_outlined,
+                                  icon: CupertinoIcons.camera,
                                   title: 'Instagram',
                                   subtitle: '@mmua44warungdowo',
                                   color: getVibrantColor(
@@ -222,7 +217,7 @@ Future<void> _launchURL(String urlString) async {
                                 ),
                                 _buildActionCard(
                                   context,
-                                  icon: Icons.play_circle_outline_rounded,
+                                  icon: CupertinoIcons.play_circle,
                                   title: 'MMU A44 TV',
                                   subtitle: 'Chanel Resmi MMU A44',
                                   color: getVibrantColor(
@@ -288,7 +283,7 @@ Future<void> _launchURL(String urlString) async {
                       child: Container(
                         padding: const EdgeInsets.all(2),
                         decoration: const BoxDecoration(color: Colors.amber, shape: BoxShape.circle),
-                        child: const Icon(Icons.star_rounded, size: 10, color: Colors.black),
+                        child: const Icon(CupertinoIcons.star, size: 10, color: Colors.black),
                       ),
                     ),
                 ],
@@ -336,7 +331,7 @@ Future<void> _launchURL(String urlString) async {
               backgroundColor: cs.primaryContainer,
               radius: 24,
               child: Icon(
-                Icons.family_restroom,
+                CupertinoIcons.person_3,
                 color: cs.onPrimaryContainer,
                 size: 28,
               ),
@@ -362,7 +357,7 @@ Future<void> _launchURL(String urlString) async {
                 Row(
                   children: [
                     Icon(
-                      Icons.phone,
+                      CupertinoIcons.phone,
                       size: 14,
                       color: cs.onPrimary..withValues(alpha: 0.8),
                     ),
@@ -411,7 +406,7 @@ Future<void> _launchURL(String urlString) async {
       child: Column(
         children: [
           Icon(
-            Icons.child_care_outlined,
+            CupertinoIcons.person_2,
             size: 48,
             color: cs.onSurface..withValues(alpha: 0.3),
           ),
@@ -548,7 +543,7 @@ Future<void> _launchURL(String urlString) async {
                     _buildTagsColumn(sumber, hubungan, cs),
                     const SizedBox(width: 4),
                     Icon(
-                      Icons.chevron_right_rounded,
+                      CupertinoIcons.chevron_right,
                       color: cs.onSurface..withValues(alpha: 0.4),
                     ),
                   ],
@@ -828,7 +823,7 @@ class _CurvedAppBarDelegate extends SliverPersistentHeaderDelegate {
                     if (showBackToTeacher)
                       IconButton(
                         icon: Icon(
-                          Icons.swap_horiz_rounded,
+                          CupertinoIcons.arrow_left_right,
                           color: colorScheme.onPrimary,
                         ),
                         onPressed: onBackToTeacher,
@@ -836,7 +831,7 @@ class _CurvedAppBarDelegate extends SliverPersistentHeaderDelegate {
                       ),
                     IconButton(
                       icon: Icon(
-                        Icons.info_outline,
+                        CupertinoIcons.info_circle,
                         color: colorScheme.onPrimary,
                       ),
                       onPressed: onAboutTap,
@@ -845,7 +840,7 @@ class _CurvedAppBarDelegate extends SliverPersistentHeaderDelegate {
                    
                     IconButton(
                       icon: Icon(
-                        Icons.logout_rounded,
+                        CupertinoIcons.rectangle_arrow_up_right_arrow_down_left,
                         color: colorScheme.onPrimary,
                       ),
                       onPressed: onLogoutTap,

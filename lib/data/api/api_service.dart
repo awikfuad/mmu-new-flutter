@@ -30,8 +30,8 @@ class ApiService {
   // Kosong = gunakan DEFAULT_API_URL.
   static const String _overrideBaseUrl = String.fromEnvironment(
     'OVERRIDE_API_URL',
+    // defaultValue: 'https://api-presensi.mmua44.my.id/api',
     defaultValue: '',
-    // defaultValue: 'http://localhost:5000/api',
   );
   
   // DEFAULT_API_URL: fallback untuk local development.

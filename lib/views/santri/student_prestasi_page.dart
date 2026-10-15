@@ -4,6 +4,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../providers/student_prestasi_provider.dart';
 import '../../utils/format.dart';
 import '../../widgets/academic_year_selector.dart';
+import 'package:flutter/cupertino.dart';
 
 class StudentPrestasiPage extends StatefulWidget {
   const StudentPrestasiPage({super.key});
@@ -138,7 +139,7 @@ class _StudentPrestasiPageState extends State<StudentPrestasiPage> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              isPrestasi ? Icons.emoji_events_outlined : Icons.warning_amber_rounded,
+              isPrestasi ? CupertinoIcons.rosette : CupertinoIcons.exclamationmark_triangle,
               size: 20,
               color: isPrestasi ? Colors.green : Colors.red,
             ),
@@ -185,7 +186,7 @@ class _StudentPrestasiPageState extends State<StudentPrestasiPage> {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.star_outline, size: 14, color: colorScheme.primary),
+                    Icon(CupertinoIcons.star, size: 14, color: colorScheme.primary),
                     const SizedBox(width: 4),
                     Text(
                       '${poin.toInt()} poin',
@@ -218,7 +219,7 @@ class _StudentPrestasiPageState extends State<StudentPrestasiPage> {
       alignment: Alignment.center,
       child: Column(
         children: [
-          Icon(Icons.emoji_events_outlined, size: 56, color: colorScheme.onSurfaceVariant.withValues(alpha:0.5)),
+          Icon(CupertinoIcons.rosette, size: 56, color: colorScheme.onSurfaceVariant.withValues(alpha:0.5)),
           const SizedBox(height: 10),
           Text(
             'Belum ada catatan prestasi / pelanggaran.',

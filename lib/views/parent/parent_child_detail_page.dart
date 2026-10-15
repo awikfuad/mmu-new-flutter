@@ -5,6 +5,8 @@ import '../../utils/format.dart';
 import '../../utils/foto_helper.dart';
 import '../../utils/snackbar_helper.dart';
 import '../../widgets/academic_year_selector.dart';
+import '../../utils/cupertino_sheet.dart';
+import 'package:flutter/cupertino.dart';
 
 class ParentChildDetailPage extends StatefulWidget {
   final String nim;
@@ -69,7 +71,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.error_outline, size: 48, color: cs.error),
+                    Icon(CupertinoIcons.exclamationmark_circle, size: 48, color: cs.error),
                     const SizedBox(height: 12),
                     Text(
                       parent.error!,
@@ -79,7 +81,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
                       onPressed: _loadAllData,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(CupertinoIcons.refresh),
                       label: const Text('Coba Lagi'),
                     ),
                   ],
@@ -260,27 +262,27 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
     final menuItems = [
       _GridMenuItem(
         title: 'Profil',
-        icon: Icons.person_outline,
+        icon: CupertinoIcons.person,
         color: Colors.blue,
         onTap: () =>
             _openBottomSheet('Profil Lengkap', _buildProfileTab(parent, cs)),
       ),
       _GridMenuItem(
         title: 'Absensi KBM',
-        icon: Icons.menu_book_outlined,
+        icon: CupertinoIcons.book,
         color: Colors.orange,
         onTap: () => _openBottomSheet('Riwayat KBM', _buildKbmTab(parent, cs)),
       ),
       _GridMenuItem(
         title: 'Perilaku',
-        icon: Icons.psychology_outlined,
+        icon: CupertinoIcons.lightbulb,
         color: Colors.purple,
         onTap: () =>
             _openBottomSheet('Catatan Perilaku', _buildPerilakuTab(parent, cs)),
       ),
       _GridMenuItem(
         title: 'Prestasi',
-        icon: Icons.emoji_events_outlined,
+        icon: CupertinoIcons.rosette,
         color: Colors.green,
         onTap: () => _openBottomSheet(
           'Prestasi & Pelanggaran',
@@ -289,7 +291,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
       ),
       _GridMenuItem(
         title: 'Izin / Sakit',
-        icon: Icons.medical_information_outlined,
+        icon: CupertinoIcons.staroflife,
         color: Colors.brown,
         onTap: () => _openBottomSheet(
           'Pengajuan Izin & Sakit',
@@ -298,14 +300,14 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
       ),
       _GridMenuItem(
         title: 'Jadwal',
-        icon: Icons.calendar_today_outlined,
+        icon: CupertinoIcons.calendar_today,
         color: Colors.teal,
         onTap: () =>
             _openBottomSheet('Jadwal Pelajaran', _buildJadwalTab(parent, cs)),
       ),
       _GridMenuItem(
         title: 'Keuangan',
-        icon: Icons.payments_outlined,
+        icon: CupertinoIcons.creditcard,
         color: Colors.indigo,
         onTap: () => _openBottomSheet(
           'Keuangan & Tabungan',
@@ -366,13 +368,8 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
 
   // Helper Modal Bottom Sheet
   void _openBottomSheet(String title, Widget body) {
-    showModalBottomSheet(
+    showCupertinoBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (context) {
         return DraggableScrollableSheet(
           initialChildSize: 0.75,
@@ -407,7 +404,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, size: 20),
+                        icon: const Icon(CupertinoIcons.xmark, size: 20),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
@@ -628,7 +625,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
             leading: CircleAvatar(
               backgroundColor: color.withValues(alpha: 0.15),
               child: Icon(
-                isPrestasi ? Icons.emoji_events : Icons.gpp_bad,
+                isPrestasi ? CupertinoIcons.rosette : CupertinoIcons.xmark_shield,
                 color: color,
                 size: 20,
               ),
@@ -754,7 +751,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                 leading: CircleAvatar(
                   backgroundColor: cs.primaryContainer,
                   child: Icon(
-                    Icons.book_outlined,
+                    CupertinoIcons.book,
                     color: cs.onPrimaryContainer,
                     size: 20,
                   ),
@@ -774,7 +771,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                       Row(
                         children: [
                           Icon(
-                            Icons.access_time,
+                            CupertinoIcons.time,
                             size: 14,
                             color: cs.onSurfaceVariant,
                           ),
@@ -796,7 +793,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                       Row(
                         children: [
                           Icon(
-                            Icons.person_outline,
+                            CupertinoIcons.person,
                             size: 14,
                             color: cs.onSurfaceVariant,
                           ),
@@ -870,7 +867,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
           width: double.infinity,
           height: 44,
           child: ElevatedButton.icon(
-            icon: const Icon(Icons.request_quote_outlined, size: 20),
+            icon: const Icon(CupertinoIcons.doc_text, size: 20),
             label: const Text(
               'Ajukan Pembayaran dari Tabungan',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -903,17 +900,17 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
             switch (status) {
               case 'DISETUJUI':
                 statusColor = Colors.green;
-                statusIcon = Icons.check_circle;
+                statusIcon = CupertinoIcons.checkmark_circle;
                 statusLabel = 'Disetujui';
                 break;
               case 'DITOLAK':
                 statusColor = Colors.red;
-                statusIcon = Icons.cancel;
+                statusIcon = CupertinoIcons.xmark_circle;
                 statusLabel = 'Ditolak';
                 break;
               default:
                 statusColor = Colors.orange;
-                statusIcon = Icons.hourglass_top;
+                statusIcon = CupertinoIcons.hourglass;
                 statusLabel = 'Menunggu';
             }
 
@@ -1015,12 +1012,8 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
     final nominalCtrl = TextEditingController();
     bool loading = false;
 
-    showModalBottomSheet(
+    showCupertinoBottomSheet(
       context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setModal) {
@@ -1062,12 +1055,12 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                       ButtonSegment(
                         value: 'YAUMIYAH',
                         label: Text('Iuran Bulanan'),
-                        icon: Icon(Icons.calendar_month, size: 18),
+                        icon: Icon(CupertinoIcons.calendar, size: 18),
                       ),
                       ButtonSegment(
                         value: 'DAFTAR_ULANG',
                         label: Text('Daftar Ulang'),
-                        icon: Icon(Icons.app_registration, size: 18),
+                        icon: Icon(CupertinoIcons.person_add, size: 18),
                       ),
                     ],
                     selected: {jenis},
@@ -1197,7 +1190,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
             width: double.infinity,
             height: 44,
             child: ElevatedButton.icon(
-              icon: const Icon(Icons.add_circle_outline, size: 20),
+              icon: const Icon(CupertinoIcons.plus_circle, size: 20),
               label: const Text(
                 'Ajukan Izin / Sakit',
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -1325,10 +1318,10 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                                 children: [
                                   Icon(
                                     status == 'DISETUJUI'
-                                        ? Icons.check_circle_outline
+                                        ? CupertinoIcons.check_mark_circled
                                         : status == 'DITOLAK'
-                                        ? Icons.cancel_outlined
-                                        : Icons.hourglass_empty_outlined,
+                                        ? CupertinoIcons.xmark_circle
+                                        : CupertinoIcons.hourglass,
                                     size: 16,
                                     color: statusColor,
                                   ),
@@ -1402,13 +1395,8 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
       }
     }
 
-    showModalBottomSheet(
+    showCupertinoBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: cs.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) {
           final pad = EdgeInsets.only(
@@ -1458,12 +1446,12 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                       ButtonSegment(
                         value: 'IZIN',
                         label: Text('Izin'),
-                        icon: Icon(Icons.event_busy_outlined, size: 18),
+                        icon: Icon(CupertinoIcons.calendar_badge_minus, size: 18),
                       ),
                       ButtonSegment(
                         value: 'SAKIT',
                         label: Text('Sakit'),
-                        icon: Icon(Icons.local_hospital_outlined, size: 18),
+                        icon: Icon(CupertinoIcons.staroflife, size: 18),
                       ),
                     ],
                     selected: {jenis},
@@ -1484,7 +1472,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                       side: BorderSide(color: cs.outlineVariant),
                     ),
                     leading: Icon(
-                      Icons.calendar_today,
+                      CupertinoIcons.calendar_today,
                       color: cs.primary,
                       size: 20,
                     ),
@@ -1511,7 +1499,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
                       side: BorderSide(color: cs.outlineVariant),
                     ),
                     leading: Icon(
-                      Icons.calendar_today,
+                      CupertinoIcons.calendar_today,
                       color: cs.primary,
                       size: 20,
                     ),
@@ -1644,7 +1632,7 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.inbox_outlined,
+              CupertinoIcons.tray,
               size: 48,
               color: cs.onSurface.withValues(alpha: 0.2),
             ),
@@ -1673,10 +1661,10 @@ class _ParentChildDetailPageState extends State<ParentChildDetailPage> {
 
   IconData _statusIcon(String status) {
     return switch (status) {
-      'HADIR' => Icons.check_circle_outline,
-      'SAKIT' => Icons.local_hospital_outlined,
-      'IZIN' => Icons.info_outline,
-      _ => Icons.cancel_outlined,
+      'HADIR' => CupertinoIcons.check_mark_circled,
+      'SAKIT' => CupertinoIcons.staroflife,
+      'IZIN' => CupertinoIcons.info_circle,
+      _ => CupertinoIcons.xmark_circle,
     };
   }
 
@@ -1829,7 +1817,7 @@ class _CurvedChildAppBarDelegate extends SliverPersistentHeaderDelegate {
                     children: [
                       IconButton(
                         icon: Icon(
-                          Icons.arrow_back_ios_new_rounded,
+                          CupertinoIcons.back,
                           color: colorScheme.onPrimary,
                         ),
                         onPressed: onBackTap,

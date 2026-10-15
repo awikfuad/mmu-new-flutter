@@ -4,6 +4,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../providers/student_perilaku_provider.dart';
 import '../../utils/format.dart';
 import '../../widgets/academic_year_selector.dart';
+import 'package:flutter/cupertino.dart';
 
 class StudentPerilakuPage extends StatefulWidget {
   const StudentPerilakuPage({super.key});
@@ -89,7 +90,7 @@ class _StudentPerilakuPageState extends State<StudentPerilakuPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.calendar_today, size: 14, color: colorScheme.onSurfaceVariant),
+              Icon(CupertinoIcons.calendar_today, size: 14, color: colorScheme.onSurfaceVariant),
               const SizedBox(width: 6),
               Text(
                 tanggal,
@@ -178,7 +179,7 @@ class _StudentPerilakuPageState extends State<StudentPerilakuPage> {
       alignment: Alignment.center,
       child: Column(
         children: [
-          Icon(Icons.psychology_outlined, size: 56, color: colorScheme.onSurfaceVariant.withValues(alpha:0.5)),
+          Icon(CupertinoIcons.lightbulb, size: 56, color: colorScheme.onSurfaceVariant.withValues(alpha:0.5)),
           const SizedBox(height: 10),
           Text(
             'Belum ada catatan perilaku.',

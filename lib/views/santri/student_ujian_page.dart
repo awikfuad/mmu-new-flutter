@@ -8,6 +8,7 @@ import '../../providers/student_ujian_provider.dart';
 import '../../utils/snackbar_helper.dart';
 import 'kerjakan_ujian_page.dart';
 import 'scan_kode_ujian_page.dart';
+import 'package:flutter/cupertino.dart';
 
 class StudentUjianPage extends StatefulWidget {
   const StudentUjianPage({super.key});
@@ -36,7 +37,7 @@ class _StudentUjianPageState extends State<StudentUjianPage> {
               actions: [
                 Consumer<StudentUjianProvider>(
                   builder: (context, provider, _) => IconButton(
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(CupertinoIcons.refresh),
                     onPressed: provider.isLoading ? null : provider.load,
                     tooltip: 'Muat Ulang',
                   ),
@@ -85,10 +86,10 @@ class _StudentUjianPageState extends State<StudentUjianPage> {
   }
 
   void _showHasilDialog(UjianCard ujian) {
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
         title: const Text('Hasil Ujian'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -115,7 +116,7 @@ class _StudentUjianPageState extends State<StudentUjianPage> {
           ],
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
             child: const Text('Tutup'),
           ),
@@ -130,7 +131,7 @@ class _StudentUjianPageState extends State<StudentUjianPage> {
     var pendingScan = false;
     var resultKode = '';
 
-    await showDialog<void>(
+    await showCupertinoDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
@@ -167,8 +168,7 @@ class _StudentUjianPageState extends State<StudentUjianPage> {
               setDialogState(() {});
             }
 
-            return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            return CupertinoAlertDialog(
               title: const Text('Kode Akses Ujian'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -197,7 +197,7 @@ class _StudentUjianPageState extends State<StudentUjianPage> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : IconButton(
-                              icon: const Icon(Icons.qr_code_scanner),
+                              icon: const Icon(CupertinoIcons.qrcode_viewfinder),
                               onPressed: doScan,
                               tooltip: 'Scan QR',
                             ),
@@ -208,7 +208,7 @@ class _StudentUjianPageState extends State<StudentUjianPage> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.check_circle, size: 16, color: Colors.green),
+                        Icon(CupertinoIcons.checkmark_circle, size: 16, color: Colors.green),
                         const SizedBox(width: 6),
                         Text(
                           'QR terbaca: ${scanned['kode']}',
@@ -220,19 +220,26 @@ class _StudentUjianPageState extends State<StudentUjianPage> {
                 ],
               ),
               actions: [
-                TextButton(
+                CupertinoDialogAction(
                   onPressed: () => Navigator.pop(dialogContext),
                   child: const Text('Batal'),
                 ),
-                FilledButton.icon(
+                CupertinoDialogAction(
                   onPressed: kodeNow.isEmpty
                       ? null
                       : () {
                           resultKode = kodeNow;
                           Navigator.pop(dialogContext);
                         },
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Text('Mulai'),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(CupertinoIcons.play_arrow, size: 18),
+                      SizedBox(width: 6),
+                      Text('Mulai'),
+                    ],
+                  ),
                 ),
               ],
             );
@@ -290,9 +297,9 @@ class _StudentUjianPageState extends State<StudentUjianPage> {
       _ => colorScheme.primary,
     };
     final statusIcon = switch (ujian.pesertaStatus) {
-      'SELESAI' => Icons.check_circle,
-      'MENGERJAKAN' => Icons.pending,
-      _ => Icons.radio_button_unchecked,
+      'SELESAI' => CupertinoIcons.checkmark_circle,
+      'MENGERJAKAN' => CupertinoIcons.clock,
+      _ => CupertinoIcons.circle,
     };
 
     return Container(
@@ -430,7 +437,7 @@ class _StudentUjianPageState extends State<StudentUjianPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off, size: 56, color: colorScheme.onSurfaceVariant),
+            Icon(CupertinoIcons.cloud, size: 56, color: colorScheme.onSurfaceVariant),
             const SizedBox(height: 12),
             Text(
               provider.error ?? 'Gagal memuat ujian.',
@@ -440,7 +447,7 @@ class _StudentUjianPageState extends State<StudentUjianPage> {
             const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: provider.load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(CupertinoIcons.refresh),
               label: const Text('Coba Lagi'),
             ),
           ],

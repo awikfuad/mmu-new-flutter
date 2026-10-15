@@ -26,6 +26,11 @@ class DashboardGuruProvider extends ChangeNotifier {
   final Map<int, Map<String, dynamic>> _summaries = {};
   Map<int, Map<String, dynamic>> get summaries => _summaries;
 
+  // Nama hari Indonesia (index = DateTime.weekday % 7; 0 = Ahad/Minggu).
+  static const List<String> _dayNames = [
+    'AHAD', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU',
+  ];
+
   Future<void> fetchDashboardData() async {
     _isLoading = true;
     _error = null;
@@ -41,16 +46,60 @@ class DashboardGuruProvider extends ChangeNotifier {
         _isPimpinan = user?['is_pimpinan'] == true;
         _academicYearInfo = response.data['date'] ?? '-';
         _currentDay = response.data['message'] ?? 'Hari Ini';
-        _schedules = response.data['data'] ?? [];
+        final kbm = List<dynamic>.from(response.data['data'] ?? []);
+
+        // Guru (bukan admin) juga melihat tugas piket hari ini dari roster
+        // piket guru mingguan (tabel piket_guru → GET /piket-guru). Item piket
+        // ditandai `_kind = 'PIKET_GURU'` agar tampil berbeda & tap-nya membuka
+        // daftar semua kelas hari ini untuk mengambil alih kelas guru berhalangan.
+        final piket = await _fetchPiketHariIni(user?['id']);
+
+        final merged = [...kbm, ...piket];
+        merged.sort(
+          (a, b) => (a['start_time'] ?? '')
+              .toString()
+              .compareTo((b['start_time'] ?? '').toString()),
+        );
+        _schedules = merged;
         _fetchSummaries();
       }
     } on DioException catch (e) {
       _error =
           e.response?.data?['message'] ?? 'Gagal memuat jadwal: ${e.message}';
+    } catch (e) {
+      _error = 'Gagal memuat jadwal: $e';
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  /// Ambil tugas piket guru hari ini (roster mingguan) untuk guru ybs.
+  /// Admin tidak perlu — kembalikan list kosong bila bukan guru.
+  Future<List<dynamic>> _fetchPiketHariIni(dynamic userId) async {
+    if (_isAdmin || userId == null) return [];
+    final day = _dayNames[DateTime.now().weekday % 7];
+    try {
+      final res = await _api.dio.get(
+        '/piket-guru',
+        queryParameters: {'day_of_week': day, 'teacher_id': userId},
+      );
+      if (res.data is Map && res.data['success'] == true) {
+        final rows = res.data['data'] as List? ?? [];
+        return rows
+            .whereType<Map>()
+            .map<Map<String, dynamic>>(
+              (r) => {
+                ...Map<String, dynamic>.from(r),
+                '_kind': 'PIKET_GURU',
+              },
+            )
+            .toList();
+      }
+    } catch (_) {
+      // Tugas piket bersifat pelengkap — gagal memuat tidak menggagalkan dashboard.
+    }
+    return [];
   }
 
   Future<void> _fetchSummaries() async {

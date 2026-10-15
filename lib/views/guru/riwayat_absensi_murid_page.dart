@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../providers/riwayat_murid_provider.dart';
 import '../../utils/foto_helper.dart';
+import 'package:flutter/cupertino.dart';
 
 class RiwayatAbsensiMuridPage extends StatefulWidget {
   const RiwayatAbsensiMuridPage({super.key});
@@ -85,7 +86,7 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
                 fontSize: 14,
               ),
               prefixIcon: Icon(
-                Icons.search_rounded,
+                CupertinoIcons.search,
                 color: colorScheme.primary,
               ),
               filled: true,
@@ -108,7 +109,7 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
                   ? null
                   : IconButton(
                       icon: Icon(
-                        Icons.clear_rounded,
+                        CupertinoIcons.clear,
                         size: 20,
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -235,7 +236,7 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
               onBackgroundImageError: fotoUrl != null ? (_, _) {} : null,
               child: fotoUrl == null
                   ? Icon(
-                      Icons.person_outline_rounded,
+                      CupertinoIcons.person,
                       color: colorScheme.onPrimaryContainer,
                     )
                   : null,
@@ -259,7 +260,7 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
               ),
             ),
             trailing: Icon(
-              Icons.chevron_right_rounded,
+              CupertinoIcons.chevron_right,
               color: colorScheme.primary,
             ),
             onTap: () {
@@ -305,7 +306,7 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
                         selectedFoto != null ? (_, _) {} : null,
                     child: selectedFoto == null
                         ? Icon(
-                            Icons.person,
+                            CupertinoIcons.person,
                             color: colorScheme.onPrimaryContainer,
                           )
                         : null,
@@ -343,7 +344,7 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.refresh_rounded,
+                      CupertinoIcons.refresh,
                       color: colorScheme.onPrimary,
                       size: 18,
                     ),
@@ -489,7 +490,7 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
               Row(
                 children: [
                   Icon(
-                    Icons.event_outlined,
+                    CupertinoIcons.calendar,
                     size: 14,
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -617,7 +618,7 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
               Row(
                 children: [
                   Icon(
-                    Icons.calendar_today_outlined,
+                    CupertinoIcons.calendar_today,
                     size: 13,
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -638,7 +639,7 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
                 Row(
                   children: [
                     Icon(
-                      Icons.person_outline,
+                      CupertinoIcons.person,
                       size: 14,
                       color: colorScheme.onSurfaceVariant,
                     ),
@@ -763,7 +764,7 @@ class _RiwayatAbsensiMuridPageState extends State<RiwayatAbsensiMuridPage> {
       child: Column(
         children: [
           Icon(
-            Icons.history_toggle_off_rounded,
+            CupertinoIcons.clock,
             size: 56,
             color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
           ),

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../providers/student_kalender_provider.dart';
 import '../../utils/format.dart';
+import 'package:flutter/cupertino.dart';
 
 class StudentKalenderPage extends StatefulWidget {
   const StudentKalenderPage({super.key});
@@ -70,15 +71,15 @@ class _StudentKalenderPageState extends State<StudentKalenderPage> {
   IconData _kategoriIcon(String kategori) {
     switch (kategori.toUpperCase()) {
       case 'EFEKTIF':
-        return Icons.check_circle_outline;
+        return CupertinoIcons.check_mark_circled;
       case 'LIBUR':
-        return Icons.holiday_village_outlined;
+        return CupertinoIcons.house;
       case 'UJIAN':
-        return Icons.quiz_outlined;
+        return CupertinoIcons.question_circle;
       case 'KEGIATAN':
-        return Icons.celebration_outlined;
+        return CupertinoIcons.gift;
       default:
-        return Icons.event_outlined;
+        return CupertinoIcons.calendar;
     }
   }
 
@@ -130,7 +131,7 @@ class _StudentKalenderPageState extends State<StudentKalenderPage> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Icon(Icons.date_range, size: 14, color: colorScheme.onSurfaceVariant),
+              Icon(CupertinoIcons.calendar, size: 14, color: colorScheme.onSurfaceVariant),
               const SizedBox(width: 6),
               Text(
                 '$tanggalMulai – $tanggalSelesai',
@@ -156,7 +157,7 @@ class _StudentKalenderPageState extends State<StudentKalenderPage> {
             const SizedBox(height: 4),
             Row(
               children: [
-                Icon(Icons.mosque_outlined, size: 14, color: colorScheme.onSurfaceVariant),
+                Icon(CupertinoIcons.house, size: 14, color: colorScheme.onSurfaceVariant),
                 const SizedBox(width: 6),
                 Text(
                   hijriSelesai != null && hijriSelesai != hijriMulai
@@ -185,7 +186,7 @@ class _StudentKalenderPageState extends State<StudentKalenderPage> {
       alignment: Alignment.center,
       child: Column(
         children: [
-          Icon(Icons.calendar_month_outlined, size: 56, color: colorScheme.onSurfaceVariant.withValues(alpha:0.5)),
+          Icon(CupertinoIcons.calendar, size: 56, color: colorScheme.onSurfaceVariant.withValues(alpha:0.5)),
           const SizedBox(height: 10),
           Text(
             'Belum ada agenda kalender.',

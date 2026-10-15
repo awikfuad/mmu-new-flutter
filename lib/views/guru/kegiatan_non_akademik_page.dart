@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/kegiatan_list_provider.dart';
 import 'presensi_kegiatan_detail_page.dart';
 import 'scan_istighosah_page.dart';
+import 'package:flutter/cupertino.dart';
 
 class KegiatanNonAkademikPage extends StatefulWidget {
   const KegiatanNonAkademikPage({super.key});
@@ -57,7 +58,7 @@ class _KegiatanNonAkademikPageState extends State<KegiatanNonAkademikPage> {
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: colorScheme.secondary,
-                              child: Icon(Icons.star, color: colorScheme.onPrimary),
+                              child: Icon(CupertinoIcons.star, color: colorScheme.onPrimary),
                             ),
                             title: Text(
                               activity['activity_name'] ?? '-',
@@ -73,7 +74,7 @@ class _KegiatanNonAkademikPageState extends State<KegiatanNonAkademikPage> {
                               ],
                             ),
                             trailing: Icon(
-                              Icons.arrow_forward_ios,
+                              CupertinoIcons.forward,
                               size: 16,
                               color: colorScheme.secondary,
                             ),

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/google_signin_button.dart';
 import '../../utils/snackbar_helper.dart';
+import 'package:flutter/cupertino.dart';
 
 /// Halaman "Akun Google" — self-service agar guru/admin menautkan atau
 /// memutuskan tautan akun Google-nya sendiri (mirip menu Profil di web).
@@ -118,11 +119,10 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
 }
 
   Future<void> _confirmUnlink() async {
-    final colorScheme = Theme.of(context).colorScheme;
-    final confirm = await showDialog<bool>(
+    final confirm = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
         title: const Text('Putuskan Tautan Google?'),
         content: Text(
           _googleEmail != null
@@ -131,17 +131,14 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
               : 'Tautan Google akan diputuskan dari akun Anda.',
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Batal'),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colorScheme.error,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Putuskan', style: TextStyle(color: colorScheme.onError)),
+            child: const Text('Putuskan'),
           ),
         ],
       ),
@@ -211,8 +208,8 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
                               ? null
                               : Icon(
                                   _linked
-                                      ? Icons.check_circle_rounded
-                                      : Icons.link_off_rounded,
+                                      ? CupertinoIcons.checkmark_circle
+                                      : CupertinoIcons.link,
                                   size: 32,
                                   color: _linked
                                       ? Colors.green.shade700
@@ -265,7 +262,7 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.info_outline, color: colorScheme.onErrorContainer),
+                          Icon(CupertinoIcons.info_circle, color: colorScheme.onErrorContainer),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
@@ -321,7 +318,7 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
                                     height: 18,
                                     child: CircularProgressIndicator(strokeWidth: 2.5),
                                   )
-                                : const Icon(Icons.g_mobiledata, size: 22),
+                                : const Icon(CupertinoIcons.antenna_radiowaves_left_right, size: 22),
                             label: const Text('Hubungkan Akun Google'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: colorScheme.primary,
@@ -339,7 +336,7 @@ class _AkunGooglePageState extends State<AkunGooglePage> {
                         height: 48,
                         child: OutlinedButton.icon(
                           onPressed: _googleBusy ? null : _confirmUnlink,
-                          icon: const Icon(Icons.link_off, size: 20),
+                          icon: const Icon(CupertinoIcons.link, size: 20),
                           label: const Text('Putuskan Tautan Google'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: colorScheme.error,

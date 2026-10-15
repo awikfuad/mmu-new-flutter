@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import 'package:flutter/cupertino.dart';
 
 /// "Portal Wali + Guru" (v3.40) — pintasan bagi guru/pimpinan yang juga
 /// orang tua: hubungkan akun wali (No HP) lalu masuki portal orang tua
@@ -115,7 +116,7 @@ class _PortalWaliPageState extends State<PortalWaliPage> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.family_restroom_rounded,
+                      Icon(CupertinoIcons.person_3,
                           color: colorScheme.primary),
                       const SizedBox(width: 12),
                       Expanded(
@@ -152,7 +153,7 @@ class _PortalWaliPageState extends State<PortalWaliPage> {
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor: colorScheme.primary.withAlpha(30),
-                        child: Icon(Icons.person_outline_rounded,
+                        child: Icon(CupertinoIcons.person,
                             color: colorScheme.primary),
                       ),
                       title: Text(
@@ -166,14 +167,14 @@ class _PortalWaliPageState extends State<PortalWaliPage> {
                         'No HP: ${parent['phone'] ?? '-'}',
                         style: const TextStyle(fontSize: 12),
                       ),
-                      trailing: const Icon(Icons.check_circle_outline,
+                      trailing: const Icon(CupertinoIcons.check_mark_circled,
                           color: Colors.green),
                     ),
                   ),
                   const SizedBox(height: 16),
                   FilledButton.icon(
                     onPressed: _busy ? null : _enterParentPortal,
-                    icon: const Icon(Icons.swap_horiz_rounded),
+                    icon: const Icon(CupertinoIcons.arrow_left_right),
                     label: Text(_busy ? 'Memproses...' : 'Masuk Portal Wali'),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -185,7 +186,7 @@ class _PortalWaliPageState extends State<PortalWaliPage> {
                   const SizedBox(height: 8),
                   TextButton.icon(
                     onPressed: _busy ? null : _unlinkParent,
-                    icon: const Icon(Icons.link_off_rounded, size: 18),
+                    icon: const Icon(CupertinoIcons.link, size: 18),
                     label: const Text('Putuskan Kaitan Akun Wali'),
                     style: TextButton.styleFrom(
                       foregroundColor: colorScheme.error,
@@ -207,7 +208,7 @@ class _PortalWaliPageState extends State<PortalWaliPage> {
                     decoration: InputDecoration(
                       labelText: 'No HP akun wali',
                       hintText: 'contoh: 0812xxxxxxx',
-                      prefixIcon: const Icon(Icons.phone_outlined),
+                      prefixIcon: const Icon(CupertinoIcons.phone),
                       counterText: '',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -218,7 +219,7 @@ class _PortalWaliPageState extends State<PortalWaliPage> {
                   const SizedBox(height: 16),
                   FilledButton.icon(
                     onPressed: _busy ? null : _linkParent,
-                    icon: const Icon(Icons.link_rounded),
+                    icon: const Icon(CupertinoIcons.link),
                     label: Text(_busy ? 'Memproses...' : 'Hubungkan Akun Wali'),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),

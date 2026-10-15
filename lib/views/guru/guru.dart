@@ -4,7 +4,6 @@ export 'akun_google_page.dart';
 export 'arsip_soalan_page.dart';
 export 'dashboard_page.dart';
 export 'gaji_guru_page.dart';
-export 'guru_piket_page.dart';
 export 'input_nilai_harian_page.dart';
 export 'jadwal_mingguan_page.dart';
 export 'kegiatan_internal_guru_page.dart';

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../providers/riwayat_guru_provider.dart';
 import '../../utils/format.dart';
+import 'package:flutter/cupertino.dart';
 
 class RiwayatAbsensiGuruPage extends StatefulWidget {
   const RiwayatAbsensiGuruPage({super.key});
@@ -105,7 +106,7 @@ class _RiwayatAbsensiGuruPageState extends State<RiwayatAbsensiGuruPage> {
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
-            prefixIcon: Icon(Icons.person_search_rounded, color: colorScheme.primary),
+            prefixIcon: Icon(CupertinoIcons.person_badge_plus, color: colorScheme.primary),
             labelText: 'Pilih Guru / Asatidz',
             labelStyle: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13),
           ),
@@ -213,7 +214,7 @@ class _RiwayatAbsensiGuruPageState extends State<RiwayatAbsensiGuruPage> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.event_outlined, size: 14, color: colorScheme.onSurfaceVariant),
+                  Icon(CupertinoIcons.calendar, size: 14, color: colorScheme.onSurfaceVariant),
                   const SizedBox(width: 6),
                   Text(
                     date,
@@ -298,7 +299,7 @@ class _RiwayatAbsensiGuruPageState extends State<RiwayatAbsensiGuruPage> {
                     ),
                   ),
                   const Spacer(),
-                  Icon(Icons.calendar_today_outlined, size: 13, color: colorScheme.onSurfaceVariant),
+                  Icon(CupertinoIcons.calendar_today, size: 13, color: colorScheme.onSurfaceVariant),
                   const SizedBox(width: 4),
                   Text(
                     date,
@@ -314,7 +315,7 @@ class _RiwayatAbsensiGuruPageState extends State<RiwayatAbsensiGuruPage> {
               const SizedBox(height: 4),
               Row(
                 children: [
-                  Icon(Icons.meeting_room_outlined, size: 14, color: colorScheme.onSurfaceVariant),
+                  Icon(CupertinoIcons.house_alt, size: 14, color: colorScheme.onSurfaceVariant),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
@@ -402,7 +403,7 @@ class _RiwayatAbsensiGuruPageState extends State<RiwayatAbsensiGuruPage> {
       alignment: Alignment.center,
       child: Column(
         children: [
-          Icon(Icons.history_toggle_off_rounded, size: 56, color: colorScheme.onSurfaceVariant.withValues(alpha:0.5)),
+          Icon(CupertinoIcons.clock, size: 56, color: colorScheme.onSurfaceVariant.withValues(alpha:0.5)),
           const SizedBox(height: 12),
           Text(
             message,

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/input_nilai_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import 'package:flutter/cupertino.dart';
 
 class InputNilaiHarianPage extends StatelessWidget {
   final int scheduleId;
@@ -132,7 +133,7 @@ class _InputNilaiBody extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.error_outline,
+                      Icon(CupertinoIcons.exclamationmark_circle,
                           size: 48,
                           color: colorScheme.error.withAlpha(153)),
                       const SizedBox(height: 8),

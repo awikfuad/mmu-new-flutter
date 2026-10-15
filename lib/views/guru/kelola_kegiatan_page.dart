@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/kelola_kegiatan_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import '../../utils/cupertino_sheet.dart';
+import 'package:flutter/cupertino.dart';
 
 class KelolaKegiatanPage extends StatelessWidget {
   const KelolaKegiatanPage({super.key});
@@ -42,10 +44,8 @@ class _KelolaKegiatanBody extends StatelessWidget {
   }
 
   Future<void> _openForm(BuildContext context, {Map? existing}) async {
-    final saved = await showModalBottomSheet<bool>(
+    final saved = await showCupertinoBottomSheet<bool>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (_) => _KegiatanForm(
         existing: existing,
         provider: context.read<KelolaKegiatanProvider>(),
@@ -117,7 +117,7 @@ class _KelolaKegiatanBody extends StatelessWidget {
                               const SizedBox(height: 6),
                               Row(
                                 children: [
-                                  Icon(Icons.event_outlined, size: 15, color: colorScheme.primary),
+                                  Icon(CupertinoIcons.calendar, size: 15, color: colorScheme.primary),
                                   const SizedBox(width: 4),
                                   Text(
                                     _humanDate('${k['activity_date'] ?? ''}'),
@@ -137,7 +137,7 @@ class _KelolaKegiatanBody extends StatelessWidget {
                               const SizedBox(height: 6),
                               Row(
                                 children: [
-                                  Icon(Icons.storefront_outlined, size: 13, color: colorScheme.onSurfaceVariant),
+                                  Icon(CupertinoIcons.bag, size: 13, color: colorScheme.onSurfaceVariant),
                                   const SizedBox(width: 4),
                                   Text(
                                     'Lembaga: ${k['lembaga'] ?? 'ALL'}',
@@ -145,7 +145,7 @@ class _KelolaKegiatanBody extends StatelessWidget {
                                   ),
                                   const Spacer(),
                                   PopupMenuButton<String>(
-                                    icon: Icon(Icons.more_vert, size: 18, color: colorScheme.onSurfaceVariant),
+                                    icon: Icon(CupertinoIcons.ellipsis_vertical, size: 18, color: colorScheme.onSurfaceVariant),
                                     onSelected: (v) async {
                                       if (v == 'edit') {
                                         if (context.mounted) {
@@ -183,22 +183,26 @@ class _KelolaKegiatanBody extends StatelessWidget {
         onPressed: () => _openForm(context),
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
-        icon: const Icon(Icons.add_box_outlined),
+        icon: const Icon(CupertinoIcons.plus_circle),
         label: const Text('Kegiatan'),
       ),
     );
   }
 
   Future<bool?> _confirmDelete(BuildContext context) {
-    return showDialog<bool>(
+    return showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
         title: const Text('Hapus Kegiatan'),
         content: const Text('Kegiatan akan dihapus permanen beserta data presensinya. Lanjutkan?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Hapus'),
           ),
@@ -213,7 +217,7 @@ class _KelolaKegiatanBody extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.event_note_outlined, size: 48, color: colorScheme.outline),
+          Icon(CupertinoIcons.calendar, size: 48, color: colorScheme.outline),
           const SizedBox(height: 10),
           Text('Belum ada kegiatan', style: TextStyle(color: colorScheme.onSurfaceVariant)),
         ],
@@ -334,7 +338,7 @@ class _KegiatanFormState extends State<_KegiatanForm> {
                 Text(isEdit ? 'Edit Kegiatan' : 'Kegiatan Baru',
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
                 const Spacer(),
-                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
+                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(CupertinoIcons.xmark)),
               ],
             ),
             const SizedBox(height: 4),
@@ -351,7 +355,7 @@ class _KegiatanFormState extends State<_KegiatanForm> {
                 decoration: const InputDecoration(labelText: 'Tanggal Pelaksanaan *', border: OutlineInputBorder()),
                 child: Row(
                   children: [
-                    Icon(Icons.calendar_today_outlined, size: 16, color: colorScheme.primary),
+                    Icon(CupertinoIcons.calendar_today, size: 16, color: colorScheme.primary),
                     const SizedBox(width: 6),
                     Text(
                       _tanggal.isEmpty ? 'Pilih Tanggal' : _tanggal,

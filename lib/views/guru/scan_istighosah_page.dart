@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import '../../providers/scan_istighosah_provider.dart';
+import 'package:flutter/cupertino.dart';
 
 class ScanIstighosahPage extends StatelessWidget {
   final int activityId;
@@ -78,12 +79,12 @@ class _ScanIstighosahBodyState extends State<_ScanIstighosahBody> {
     required String message,
     required bool isSuccess,
   }) {
-    showDialog(
+    showCupertinoDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
         final dialogColorScheme = Theme.of(context).colorScheme;
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: Text(
             title,
             textAlign: TextAlign.center,
@@ -94,18 +95,16 @@ class _ScanIstighosahBodyState extends State<_ScanIstighosahBody> {
           ),
           content: Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 15)),
           actions: [
-            ElevatedButton(
+            CupertinoDialogAction(
+              isDefaultAction: true,
               onPressed: () {
                 Navigator.pop(context);
                 context.read<ScanIstighosahProvider>().resetResult();
                 _scannerController.start();
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isSuccess ? dialogColorScheme.primary : dialogColorScheme.error,
-              ),
-              child: Text(
+              child: const Text(
                 'SCAN BERIKUTNYA',
-                style: TextStyle(color: dialogColorScheme.onPrimary, fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
             )
           ],
@@ -140,7 +139,7 @@ class _ScanIstighosahBodyState extends State<_ScanIstighosahBody> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.videocam_off, size: 64, color: colorScheme.error),
+                      Icon(CupertinoIcons.videocam, size: 64, color: colorScheme.error),
                       const SizedBox(height: 16),
                       Text(
                         'Gagal Membuka Kamera: ${error.errorCode}',

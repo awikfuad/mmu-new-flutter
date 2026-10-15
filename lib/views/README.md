@@ -11,7 +11,6 @@ lib/views/
 ├── guru/        # Role admin & teacher (E-Presensi Asatidz)
 │   ├── dashboard_page.dart
 │   ├── presensi_saya_page.dart + presensi_kelas_page.dart
-│   ├── guru_piket_page.dart
 │   ├── kegiatan_non_akademik_page.dart + presensi_kegiatan_detail_page.dart
 │   ├── kegiatan_internal_guru_page.dart + presensi_kegiatan_guru_detail_page.dart
 │   ├── riwayat_absensi_guru_page.dart + riwayat_absensi_murid_page.dart

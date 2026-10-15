@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../providers/theme_provider.dart';
+import 'package:flutter/cupertino.dart';
 
 
 class ThemeSelectorDialog extends StatelessWidget {
@@ -16,18 +17,20 @@ class ThemeSelectorDialog extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      clipBehavior: Clip.antiAlias,
-      child: Container(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.8,
-          maxWidth: 400,
-        ),
-        color: theme.dialogTheme.backgroundColor,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+    return CupertinoPopupSurface(
+      isSurfacePainted: true,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Material(
+          color: theme.dialogTheme.backgroundColor ?? colorScheme.surface,
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+              maxWidth: 400,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
             // 1. HEADER (STICKY ATAS)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -41,7 +44,7 @@ class ThemeSelectorDialog extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.palette_outlined, color: colorScheme.primary),
+                  Icon(CupertinoIcons.paintbrush, color: colorScheme.primary),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -52,7 +55,7 @@ class ThemeSelectorDialog extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded, size: 20),
+                    icon: const Icon(CupertinoIcons.xmark, size: 20),
                     onPressed: () => Navigator.pop(context),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
@@ -85,7 +88,7 @@ class ThemeSelectorDialog extends StatelessWidget {
   segments: const [
     ButtonSegment(
       value: ThemeMode.system,
-      icon: Icon(Icons.brightness_auto, size: 16),
+      icon: Icon(CupertinoIcons.brightness, size: 16),
       label: FittedBox(
         fit: BoxFit.scaleDown,
         child: Text('Sistem', style: TextStyle(fontSize: 12)),
@@ -93,7 +96,7 @@ class ThemeSelectorDialog extends StatelessWidget {
     ),
     ButtonSegment(
       value: ThemeMode.light,
-      icon: Icon(Icons.light_mode, size: 16),
+      icon: Icon(CupertinoIcons.sun_max, size: 16),
       label: FittedBox(
         fit: BoxFit.scaleDown,
         child: Text('Terang', style: TextStyle(fontSize: 12)),
@@ -101,7 +104,7 @@ class ThemeSelectorDialog extends StatelessWidget {
     ),
     ButtonSegment(
       value: ThemeMode.dark,
-      icon: Icon(Icons.dark_mode, size: 16),
+      icon: Icon(CupertinoIcons.moon, size: 16),
       label: FittedBox(
         fit: BoxFit.scaleDown,
         child: Text('Gelap', style: TextStyle(fontSize: 12)),
@@ -157,7 +160,7 @@ class ThemeSelectorDialog extends StatelessWidget {
                             ),
                             child: isSelected
                                 ? const Icon(
-                                    Icons.check_rounded,
+                                    CupertinoIcons.checkmark,
                                     color: Colors.white,
                                     size: 22,
                                   )
@@ -198,6 +201,8 @@ class ThemeSelectorDialog extends StatelessWidget {
               ),
             ),
           ],
+            ),
+          ),
         ),
       ),
     );

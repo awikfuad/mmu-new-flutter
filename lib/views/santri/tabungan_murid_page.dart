@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../providers/pembayaran_provider.dart';
 import '../../utils/format.dart';
+import 'package:flutter/cupertino.dart';
 
 class TabunganMuridPage extends StatefulWidget {
   const TabunganMuridPage({super.key});
@@ -23,13 +24,11 @@ class _TabunganMuridPageState extends State<TabunganMuridPage> {
   //   }
   // }
 Future<void> _openBayar() async {
-    showDialog(
+    showCupertinoDialog(
       context: context,
+      barrierDismissible: true,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+        return CupertinoAlertDialog(
           title: const Text(
             'Informasi Pembayaran',
             style: TextStyle(fontWeight: FontWeight.bold),
@@ -38,7 +37,7 @@ Future<void> _openBayar() async {
             'Pembayaran tidak dapat dilakukan, Masuk ke portal wali murid Untuk pembayaran',
           ),
           actions: [
-            TextButton(
+            CupertinoDialogAction(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('OK'),
             ),
@@ -69,7 +68,7 @@ Future<void> _openBayar() async {
               backgroundColor: colorScheme.secondary,
               foregroundColor: colorScheme.onSecondary,
               elevation: 4,
-              icon: const Icon(Icons.payments_outlined),
+              icon: const Icon(CupertinoIcons.creditcard),
               label: const Text(
                 'Bayar dari Tabungan',
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -93,7 +92,7 @@ Future<void> _openBayar() async {
                                 'Total Setoran',
                                 formatRp(provider.totalSetoran),
                                 colorScheme.primary,
-                                Icons.wallet_outlined,
+                                CupertinoIcons.creditcard,
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -102,7 +101,7 @@ Future<void> _openBayar() async {
                                 'Total Penarikan',
                                 formatRp(provider.totalPenarikan),
                                 colorScheme.error,
-                                Icons.wallet_outlined,
+                                CupertinoIcons.creditcard,
                               ),
                             ),
                           ],
@@ -124,7 +123,7 @@ Future<void> _openBayar() async {
                             child: Column(
                               children: [
                                 Icon(
-                                  Icons.inbox_outlined,
+                                  CupertinoIcons.tray,
                                   size: 48,
                                   color: colorScheme.onSurfaceVariant
                                       .withValues(alpha:0.5),
@@ -268,7 +267,7 @@ Future<void> _openBayar() async {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              isSetoran ? Icons.wallet_outlined : Icons.money_off,
+              isSetoran ? CupertinoIcons.creditcard : CupertinoIcons.money_dollar,
               color: color,
               size: 20,
             ),

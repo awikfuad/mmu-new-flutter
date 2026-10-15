@@ -4,7 +4,7 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- Izinkan HTTP (mis. http://10.0.2.2:5000 utk tes backend lokal) —
+    <!-- Izinkan HTTP (mis. http://10.0.2.2:5000 utk tes backend lokal) -
          hanya berlaku di build DEBUG, release tetap HTTPS-only. -->
     <application android:usesCleartextTraffic="true" />
 </manifest>

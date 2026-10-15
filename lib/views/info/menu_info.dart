@@ -9,6 +9,7 @@ import '../../utils/snackbar_helper.dart';
 import '../../theme/theme_selector_dialog.dart';
 import '../guru/akun_google_page.dart';
 import 'ganti_password_page.dart';
+import 'package:flutter/cupertino.dart';
 
 class AboutAppPage extends StatefulWidget {
   const AboutAppPage({super.key});
@@ -53,12 +54,13 @@ class _AboutAppPageState extends State<AboutAppPage> {
     }
   }
 
-  /// Aktifkan login sidik jari: verifikasi sidik jari + minta password akun
-  /// utk disimpan sebagai kredensial auto-login (mode = role saat ini).
+  /// Aktifkan login sidik jari. Password diambil otomatis dari sesi login yang
+  /// sedang aktif (tanpa meminta input ulang) dan memakai kunci perangkat yang
+  /// sudah terdaftar di sistem — tidak ada proses pendaftaran sidik jari baru.
   Future<void> _enableFingerprint(BiometricProvider bio) async {
     final auth = context.read<AuthProvider>();
     if (!bio.canCheckBiometrics) {
-      showErrorSnackBar(context, 'Perangkat Anda tidak mendukung sidik jari / belum terdaftar.');
+      showErrorSnackBar(context, 'Perangkat Anda tidak mendukung sidik jari / kunci layar.');
       return;
     }
 
@@ -68,9 +70,77 @@ class _AboutAppPageState extends State<AboutAppPage> {
       return;
     }
 
+    // Password dari sesi login aktif → aktifkan tanpa meminta input lagi.
+    final sessionPassword = auth.lastLoginPassword;
+    if (sessionPassword != null && sessionPassword.isNotEmpty) {
+      final confirmed = await _confirmEnableFingerprint();
+      if (confirmed != true) return;
+      await bio.saveCredentials(
+        username: identifier,
+        password: sessionPassword,
+        loginMode: _loginMode(auth),
+      );
+      if (mounted) showSuccessSnackBar(context, 'Login sidik jari berhasil diaktifkan.');
+      return;
+    }
+
+    // Fallback: sesi dipulihkan tanpa password (restore) / login Google.
+    await _enableFingerprintWithPassword(bio, auth, identifier);
+  }
+
+  /// Konfirmasi ringkas sebelum mengaktifkan login sidik jari.
+  Future<bool?> _confirmEnableFingerprint() {
+    final cs = Theme.of(context).colorScheme;
+    return showCupertinoDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(CupertinoIcons.lock, color: cs.primary, size: 28),
+            const SizedBox(width: 10),
+            const Text('Aktifkan Login Sidik Jari'),
+          ],
+        ),
+        content: const Text(
+          'Login berikutnya bisa memakai sidik jari / PIN kunci layar perangkat '
+          'Anda (yang sudah terdaftar di sistem). Tidak perlu mendaftar sidik '
+          'jari baru.',
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Batal'),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Aktifkan'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Fallback saat password sesi tidak tersedia (sesi dipulihkan / login Google):
+  /// minta password akun sekali untuk disimpan sebagai kredensial auto-login.
+  Future<void> _enableFingerprintWithPassword(
+    BiometricProvider bio,
+    AuthProvider auth,
+    String identifier,
+  ) async {
+    // Login via Google tidak punya password lokal → tidak bisa pakai kredensial.
+    final role = auth.userRole;
+    final canHavePassword = role == 'admin' || role == 'teacher' || role == 'user' || role == 'parent';
+    if (!canHavePassword) {
+      showErrorSnackBar(context, 'Login sidik jari tidak tersedia untuk akun ini.');
+      return;
+    }
+
     final cs = Theme.of(context).colorScheme;
     final controller = TextEditingController();
-    final submitted = await showDialog<bool>(
+    final submitted = await showCupertinoDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => StatefulBuilder(
@@ -84,12 +154,10 @@ class _AboutAppPageState extends State<AboutAppPage> {
             });
             FocusScope.of(ctx).unfocus();
 
-            // Verifikasi sidik jari pengguna perangkat dulu.
-            final verified = await bio.verifyFingerprint();
-            if (!verified) {
+            if (controller.text.isEmpty) {
               setDialogState(() {
                 loading = false;
-                errorText = 'Verifikasi sidik jari gagal / dibatalkan.';
+                errorText = 'Password akun wajib diisi.';
               });
               return;
             }
@@ -104,13 +172,11 @@ class _AboutAppPageState extends State<AboutAppPage> {
             if (ctx.mounted) Navigator.of(ctx).pop(true);
           }
 
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
+          return CupertinoAlertDialog(
             title: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.fingerprint, color: cs.primary, size: 28),
+                Icon(CupertinoIcons.lock, color: cs.primary, size: 28),
                 const SizedBox(width: 10),
                 const Text('Aktifkan Login Sidik Jari'),
               ],
@@ -128,12 +194,12 @@ class _AboutAppPageState extends State<AboutAppPage> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.info_outline, size: 20, color: cs.primary),
+                      Icon(CupertinoIcons.info_circle, size: 20, color: cs.primary),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Masukkan password akun untuk disimpan sebagai '
-                          'kredensial login otomatis, lalu pindai sidik jari Anda.',
+                          'Masukkan password akun sekali untuk disimpan sebagai '
+                          'kredensial login otomatis memakai sidik jari perangkat.',
                           style: TextStyle(fontSize: 13, color: cs.onPrimaryContainer),
                         ),
                       ),
@@ -164,20 +230,28 @@ class _AboutAppPageState extends State<AboutAppPage> {
               ],
             ),
             actions: [
-              TextButton(
+              CupertinoDialogAction(
                 onPressed: loading ? null : () => Navigator.of(ctx).pop(false),
                 child: const Text('Batal'),
               ),
-              FilledButton.icon(
+              CupertinoDialogAction(
+                isDefaultAction: true,
                 onPressed: loading ? null : request,
-                icon: loading
-                    ? const SizedBox(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (loading)
+                      const SizedBox(
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.fingerprint),
-                label: Text(loading ? 'Memverifikasi...' : 'Pindai & Simpan'),
+                    else
+                      const Icon(CupertinoIcons.lock, size: 18),
+                    const SizedBox(width: 6),
+                    Text(loading ? 'Menyimpan...' : 'Simpan'),
+                  ],
+                ),
               ),
             ],
           );
@@ -193,13 +267,14 @@ class _AboutAppPageState extends State<AboutAppPage> {
 
   Future<void> _disableFingerprint(BiometricProvider bio) async {
     final cs = Theme.of(context).colorScheme;
-    final confirm = await showDialog<bool>(
+    final confirm = await showCupertinoDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      barrierDismissible: true,
+      builder: (ctx) => CupertinoAlertDialog(
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.fingerprint, color: cs.primary, size: 28),
+            Icon(CupertinoIcons.lock, color: cs.primary, size: 28),
             const SizedBox(width: 10),
             const Text('Nonaktifkan Login Sidik Jari?'),
           ],
@@ -209,12 +284,12 @@ class _AboutAppPageState extends State<AboutAppPage> {
           'Anda harus login manual memakai password di lain waktu.',
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: const Text('Batal'),
           ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: cs.error),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('Nonaktifkan'),
           ),
@@ -303,7 +378,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
                                 height: 60,
                                 fit: BoxFit.contain,
                                 errorBuilder: (context, error, stackTrace) => Icon(
-                                  Icons.school_rounded,
+                                  CupertinoIcons.book,
                                   size: 60,
                                   color: colorScheme.primary,
                                 ),
@@ -387,7 +462,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor: colorScheme.primary.withAlpha(30),
-                        child: Icon(Icons.lock_reset, color: colorScheme.primary),
+                        child: Icon(CupertinoIcons.lock_rotation, color: colorScheme.primary),
                       ),
                       title: const Text(
                         'Ganti Password',
@@ -397,7 +472,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
                         'Perbarui password akun dengan kriteria yang kuat',
                         style: TextStyle(fontSize: 12),
                       ),
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: const Icon(CupertinoIcons.chevron_right),
                       onTap: _openGantiPassword,
                     ),
                   ),
@@ -416,7 +491,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor: colorScheme.primary.withAlpha(30),
-                        child: Icon(Icons.g_mobiledata, color: colorScheme.primary),
+                        child: Icon(CupertinoIcons.antenna_radiowaves_left_right, color: colorScheme.primary),
                       ),
                       title: const Text(
                         'Akun Google',
@@ -426,7 +501,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
                         'Tautkan akun Google untuk kemudahan login',
                         style: TextStyle(fontSize: 12),
                       ),
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: const Icon(CupertinoIcons.chevron_right),
                       onTap: () {
                         Navigator.push(
                           context,
@@ -452,7 +527,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
                     child: SwitchListTile.adaptive(
                       secondary: CircleAvatar(
                         backgroundColor: colorScheme.primary.withAlpha(30),
-                        child: Icon(Icons.fingerprint, color: colorScheme.primary),
+                        child: Icon(CupertinoIcons.lock, color: colorScheme.primary),
                       ),
                       title: const Text(
                         'Login Sidik Jari',
@@ -460,10 +535,10 @@ class _AboutAppPageState extends State<AboutAppPage> {
                       ),
                       subtitle: Text(
                         bio.isBiometricEnabled
-                            ? 'Aktif — login otomatis memakai sidik jari'
+                            ? 'Aktif — login otomatis memakai sidik jari / kunci layar'
                             : bio.canCheckBiometrics
-                                ? 'Login lokal lebih cepat memakai sidik jari'
-                                : 'Perangkat belum mendukung sidik jari',
+                                ? 'Login lokal lebih cepat memakai sidik jari / PIN perangkat'
+                                : 'Perangkat belum mendukung sidik jari / kunci layar',
                         style: const TextStyle(fontSize: 12),
                       ),
                       value: bio.isBiometricEnabled,
@@ -493,7 +568,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor: colorScheme.primary.withAlpha(30),
-                        child: Icon(Icons.palette_outlined, color: colorScheme.primary),
+                        child: Icon(CupertinoIcons.paintbrush, color: colorScheme.primary),
                       ),
                       title: const Text(
                         'Tema & Warna Aplikasi',
@@ -503,9 +578,9 @@ class _AboutAppPageState extends State<AboutAppPage> {
                         'Pilih tema dan warna yang sesuai dengan preferensimu',
                         style: TextStyle(fontSize: 12),
                       ),
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: const Icon(CupertinoIcons.chevron_right),
                       onTap: () {
-                        showDialog(
+                        showCupertinoDialog(
                           context: context,
                           builder: (_) => ThemeSelectorDialog(themeProvider: themeProvider),
                         );
@@ -537,13 +612,13 @@ class _AboutAppPageState extends State<AboutAppPage> {
                           leading: const CircleAvatar(
                             backgroundColor: Color(0x22128C7E),
                             child: Icon(
-                              Icons.chat_bubble_outline_rounded,
+                              CupertinoIcons.chat_bubble,
                               color: Color(0xFF128C7E),
                             ),
                           ),
                           title: const Text('Saluran WhatsApp MMU A44'),
                           subtitle: const Text('Pusat informasi & pengumuman'),
-                          trailing: const Icon(Icons.open_in_new, size: 18),
+                          trailing: const Icon(CupertinoIcons.arrow_up_right_square, size: 18),
                           onTap: () => _launchURL(
                             context,
                             'https://whatsapp.com/channel/0029VbCQjOtCXC3H0T0s7o2a',
@@ -554,13 +629,13 @@ class _AboutAppPageState extends State<AboutAppPage> {
                           leading: const CircleAvatar(
                             backgroundColor: Color(0x22C13584),
                             child: Icon(
-                              Icons.camera_alt_outlined,
+                              CupertinoIcons.camera,
                               color: Color(0xFFC13584),
                             ),
                           ),
                           title: const Text('Instagram Resmi'),
                           subtitle: const Text('@mmua44warungdowo'),
-                          trailing: const Icon(Icons.open_in_new, size: 18),
+                          trailing: const Icon(CupertinoIcons.arrow_up_right_square, size: 18),
                           onTap: () => _launchURL(
                             context,
                             'https://www.instagram.com/mmua44warungdowo/',
@@ -571,13 +646,13 @@ class _AboutAppPageState extends State<AboutAppPage> {
                           leading: const CircleAvatar(
                             backgroundColor: Color(0x22C4302B),
                             child: Icon(
-                              Icons.play_circle_outline_rounded,
+                              CupertinoIcons.play_circle,
                               color: Color(0xFFC4302B),
                             ),
                           ),
                           title: const Text('MMU A44 TV'),
                           subtitle: const Text('Saluran YouTube Resmi'),
-                          trailing: const Icon(Icons.open_in_new, size: 18),
+                          trailing: const Icon(CupertinoIcons.arrow_up_right_square, size: 18),
                           onTap: () => _launchURL(
                             context,
                             'https://youtube.com/@mmua44',

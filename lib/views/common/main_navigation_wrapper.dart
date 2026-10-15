@@ -5,6 +5,7 @@ import '../guru/riwayat_absensi_guru_page.dart';
 import '../guru/riwayat_absensi_murid_page.dart';
 import '../info/menu_info.dart';
 import '../../utils/snackbar_helper.dart';
+import 'package:flutter/cupertino.dart';
 
 
 class MainNavigationWrapper extends StatefulWidget {
@@ -76,33 +77,33 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             indicatorColor: theme.colorScheme.primaryContainer,
             destinations: [
               NavigationDestination(
-                icon: const Icon(Icons.grid_view_outlined),
+                icon: const Icon(CupertinoIcons.square_grid_2x2),
                 selectedIcon: Icon(
-                  Icons.grid_view_rounded,
+                  CupertinoIcons.square_grid_2x2,
                   color: theme.colorScheme.primary,
                 ),
                 label: 'Beranda',
               ),
               NavigationDestination(
-                icon: const Icon(Icons.history_outlined),
+                icon: const Icon(CupertinoIcons.clock),
                 selectedIcon: Icon(
-                  Icons.history_rounded,
+                  CupertinoIcons.clock,
                   color: theme.colorScheme.primary,
                 ),
                 label: 'Riwayat Guru',
               ),
               NavigationDestination(
-                icon: const Icon(Icons.person_search_outlined),
+                icon: const Icon(CupertinoIcons.person_badge_plus),
                 selectedIcon: Icon(
-                  Icons.person_search_rounded,
+                  CupertinoIcons.person_badge_plus,
                   color: theme.colorScheme.primary,
                 ),
                 label: 'Siswa',
               ),
               NavigationDestination(
-                icon: const Icon(Icons.settings_outlined),
+                icon: const Icon(CupertinoIcons.gear),
                 selectedIcon: Icon(
-                  Icons.settings_rounded,
+                  CupertinoIcons.gear,
                   color: theme.colorScheme.primary,
                 ),
                 label: 'Pengaturan',

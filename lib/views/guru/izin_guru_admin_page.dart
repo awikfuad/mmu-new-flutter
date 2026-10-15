@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/izin_guru_admin_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import '../../utils/cupertino_sheet.dart';
+import 'package:flutter/cupertino.dart';
 
 class IzinGuruAdminPage extends StatelessWidget {
   const IzinGuruAdminPage({super.key});
@@ -131,7 +133,7 @@ class _IzinGuruListBody extends StatelessWidget {
                                       const SizedBox(height: 6),
                                       Row(
                                         children: [
-                                          Icon(Icons.date_range_outlined, size: 14, color: colorScheme.onSurfaceVariant),
+                                          Icon(CupertinoIcons.calendar, size: 14, color: colorScheme.onSurfaceVariant),
                                           const SizedBox(width: 4),
                                           Expanded(
                                             child: Text(
@@ -168,7 +170,7 @@ class _IzinGuruListBody extends StatelessWidget {
         onPressed: () => _openCreateForm(context),
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
-        icon: const Icon(Icons.add),
+        icon: const Icon(CupertinoIcons.add),
         label: const Text('Buat Izin'),
       ),
     );
@@ -178,10 +180,8 @@ class _IzinGuruListBody extends StatelessWidget {
     final pr = context.read<IzinGuruAdminProvider>();
     await pr.fetchTeachers();
     if (!context.mounted) return;
-    final created = await showModalBottomSheet<bool>(
+    final created = await showCupertinoBottomSheet<bool>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (_) => ChangeNotifierProvider.value(
         value: pr,
         child: _IzinGuruForm(teachers: pr.teachers),
@@ -222,7 +222,7 @@ class _IzinGuruListBody extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.fact_check_outlined, size: 48, color: colorScheme.outline),
+          Icon(CupertinoIcons.checkmark_shield, size: 48, color: colorScheme.outline),
           const SizedBox(height: 10),
           Text('Belum ada catatan izin guru', style: TextStyle(color: colorScheme.onSurfaceVariant)),
         ],
@@ -331,7 +331,7 @@ class _IzinGuruFormState extends State<_IzinGuruForm> {
                 Text('Catatan Izin Guru Baru',
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
                 const Spacer(),
-                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
+                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(CupertinoIcons.xmark)),
               ],
             ),
             const SizedBox(height: 4),
@@ -404,7 +404,7 @@ class _IzinGuruFormState extends State<_IzinGuruForm> {
         decoration: InputDecoration(labelText: label, border: OutlineInputBorder(), contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12)),
         child: Row(
           children: [
-            Icon(Icons.calendar_today_outlined, size: 16, color: colorScheme.primary),
+            Icon(CupertinoIcons.calendar_today, size: 16, color: colorScheme.primary),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
@@ -474,14 +474,22 @@ class _IzinGuruDetailPageState extends State<_IzinGuruDetailPage> {
 
   Future<void> _finish() async {
     final pr = context.read<IzinGuruAdminProvider>();
-    final confirm = await showDialog<bool>(
+    final confirm = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
         title: const Text('Tandai Selesai'),
         content: const Text('Izin akan ditandai SELESAI dan penunjukan badal akan dibersihkan. Lanjutkan?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Selesai')),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Selesai'),
+          ),
         ],
       ),
     );
@@ -588,7 +596,7 @@ class _IzinGuruDetailPageState extends State<_IzinGuruDetailPage> {
               onPressed: provider.isSaving ? null : _finish,
               backgroundColor: colorScheme.primary,
               foregroundColor: colorScheme.onPrimary,
-              icon: const Icon(Icons.done_all),
+              icon: const Icon(CupertinoIcons.checkmark_rectangle),
               label: const Text('Tandai Selesai'),
             )
           : null,
@@ -667,7 +675,7 @@ class _IzinGuruDetailPageState extends State<_IzinGuruDetailPage> {
                 decoration: InputDecoration(
                   labelText: 'Guru Pengganti (Badal)',
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                  prefixIcon: const Icon(Icons.person_add_alt, size: 20),
+                  prefixIcon: const Icon(CupertinoIcons.person_add, size: 20),
                 ),
                 items: [
                   const DropdownMenuItem<int?>(value: null, child: Text('— Tanpa badal —')),

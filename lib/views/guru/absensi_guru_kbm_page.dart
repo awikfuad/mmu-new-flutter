@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/absensi_guru_kbm_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import 'package:flutter/cupertino.dart';
 
 class AbsensiGuruKbmPage extends StatelessWidget {
   const AbsensiGuruKbmPage({super.key});
@@ -110,7 +111,7 @@ class _AbsensiGuruKbmBody extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.calendar_today_outlined, color: colorScheme.primary, size: 20),
+                    Icon(CupertinoIcons.calendar_today, color: colorScheme.primary, size: 20),
                     const SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,7 +127,7 @@ class _AbsensiGuruKbmBody extends StatelessWidget {
                       ],
                     ),
                     const Spacer(),
-                    Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
+                    Icon(CupertinoIcons.chevron_right, color: colorScheme.onSurfaceVariant),
                   ],
                 ),
               ),
@@ -215,7 +216,7 @@ class _AbsensiGuruKbmBody extends StatelessWidget {
                                     const SizedBox(height: 6),
                                     Row(
                                       children: [
-                                        Icon(Icons.person_outline, size: 16, color: colorScheme.onSurfaceVariant),
+                                        Icon(CupertinoIcons.person, size: 16, color: colorScheme.onSurfaceVariant),
                                         const SizedBox(width: 6),
                                         Expanded(
                                           child: Text(
@@ -289,7 +290,7 @@ class _AbsensiGuruKbmBody extends StatelessWidget {
               foregroundColor: colorScheme.onPrimary,
               icon: provider.isSaving
                   ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Icon(Icons.save_outlined),
+                  : const Icon(CupertinoIcons.floppy_disk),
               label: Text(provider.isSaving ? 'Menyimpan...' : 'Simpan Absensi'),
             ),
     );
@@ -332,7 +333,7 @@ class _AbsensiGuruKbmBody extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.event_busy_outlined, size: 48, color: colorScheme.outline),
+          Icon(CupertinoIcons.calendar_badge_minus, size: 48, color: colorScheme.outline),
           const SizedBox(height: 10),
           Text(
             'Tidak ada jadwal mengajar di tanggal ini',

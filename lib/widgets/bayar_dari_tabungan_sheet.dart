@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import '../utils/cupertino_sheet.dart';
 import '../data/api/api_service.dart';
 import '../utils/snackbar_helper.dart';
 
@@ -7,13 +8,8 @@ import '../utils/snackbar_helper.dart';
 /// [childNim] diisi saat dipanggil dari portal orang tua → endpoint parent.
 /// Mengembalikan `true` jika pembayaran berhasil.
 Future<bool?> showBayarDariTabunganSheet(BuildContext context, {String? childNim}) {
-  return showModalBottomSheet<bool>(
+  return showCupertinoBottomSheet<bool>(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
     builder: (context) => _BayarDariTabunganSheet(childNim: childNim),
   );
 }

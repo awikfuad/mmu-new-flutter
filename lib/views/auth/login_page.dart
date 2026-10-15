@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/biometric_provider.dart';
 import '../../utils/google_signin_button.dart';
 import '../../utils/snackbar_helper.dart';
+import 'package:flutter/cupertino.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -172,8 +173,25 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     if (success) {
       final msg = auth.successMessage ?? 'Login Biometrik Berhasil';
       showSuccessSnackBar(context, msg, duration: const Duration(seconds: 1));
+    } else if (auth.lastLoginAuthFailed) {
+      // Password tersimpan sudah tidak valid (mis. diganti dari perangkat lain).
+      // Bersihkan agar tidak gagal berulang, lalu pandu aktifkan ulang.
+      await bio.clearCredentials();
+      if (!mounted) return;
+      setState(() {
+        _usernameController.text = username;
+        _loginMode = mode;
+      });
+      _showLoginError(
+        'Login sidik jari gagal — password akun mungkin sudah berubah.\n'
+        'Silakan masukkan password terbaru, lalu aktifkan ulang sidik jari di '
+        'Pengaturan → Tentang Aplikasi.',
+      );
     } else {
-      _showLoginError('Gagal login otomatis. Silakan ketik ulang password Anda.');
+      _showLoginError(
+        auth.errorMessage ??
+            'Gagal login otomatis. Silakan ketik ulang password Anda.',
+      );
     }
   }
 
@@ -183,13 +201,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     String modeName,
   ) async {
     final cs = Theme.of(context).colorScheme;
-    final enable = await showDialog<bool>(
+    final enable = await showCupertinoDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      barrierDismissible: true,
+      builder: (ctx) => CupertinoAlertDialog(
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.fingerprint_rounded, color: cs.primary, size: 28),
+            Icon(CupertinoIcons.lock, color: cs.primary, size: 28),
             const SizedBox(width: 10),
             const Text('Aktifkan Biometrik?'),
           ],
@@ -198,11 +217,12 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           'Apakah Anda ingin mengaktifkan login Sidik Jari / Biometrik untuk masuk lebih cepat di lain waktu?',
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(ctx, false),
             child: const Text('Nanti Saja'),
           ),
-          FilledButton(
+          CupertinoDialogAction(
+            isDefaultAction: true,
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Aktifkan'),
           ),
@@ -221,20 +241,22 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   void _showLoginError(String? message) {
     final cs = Theme.of(context).colorScheme;
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline_rounded, color: cs.error, size: 28),
+            Icon(CupertinoIcons.exclamationmark_circle, color: cs.error, size: 28),
             const SizedBox(width: 10),
             const Text('Login Gagal'),
           ],
         ),
         content: Text(message ?? 'Terjadi kesalahan saat login.'),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
+            isDefaultAction: true,
             onPressed: () => Navigator.pop(context),
             child: const Text('OK'),
           ),
@@ -303,15 +325,16 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   void _showGoogleNeedLinkDialog(String googleEmail) {
     final cs = Theme.of(context).colorScheme;
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.g_mobiledata_rounded, color: cs.error, size: 28),
+            Icon(CupertinoIcons.antenna_radiowaves_left_right, color: cs.error, size: 28),
             const SizedBox(width: 10),
-            const Expanded(child: Text('Belum Terhubung')),
+            const Text('Belum Terhubung'),
           ],
         ),
         content: Column(
@@ -348,7 +371,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           ],
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
+            isDefaultAction: true,
             onPressed: () => Navigator.pop(context),
             child: const Text('OK'),
           ),
@@ -439,7 +463,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     String? error;
     var sent = false;
 
-    await showDialog(
+    await showCupertinoDialog(
       context: context,
       barrierDismissible: !submitting,
       builder: (dialogContext) => StatefulBuilder(
@@ -468,15 +492,13 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             });
           }
 
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
+          return CupertinoAlertDialog(
             title: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.g_mobiledata_rounded, color: cs.primary, size: 28),
+                Icon(CupertinoIcons.antenna_radiowaves_left_right, color: cs.primary, size: 28),
                 const SizedBox(width: 10),
-                const Expanded(child: Text('Daftar Akun Baru')),
+                const Text('Daftar Akun Baru'),
               ],
             ),
             content: sent
@@ -484,7 +506,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.check_circle_outline_rounded,
+                        CupertinoIcons.check_mark_circled,
                         color: cs.primary,
                         size: 48,
                       ),
@@ -558,7 +580,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                   ),
             actions: sent
                 ? [
-                    TextButton(
+                    CupertinoDialogAction(
+                      isDefaultAction: true,
                       onPressed: () {
                         Navigator.pop(dialogContext);
                         if (mounted) setState(() => _registerMode = false);
@@ -567,21 +590,19 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                     ),
                   ]
                 : [
-                    TextButton(
+                    CupertinoDialogAction(
                       onPressed:
                           submitting ? null : () => Navigator.pop(dialogContext),
                       child: const Text('Batal'),
                     ),
-                    FilledButton(
+                    CupertinoDialogAction(
+                      isDefaultAction: true,
                       onPressed: submitting ? null : submit,
                       child: submitting
                           ? const SizedBox(
                               height: 18,
                               width: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('Kirim Pendaftaran'),
                     ),
@@ -595,13 +616,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   void _showForgotPasswordDialog() {
     final cs = Theme.of(context).colorScheme;
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      barrierDismissible: true,
+      builder: (ctx) => CupertinoAlertDialog(
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.help_outline_rounded, color: cs.primary, size: 26),
+            Icon(CupertinoIcons.question_circle, color: cs.primary, size: 26),
             const SizedBox(width: 10),
             const Text('Lupa Password?'),
           ],
@@ -634,7 +656,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline_rounded, size: 16, color: cs.primary),
+                  Icon(CupertinoIcons.info_circle, size: 16, color: cs.primary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -651,7 +673,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           ],
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
+            isDefaultAction: true,
             onPressed: () => Navigator.pop(ctx),
             child: const Text('Tutup'),
           ),
@@ -703,8 +726,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
     return Scaffold(
       backgroundColor: cs.surfaceContainerLowest,
-      body: SafeArea(
-        child: Center(
+      body: Center(
+       
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
             child: FadeTransition(
@@ -719,7 +742,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       height: 90,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) => Icon(
-                        Icons.school_rounded,
+                        CupertinoIcons.book,
                         size: 80,
                         color: cs.primary,
                       ),
@@ -758,9 +781,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       elevation: 0.5,
                       color: cs.surface,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(24),
                         side: BorderSide(
-                          color: cs.outlineVariant.withValues(alpha: 0.5),
+                          color: cs.tertiary.withValues(alpha: 0.5),
                         ),
                       ),
                       child: Padding(
@@ -778,7 +801,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                       fit: BoxFit.scaleDown,
                                       child: Text('Guru'),
                                     ),
-                                    icon: Icon(Icons.school_outlined, size: 18),
+                                    icon: Icon(CupertinoIcons.book, size: 18),
                                   ),
                                   ButtonSegment(
                                     value: LoginMode.santri,
@@ -786,7 +809,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                       fit: BoxFit.scaleDown,
                                       child: Text('Murid'),
                                     ),
-                                    icon: Icon(Icons.person_outline, size: 18),
+                                    icon: Icon(CupertinoIcons.person, size: 18),
                                   ),
                                   ButtonSegment(
                                     value: LoginMode.orangTua,
@@ -795,7 +818,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                       child: Text('Wali'),
                                     ),
                                     icon: Icon(
-                                      Icons.family_restroom_outlined,
+                                      CupertinoIcons.person_3,
                                       size: 18,
                                     ),
                                   ),
@@ -830,7 +853,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                     LoginMode.orangTua => 'No. HP / Whatsapp',
                                   },
                                   prefixIcon: Icon(
-                                    Icons.person_outline_rounded,
+                                    CupertinoIcons.person,
                                     color: cs.primary,
                                   ),
                                   border: OutlineInputBorder(
@@ -861,14 +884,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                     LoginMode.orangTua => 'Password',
                                   },
                                   prefixIcon: Icon(
-                                    Icons.lock_outline_rounded,
+                                    CupertinoIcons.lock,
                                     color: cs.primary,
                                   ),
                                   suffixIcon: IconButton(
                                     icon: Icon(
                                       _obscurePassword
-                                          ? Icons.visibility_off_outlined
-                                          : Icons.visibility_outlined,
+                                          ? CupertinoIcons.eye_slash
+                                          : CupertinoIcons.eye,
                                       color: cs.onSurfaceVariant,
                                     ),
                                     onPressed: () {
@@ -965,7 +988,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                               ),
                                             )
                                           : Icon(
-                                              Icons.fingerprint_rounded,
+                                              CupertinoIcons.lock,
                                               size: 28,
                                               color: cs.primary,
                                             ),
@@ -1136,24 +1159,28 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    Text(
-                      _packageInfo == null
-                          ? 'E-Presensi MMU A44'
-                          : 'E-Presensi MMU A44 v${_packageInfo!.version}',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
+                    
                   ],
                 ),
               ),
             ),
           ),
         ),
+        bottomNavigationBar: Container(
+        padding: const EdgeInsets.only(bottom: 20.0, top: 10.0),
+        color: Colors.transparent,
+        child: Text(
+          _packageInfo == null
+              ? 'E-Presensi MMU A44'
+              : 'E-Presensi MMU A44 v${_packageInfo!.version}',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 12,
+            color: cs.onSurfaceVariant,
+          ),
+        ),
       ),
+      
     );
   }
 

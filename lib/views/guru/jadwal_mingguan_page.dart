@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/jadwal_mingguan_provider.dart';
+import 'package:flutter/cupertino.dart';
 
 class JadwalMingguanPage extends StatelessWidget {
   const JadwalMingguanPage({super.key});
@@ -111,7 +112,7 @@ class _JadwalMingguanBody extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.person_search_outlined, size: 20, color: colorScheme.primary),
+          Icon(CupertinoIcons.person_badge_plus, size: 20, color: colorScheme.primary),
           const SizedBox(width: 10),
           Expanded(
             child: DropdownButtonHideUnderline(
@@ -314,7 +315,7 @@ class _JadwalMingguanBody extends StatelessWidget {
       alignment: Alignment.center,
       child: Column(
         children: [
-          Icon(Icons.event_busy_outlined,
+          Icon(CupertinoIcons.calendar_badge_minus,
               size: 56, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
           const SizedBox(height: 10),
           Text(
@@ -331,7 +332,7 @@ class _JadwalMingguanBody extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 48),
       child: Column(
         children: [
-          Icon(Icons.cloud_off_outlined,
+          Icon(CupertinoIcons.cloud,
               size: 48, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
           const SizedBox(height: 8),
           Text(message,

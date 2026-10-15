@@ -19,6 +19,7 @@ import 'student_perilaku_page.dart';
 import 'student_prestasi_page.dart';
 import 'student_ujian_page.dart';
 import 'tabungan_murid_page.dart';
+import 'package:flutter/cupertino.dart';
 
 class StudentDashboardPage extends StatefulWidget {
   const StudentDashboardPage({super.key});
@@ -43,7 +44,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
     final auth = context.read<AuthProvider>();
     if (!auth.isStudent || !auth.mustChangePassword) return;
 
-    final changed = await showDialog<bool>(
+    final changed = await showCupertinoDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (_) => const StudentChangePasswordDialog(),
@@ -67,27 +68,21 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
   }
 
   void _processLogout() async {
-    final colorScheme = Theme.of(context).colorScheme;
-    final confirm = await showDialog<bool>(
+    final confirm = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
         title: const Text('Konfirmasi Logout'),
         content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Batal'),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colorScheme.error,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Logout', style: TextStyle(color: colorScheme.onError)),
+            child: const Text('Logout'),
           ),
         ],
       ),
@@ -139,7 +134,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
                 foregroundColor: colorScheme.onSurface,
                 actions: [
                   IconButton(
-                    icon: const Icon(Icons.info_outline),
+                    icon: const Icon(CupertinoIcons.info_circle),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -151,7 +146,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
                     tooltip: 'Tentang Aplikasi',
                   ),
                   IconButton(
-                    icon: const Icon(Icons.logout_rounded),
+                    icon: const Icon(CupertinoIcons.rectangle_arrow_up_right_arrow_down_left),
                     onPressed: _processLogout,
                     tooltip: 'Logout',
                   ),
@@ -224,7 +219,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
                   backgroundImage: hasFoto ? cachedFotoProvider(fotoUrl) : null,
                   onBackgroundImageError: hasFoto ? (_, _) {} : null,
                   child: !hasFoto
-                      ? Icon(Icons.person, color: colorScheme.onPrimary, size: 28)
+                      ? Icon(CupertinoIcons.person, color: colorScheme.onPrimary, size: 28)
                       : null,
                 );
               }),
@@ -339,84 +334,84 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
 
     final items = [
       _MenuItem(
-        icon: Icons.receipt_long_outlined,
+        icon: CupertinoIcons.doc_text,
         title: 'Pembayaran',
         subtitle: 'Iuran & DU',
         color: getVibrantColor(const Color(0xFF007722), const Color(0xFF22C55E)),
         onTap: () => _openPage(const PembayaranMuridPage()),
       ),
       _MenuItem(
-        icon: Icons.wallet_outlined,
+        icon: CupertinoIcons.creditcard,
         title: 'Tabungan',
         subtitle: 'Saldo Mutasi',
         color: getVibrantColor(const Color(0xFF1D4ED8), const Color(0xFF3B82F6)),
         onTap: () => _openPage(const TabunganMuridPage()),
       ),
       _MenuItem(
-        icon: Icons.school_outlined,
+        icon: CupertinoIcons.book,
         title: 'Absensi KBM',
         subtitle: 'Kehadiran',
         color: getVibrantColor(const Color(0xFF4338CA), const Color(0xFF6366F1)),
         onTap: () => _openPage(const AbsensiKbmMuridPage()),
       ),
       _MenuItem(
-        icon: Icons.event_available,
+        icon: CupertinoIcons.calendar_badge_plus,
         title: 'Kegiatan',
         subtitle: 'Istighosah dll',
         color: getVibrantColor(const Color(0xFFD97706), const Color(0xFFF59E0B)),
         onTap: () => _openPage(const AbsensiKegiatanMuridPage()),
       ),
       _MenuItem(
-        icon: Icons.psychology_outlined,
+        icon: CupertinoIcons.lightbulb,
         title: 'Perilaku',
         subtitle: 'Penilaian',
         color: getVibrantColor(const Color(0xFFC026D3), const Color(0xFFE086D3)),
         onTap: () => _openPage(const StudentPerilakuPage()),
       ),
       _MenuItem(
-        icon: Icons.emoji_events_outlined,
+        icon: CupertinoIcons.rosette,
         title: 'Prestasi',
         subtitle: 'Catatan Poin',
         color: getVibrantColor(const Color(0xFFE11D48), const Color(0xFFFB7185)),
         onTap: () => _openPage(const StudentPrestasiPage()),
       ),
       _MenuItem(
-        icon: Icons.schedule_outlined,
+        icon: CupertinoIcons.clock,
         title: 'Jadwal',
         subtitle: 'Mata Pelajaran',
         color: getVibrantColor(const Color(0xFFEA580C), const Color(0xFFF97316)),
         onTap: () => _openPage(const StudentJadwalPage()),
       ),
       _MenuItem(
-        icon: Icons.calendar_month_outlined,
+        icon: CupertinoIcons.calendar,
         title: 'Kalender',
         subtitle: 'Kaldik Hijriah',
         color: getVibrantColor(const Color(0xFF7E22CE), const Color(0xFFA855F7)),
         onTap: () => _openPage(const StudentKalenderPage()),
       ),
       _MenuItem(
-        icon: Icons.assignment_outlined,
+        icon: CupertinoIcons.doc_text,
         title: 'Ujian',
         subtitle: 'CBT Kode Akses',
         color: getVibrantColor(const Color(0xFF0F766E), const Color(0xFF14B8A6)),
         onTap: () => _openPage(const StudentUjianPage()),
       ),
       _MenuItem(
-        icon: Icons.chat_bubble_outline_rounded,
+        icon: CupertinoIcons.chat_bubble,
         title: 'SALURAN WA MMU A44',
         subtitle: 'Info Pesantren',
         color: getVibrantColor(const Color(0xFF128C7E), const Color(0xFF25D366)),
         onTap: () => _launchURL('https://whatsapp.com/channel/0029VbCQjOtCXC3H0T0s7o2a'),
       ),
       _MenuItem(
-        icon: Icons.camera_alt_outlined,
+        icon: CupertinoIcons.camera,
         title: 'Instagram',
         subtitle: '@mmua44warungdowo',
         color: getVibrantColor(const Color(0xFFC13584), const Color(0xFFE1306C)),
         onTap: () => _launchURL('https://www.instagram.com/mmua44warungdowo/'),
       ),
       _MenuItem(
-        icon: Icons.play_circle_outline_rounded,
+        icon: CupertinoIcons.play_circle,
         title: 'MMU A44 TV',
         subtitle: 'Chanel Resmi MMU A44',
         color: getVibrantColor(const Color(0xFFC4302B), const Color(0xFFFF0000)),

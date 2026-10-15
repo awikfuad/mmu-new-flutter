@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/presensi_kegiatan_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import 'package:flutter/cupertino.dart';
 
 class PresensiKegiatanDetailPage extends StatelessWidget {
   final int activityId;
@@ -68,7 +69,7 @@ class _PresensiKegiatanDetailBody extends StatelessWidget {
                     onChanged: (q) => context.read<PresensiKegiatanProvider>().filterSearch(q),
                     decoration: InputDecoration(
                       labelText: 'Cari Nama Santri atau Kelas...',
-                      prefixIcon: Icon(Icons.search, color: colorScheme.onSurface),
+                      prefixIcon: Icon(CupertinoIcons.search, color: colorScheme.onSurface),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),

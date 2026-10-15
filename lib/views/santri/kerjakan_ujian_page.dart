@@ -8,6 +8,8 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../data/models/ujian_models.dart';
 import '../../providers/student_ujian_provider.dart';
 import '../../utils/snackbar_helper.dart';
+import '../../utils/cupertino_sheet.dart';
+import 'package:flutter/cupertino.dart';
 
 class KerjakanUjianPage extends StatefulWidget {
   final int ujianId;
@@ -42,24 +44,23 @@ class _KerjakanUjianPageState extends State<KerjakanUjianPage> {
   }
 
   void _confirmExit() async {
-    final colorScheme = Theme.of(context).colorScheme;
-    final confirm = await showDialog<bool>(
+    final confirm = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
         title: const Text('Keluar dari Ujian?'),
         content: const Text(
           'Jawaban Anda tersimpan otomatis di server.\nAnda bisa melanjutkan kembali lewat menu Ujian.',
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Batal'),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: colorScheme.error),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Keluar', style: TextStyle(color: colorScheme.onError)),
+            child: const Text('Keluar'),
           ),
         ],
       ),
@@ -107,7 +108,7 @@ class _KerjakanUjianPageState extends State<KerjakanUjianPage> {
                     leading: !inExam
                         ? null
                         : IconButton(
-                            icon: const Icon(Icons.logout_rounded),
+                            icon: const Icon(CupertinoIcons.rectangle_arrow_up_right_arrow_down_left),
                             onPressed: _confirmExit,
                             tooltip: 'Keluar',
                           ),
@@ -162,7 +163,7 @@ class _KerjakanUjianPageState extends State<KerjakanUjianPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 56, color: colorScheme.error),
+            Icon(CupertinoIcons.exclamationmark_circle, size: 56, color: colorScheme.error),
             const SizedBox(height: 12),
             Text(
               message,
@@ -337,24 +338,23 @@ class _UjianExamViewState extends State<_UjianExamView> with WidgetsBindingObser
 
   Future<void> _manualSubmit() async {
     if (_submitted || widget.provider.isSubmitting) return;
-    final colorScheme = Theme.of(context).colorScheme;
-    final confirm = await showDialog<bool>(
+    final confirm = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
         title: const Text('Kumpulkan Jawaban?'),
         content: const Text(
           'Pastikan semua jawaban sudah terisi. Jawaban yang sudah dikumpulkan tidak bisa diubah lagi.',
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Batal'),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
+          CupertinoDialogAction(
+            isDefaultAction: true,
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Kumpulkan', style: TextStyle(color: colorScheme.onPrimary)),
+            child: const Text('Kumpulkan'),
           ),
         ],
       ),
@@ -371,11 +371,8 @@ class _UjianExamViewState extends State<_UjianExamView> with WidgetsBindingObser
 
   void _showNavigasiSheet() {
     final colorScheme = Theme.of(context).colorScheme;
-    showModalBottomSheet(
+    showCupertinoBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
@@ -393,7 +390,7 @@ class _UjianExamViewState extends State<_UjianExamView> with WidgetsBindingObser
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close),
+                        icon: const Icon(CupertinoIcons.xmark),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
@@ -527,7 +524,7 @@ class _UjianExamViewState extends State<_UjianExamView> with WidgetsBindingObser
           child: Row(
             children: [
               Icon(
-                _deadline == null ? Icons.timer_off_outlined : Icons.timer_outlined,
+                _deadline == null ? CupertinoIcons.timer : CupertinoIcons.timer,
                 size: 18,
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -546,7 +543,7 @@ class _UjianExamViewState extends State<_UjianExamView> with WidgetsBindingObser
               ),
               const Spacer(),
               ActionChip(
-                avatar: const Icon(Icons.grid_view_rounded, size: 16),
+                avatar: const Icon(CupertinoIcons.square_grid_2x2, size: 16),
                 label: Text('Soal ${_currentIndex + 1}/$total ($terjawab Selesai)'),
                 onPressed: _showNavigasiSheet,
                 visualDensity: VisualDensity.compact,
@@ -600,7 +597,7 @@ class _UjianExamViewState extends State<_UjianExamView> with WidgetsBindingObser
                         );
                       }
                     : null,
-                icon: const Icon(Icons.arrow_back_ios_new, size: 14),
+                icon: const Icon(CupertinoIcons.back, size: 14),
                 label: const Text('Sebelumnya'),
               ),
 
@@ -614,7 +611,7 @@ class _UjianExamViewState extends State<_UjianExamView> with WidgetsBindingObser
                           height: 16,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Icon(Icons.send_outlined, size: 16),
+                      : const Icon(CupertinoIcons.paperplane, size: 16),
                   label: Text(
                     widget.provider.isSubmitting ? 'Mengirim...' : 'Kumpulkan',
                     style: const TextStyle(fontWeight: FontWeight.bold),
@@ -632,7 +629,7 @@ class _UjianExamViewState extends State<_UjianExamView> with WidgetsBindingObser
                     children: [
                       Text('Selanjutnya'),
                       SizedBox(width: 4),
-                      Icon(Icons.arrow_forward_ios, size: 14),
+                      Icon(CupertinoIcons.forward, size: 14),
                     ],
                   ),
                 ),
@@ -805,7 +802,7 @@ class _UjianHasilView extends StatelessWidget {
         shrinkWrap: true,
         padding: const EdgeInsets.all(20),
         children: [
-          Icon(Icons.task_alt, size: 64, color: colorScheme.primary),
+          Icon(CupertinoIcons.checkmark_circle, size: 64, color: colorScheme.primary),
           const SizedBox(height: 12),
           const Text(
             'Ujian Selesai',
@@ -852,7 +849,7 @@ class _UjianHasilView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.edit_note, size: 16, color: colorScheme.onSurfaceVariant),
+                Icon(CupertinoIcons.square_pencil, size: 16, color: colorScheme.onSurfaceVariant),
                 const SizedBox(width: 6),
                 Text(
                   'Mengandung soal esai (dinilai guru)',
@@ -873,7 +870,7 @@ class _UjianHasilView extends StatelessWidget {
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: onSelesai,
-            icon: const Icon(Icons.check_circle_outline),
+            icon: const Icon(CupertinoIcons.check_mark_circled),
             label: const Text('Selesai', style: TextStyle(fontWeight: FontWeight.bold)),
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
           ),
@@ -917,7 +914,7 @@ class _UjianHasilView extends StatelessWidget {
           Row(
             children: [
               Icon(
-                benar ? Icons.check_circle : Icons.cancel,
+                benar ? CupertinoIcons.checkmark_circle : CupertinoIcons.xmark_circle,
                 size: 16,
                 color: benar ? Colors.green : Colors.red,
               ),
